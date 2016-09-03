@@ -1,0 +1,4 @@
+os: Solaris
+version: 9
+
+B = 150 MB/s

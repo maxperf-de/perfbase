@@ -1,0 +1,188 @@
+#!/bin/sh
+qry_args=("" "-f f.size=large" "-f f.size=small")
+pb_rc=( 1 0 0 0 )
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="pset"
+N_TEST=`expr ${#qry_args[@]} + ${#pb_rc[@]}`
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# create parameter sets
+for p in 1 2 4 ; do
+    if ! $PB input --pset-store=pset_$p -d ${TEST_NAME}_inp.xml params_${p}.dat >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not create parameter set $p. See test.log"
+	exit 1
+    fi
+done
+
+# creating parameter sets from the same file has to fail
+# This has changed - because param_sets are no longer treated as a variant of a "run", the
+# hash-check is not performed in this case. 
+#if $PB input --pset-store=dummy -d ${TEST_NAME}_inp.xml params_1.dat >>test.log 2>&1 ; then
+#    echo "#* ERROR in ${TEST_NAME}: creating parameter set should have failed. See test.log"
+#    exit 1
+#fi
+
+# overwriting parameter sets has to succeed for admin_user (fail for input_user)
+if ! $PB input --pset-store=pset_1 -d ${TEST_NAME}_inp.xml params_3.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: updating parameter set should have succeeded. See test.log"
+    exit 1
+fi
+
+#
+# import multiple data sets
+#
+
+# This one should fail due to missing parameters
+CMD="$PB input -d ${TEST_NAME}_inp.xml input_1.dat"
+if $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: data import should have failed. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# Using a parameter set, all data is there
+CMD="$PB input --pset-use=pset_1 -d ${TEST_NAME}_inp.xml input_1.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# command line data overrides parameter set data 
+CMD="$PB input --pset-use=pset_1 -f P_2=tiny -d ${TEST_NAME}_inp.xml input_2.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# parameter set data overrides input file data
+CMD="$PB input --pset-use=pset_1 -d ${TEST_NAME}_inp.xml input_3.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# partial parameter set data combines with input file data
+CMD="$PB input --pset-use=pset_2 -d ${TEST_NAME}_inp.xml input_4.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# using multiple parameter sets (w/o interference)
+CMD="$PB input --pset-use=pset_2,pset_4 -d ${TEST_NAME}_inp.xml input_5.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+# using multiple parameter sets, now w/ interference - the data from the first
+# parameter set is used. Check both directions.
+CMD="$PB input --pset-use=pset_1,pset_4 -d ${TEST_NAME}_inp.xml input_6.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+CMD="$PB input --pset-use=pset_4 --pset-use=pset_1 -d ${TEST_NAME}_inp.xml input_7.dat"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import data. See test.log"
+    echo "   Command was $CMD"
+    exit 1
+fi
+
+t=0
+rc=0
+
+# query data 
+for (( i = 0 ; i < ${#qry_args[@]} ; i++ )) ; do
+    t=`expr $t + 1`
+    echo "  test "$t
+    ARGS="-d ${TEST_NAME}_qry_1.xml ${qry_args[i]}"
+    OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    if ! $PB query $ARGS > $OUT ; then
+	echo "#* ERROR in ${TEST_NAME}: could not perform query command"
+	echo "   $PB query $ARGS"
+	exit 1
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+	    echo "   $PB query $ARGS"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f test_$t.out
+	fi
+    fi
+done
+
+# finally, some info testing to show parameter set content
+for p in 0 1 2 4 ; do
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    $PB info -e ${TEST_NAME}_TEST -p pset_$p > $OUT
+    test_rc=$?
+    if [ $test_rc != ${pb_rc[$i]} ]; then
+	echo "#* ERROR in ${TEST_NAME}: invalid result of info command"
+	exit 1
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+	    echo "   $PB query $ARGS"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f test_$t.out
+	fi
+    fi
+done
+    
+# Occasionally, there seems to be some sort of race condition which hinders the 
+# database to be deleted because the servers thinks it is still busy. Strange.
+sleep 2
+
+# clean up
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log 
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

@@ -1,0 +1,113 @@
+# running on the folowing nodes:
+dino0.ccrl-nece.de
+dino1.ccrl-nece.de
+MPI/PC (IBA): command Version 1.0.4 (14. March 2006): Copyright (c) NEC Corporation 2003-2006
+/opt/NECmpi/bin/mpirun: Creating MPI daemon mpid on local host
+MPI/PC (IBA): daemon  Version 1.0.3 (17. March 2006): Copyright (c) NEC Corporation 1996-2006
+
+Values of significant variables used by MPI/PC (IBA):
+-----------------------------------------------------
+
+  DISPLAY         = 
+  MPICOLLORDER    = OFF
+  MPICOMMINF      = NO
+  MPIPROGINF      = YES
+  MPISUSPEND      = OFF
+  MPIVERSION      = ON
+
+Derived and further values:
+---------------------------
+
+  Wait method              : Busy waiting
+  Global memory            : System V Shared Memory 
+  Inter Node Communication : Infiniband
+
+Multi-node Job limits:
+----------------------
+
+  Interactive jobs      = 0
+
+mpid: Creating 4 processes of '/home/joachim/benchmarks/NPB/bin/nec-intel9-ib/lu.C.8' on local host dino0.ccrl-nece.de
+mpid: Creating 4 processes of '/home/joachim/benchmarks/NPB/bin/nec-intel9-ib/lu.C.8' on slave host dino1.ccrl-nece.de
+/opt/NECmpi/lib/mpi/mpid: Creating 4 processes of '/home/joachim/benchmarks/NPB/bin/nec-intel9-ib/lu.C.8' on local host dino1.ccrl-nece.de
+MPI/PC (IB): library Version 1.0.1 (17. March 2006): Copyright (c) NEC Corporation 1997-2006
+
+
+ NAS Parallel Benchmarks 2.4 -- LU Benchmark
+
+ Size: 162x162x162
+ Iterations: 250
+ Number of processes:     8
+
+ Time step    1
+ Time step   20
+ Time step   40
+ Time step   60
+ Time step   80
+ Time step  100
+ Time step  120
+ Time step  140
+ Time step  160
+ Time step  180
+ Time step  200
+ Time step  220
+ Time step  240
+ Time step  250
+
+ Verification being performed for class C
+ Accuracy setting for epsilon =  0.1000000000000E-07
+ Comparison of RMS-norms of residual
+           1   0.1037669803235E+05 0.1037669803235E+05 0.2980025029529E-14
+           2   0.8922124588010E+03 0.8922124588010E+03 0.6243641851679E-14
+           3   0.2562388145827E+04 0.2562388145827E+04 0.6211454461710E-14
+           4   0.2191943438578E+04 0.2191943438578E+04 0.1659704690852E-14
+           5   0.1780780572611E+05 0.1780780572611E+05 0.7150193584016E-14
+ Comparison of RMS-norms of solution error
+           1   0.2159863997170E+03 0.2159863997169E+03 0.6711103953074E-14
+           2   0.1557895592399E+02 0.1557895592399E+02 0.4218845176692E-14
+           3   0.5413188630772E+02 0.5413188630772E+02 0.5381717533462E-14
+           4   0.4822626431540E+02 0.4822626431540E+02 0.2062693107553E-14
+           5   0.4559029100433E+03 0.4559029100433E+03 0.1371514841635E-14
+ Comparison of surface integral
+               0.6664045535722E+02 0.6664045535722E+02 0.4264933256841E-15
+ Verification Successful
+
+
+ LU Benchmark Completed.
+ Class           =                        C
+ Size            =            162x 162x 162
+ Iterations      =                      250
+ Time in seconds =                   592.27
+ Total processes =                        8
+ Compiled procs  =                        8
+ Mop/s total     =                  3442.69
+ Mop/s/process   =                   430.34
+ Operation type  =           floating point
+ Verification    =               SUCCESSFUL
+ Version         =                      2.4
+ Compile date    =              31 Mar 2006
+
+ Compile options:
+    MPIF77       = ifort
+    FLINK        = ${MPIF77}
+    FMPI_LIB     = -L/opt/TOPSPIN/lib64 -lvapi -lmosal -L/opt/...
+    FMPI_INC     = -I/opt/NECmpi/include
+    FFLAGS       = -O3 -xW
+    FLINKFLAGS   = (none)
+    RAND         = (none)
+
+
+ Please send the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+ 
+ If email is not available, send this to:
+
+ MS T27A-1
+ NASA Ames Research Center
+ Moffett Field, CA  94035-1000
+
+ Fax: 650-604-3957
+
+

@@ -1,0 +1,31 @@
+#!/bin/sh
+LOGFILE=test.log
+ERRFILE=test.err
+
+if [ -z "$PB" ] ; then
+    export PB=@INSTALL_PATH@/perfbase
+fi
+
+echo "Running perfbase test suite, please wait..."
+make testing > $LOGFILE
+if [ ! -r $LOGFILE ] ; then
+	echo "*** Testing failed - no logfile $LOGFILE!"
+	exit 1
+fi
+
+cat $LOGFILE | grep ERROR > $ERRFILE
+n_err=`cat $ERRFILE | wc -l`
+if [ $n_err -gt "0" ] ; then
+	echo "*** Testing returned $n_err errors:"
+	cat $ERRFILE
+	echo "    For all errors, check $LOGFILE for more information."
+	rc=1
+else
+	echo "*** No errors reported."
+	rm -f $LOGFILE
+	rc=0
+fi
+
+rm -f $ERRFILE
+
+exit $rc

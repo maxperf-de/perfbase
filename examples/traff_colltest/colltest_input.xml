@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>colltest_DEMO</experiment>
+  
+  <!-- *** -->
+  <!-- *** parameters which occur once per run -->
+  <!-- *** -->
+  <named_location>
+    <name>S_locmem</name>
+    <match>LOCAL MEM block=</match>
+  </named_location>
+
+  <named_location>
+    <name>N_proc</name>
+    <match>size=</match>
+  </named_location>
+
+  <!-- *** -->
+  <!-- *** parameters and results which change during the run -->
+  <!-- *** -->
+  <named_location>
+    <name>operation</name>
+    <trigger>
+      <match>====</match>
+      <skip>-1</skip>
+    </trigger>
+  </named_location>
+
+  <tabular_location columns="8">
+    <match>====</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>L_min</name>
+      <pos>2</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>L_avg</name>
+      <pos>4</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>L_max</name>
+      <pos>6</pos>
+    </tabular_value>
+  </tabular_location>
+</input>

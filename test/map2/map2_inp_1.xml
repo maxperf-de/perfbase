@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>map2_TEST</experiment>
+
+  <named_location>
+    <name>os</name>
+    <match>os:</match>
+  </named_location>
+
+  <named_location>
+    <name>B</name>
+    <match>B =</match>
+  </named_location>
+  
+  <derived_parameter>
+    <name>fs</name>
+
+    <map value="os">
+      <mapping>
+	<content_in >Windows</content_in>
+	<content_out>NTFS</content_out>
+      </mapping>
+      <mapping>
+	<content_in value="os">Linux</content_in>
+	<content_out>ext2</content_out>
+      </mapping>
+      <mapping>
+	<content_in value="os">Solaris</content_in>
+	<content_out>UFS</content_out>
+      </mapping>
+    </map>
+  </derived_parameter>
+</input>

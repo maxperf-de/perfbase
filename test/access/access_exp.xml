@@ -1,0 +1,63 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>access_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test perfbase's access right management.</synopsis>
+    <description>
+      Next to the database for the experiment, a number of test users and groups
+      are created to perform the tests.
+    </description>
+  </info>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>message size</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>MPI library version</synopsis>
+
+    <!-- datatype 'version' would be better, but requries libvnbr to be installed. -->
+    <datatype>string</datatype>
+    <default>1.24</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>Machine type (SX, IA32/Myrinet, ...)</synopsis>
+
+    <datatype>string</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+    <default>SX-6</default>
+  </parameter>
+
+  <result>
+    <name>T_pp</name>
+    <synopsis>message latency (halve roundtrip time)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+</experiment>
+
+

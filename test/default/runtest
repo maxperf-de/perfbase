@@ -1,0 +1,441 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="default"
+unset PB_RUNMODE
+
+count()
+{
+	echo $# ;
+}
+
+N_TEST=60
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+rc=0
+t=0
+
+for exp in float int ; do
+    # '1' has no default value defined. Importing of incomplete input files 
+    # should fail w/o and w/ '-u' switch.
+    if ! $PB setup -d ${TEST_NAME}_exp_${exp}_1.xml >test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+	exit 1
+    fi
+    
+    inp=1
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    # This input file is complete. Input has to succeed.
+    if ! $PB input -d ${TEST_NAME}_inp_1.xml input_${inp}.dat >test_$t.out 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    # Incomplete input files which can not be imported. '-m' is used as a dummy switch
+    # in this case.
+    for inp_switch in -m -u ; do
+	inp=2
+	while [ $inp -lt 4 ] ; do
+	    t=`expr $t + 1`
+	    echo "  test "$t
+
+	    CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_1.xml input_${inp}.dat"
+	    if $CMD >test_$t.out 2>&1; then
+		echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat should have failed. See test_$t.out"
+		rc=`expr $rc + 1`
+	    elif [ -n "$VERIFY" ] ; then
+		if ! diff test_$t.out verify/test_$t.vfy ; then
+		    echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+		    echo "   $CMD"
+		    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+		    rc=`expr $rc + 1`
+		else
+		    rm test_$t.out
+		fi	
+	    else
+		mv test_$t.out verify/test_$t.vfy
+	    fi
+	    inp=`expr $inp + 1`
+	done
+    done
+
+    # Verify that correct data was imported.
+    t=`expr $t + 1`
+    echo "  test "$t
+    CMD="$PB query -d ${TEST_NAME}_qry_1.xml"
+    if ! $CMD >test_$t.out 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: query ${TEST_NAME}_qry_1.xml has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   $CMD"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+
+    # '2' has no default value defined, but NULL content is defined to be valid. 
+    # Importing of incomplete input files should succeed with '-u' switch, but
+    # the related data will not show up in queries as NULL content does not match
+    # anything.
+    # '3' has a default value defined. 
+    # Importing of incomplete input files should succeed with '-u' switch, and
+    # the related data will show up in queries as well.
+    for exp_idx in 2 3 ; do
+    if ! $PB setup -d ${TEST_NAME}_exp_${exp}_${exp_idx}.xml >test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+	exit 1
+    fi
+    
+    inp=1
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    # This input file is complete. Input has to succeed.
+    if ! $PB input -d ${TEST_NAME}_inp_1.xml input_${inp}.dat >test_$t.out 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    # Incomplete input files which can not be imported. '-m' is used as a dummy switch
+    # in this case.
+    for inp_switch in -m -u ; do
+	inp=2
+	while [ $inp -lt 4 ] ; do
+	    t=`expr $t + 1`
+	    echo "  test "$t
+
+	    if [ $inp_switch = "-m" ] ; then
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_1.xml input_${inp}.dat"
+		if $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat should have failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   $CMD"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    else
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_1.xml input_${inp}.dat"
+		if ! $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat has failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   $CMD"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    fi
+	    inp=`expr $inp + 1`
+	done
+    done
+
+    # Verify that correct data was imported.
+    t=`expr $t + 1`
+    echo "  test "$t
+    CMD="$PB query -d ${TEST_NAME}_qry_1.xml"
+    if ! $CMD >test_$t.out 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: query ${TEST_NAME}_qry_1.xml has failed. See test_$t.out"
+	echo "   $CMD"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   $CMD"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	    # XXX debug
+	    exit 1
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+    done
+    
+    #
+    # Now test cases with mixed only-once and multiple values.
+    #
+    if ! $PB setup -d ${TEST_NAME}_exp_${exp}_4.xml >test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+	exit 1
+    fi
+    
+    inp=1
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    # This input file is complete. Input has to succeed.
+    CMD="$PB input -d ${TEST_NAME}_inp_2.xml input_${inp}.dat"
+    if ! $CMD >test_$t.out 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: $CMD has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    # Incomplete input files which can not be imported. '-m' is used as a dummy switch
+    # in this case.
+    for inp_switch in -m -u ; do
+	inp=2
+	while [ $inp -lt 4 ] ; do
+	    t=`expr $t + 1`
+	    echo "  test "$t
+
+	    if [ $inp_switch = "-m" ] ; then
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_2.xml input_${inp}.dat"
+		if $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat should have failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    else
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_2.xml input_${inp}.dat"
+		if ! $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat has failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   $CMD"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    fi
+	    inp=`expr $inp + 1`
+	done
+    done
+
+    # Verify that correct data was imported.
+    t=`expr $t + 1`
+    echo "  test "$t
+    CMD="$PB query -d ${TEST_NAME}_qry_2.xml"
+    if ! $CMD >test_$t.out 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: query ${TEST_NAME}_qry_2.xml has failed. See test_$t.out"
+	echo "   $CMD"
+	rc=`expr $rc + 1`
+	exit 1
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    echo "   $CMD"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+
+    #
+    # Now use multiple input and input-description files
+    #
+    if ! $PB setup -d ${TEST_NAME}_exp_${exp}_4.xml >test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+	exit 1
+    fi
+    
+    inp=1
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    # These input files are complete. Input has to succeed.
+    CMD="$PB input -d ${TEST_NAME}_inp_3a.xml input_${inp}a.dat -d ${TEST_NAME}_inp_3b.xml input_${inp}b.dat"
+    if ! $CMD >test_$t.out 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: $CMD has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    # Incomplete input files which can not be imported. '-m' is used as a dummy switch
+    # in this case.
+    for inp_switch in -m -u ; do
+	inp=2
+	while [ $inp -lt 4 ] ; do
+	    t=`expr $t + 1`
+	    echo "  test "$t
+
+	    if [ $inp_switch = "-m" ] ; then
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_3a.xml input_${inp}a.dat -d ${TEST_NAME}_inp_3b.xml --enforce=input_${inp}b.dat"
+		if $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat should have failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   $CMD"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    else
+		CMD="$PB input $inp_switch -d ${TEST_NAME}_inp_3a.xml input_${inp}a.dat -d ${TEST_NAME}_inp_3b.xml --enforce=input_${inp}b.dat"
+		if ! $CMD >test_$t.out 2>&1; then
+		    echo "#* ERROR in ${TEST_NAME}: import input_${inp}.dat has failed. See test_$t.out"
+		    echo $CMD
+		    rc=`expr $rc + 1`
+		elif [ -n "$VERIFY" ] ; then
+		    if ! diff test_$t.out verify/test_$t.vfy ; then
+			echo "#* ERROR in ${TEST_NAME}, test $t: input was incorrect"
+			echo "   $CMD"
+			echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+			rc=`expr $rc + 1`
+		    else
+			rm test_$t.out
+		    fi	
+		else
+		    mv test_$t.out verify/test_$t.vfy
+		fi
+	    fi
+	    inp=`expr $inp + 1`
+	done
+    done
+
+    # Verify that correct data was imported.
+    t=`expr $t + 1`
+    echo "  test "$t
+    if ! $PB query -d ${TEST_NAME}_qry_2.xml >test_$t.out 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: query ${TEST_NAME}_qry_2.xml has failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+    
+done	
+
+if [ $rc = 0 ] ; then
+    rm test.log
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>sweep_group_TEST</experiment>
+
+  <named_location>
+    <name>bench</name>
+    <match>benchmark:</match>
+  </named_location>
+
+  <tabular_location>
+    <match># threads</match>
+    <skip>1</skip>
+
+    <!-- no <pos> elements means: assign content to values in the order of the columns found. -->
+    <tabular_value>
+      <name>N_threads</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T</name>
+    </tabular_value>
+  </tabular_location>
+
+</input>

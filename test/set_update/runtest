@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="set_update"
+N_TEST=1
+
+data=("1" "2 3" "4")
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+rc=0
+t=1
+for inp_desc in set_update-yes_inp.xml set_update-auto_inp.xml ; do
+    idx=0
+    while [ $idx -lt 3 ] ; do
+        echo "  test "$t
+
+        inp_files=""
+        for d in ${data[$idx]} ; do
+            inp_files=$inp_files" "$(ls input/*_$d.dat)
+        done
+    
+        if ! $PB input -j -d $inp_desc $inp_files >>test.log 2>&1; then
+	    echo "#* ERROR in ${TEST_NAME}: could not import $inp_files. See test.log"
+	    exit 1
+        fi
+
+        if ! $PB query -d ${TEST_NAME}_qry.xml >>test.log 2>&1; then
+	    echo "#* ERROR in ${TEST_NAME}: could not perform query (see test.log)"
+	    echo "   $PB query -d ${TEST_NAME}_qry.xml"
+	    rc=`expr $rc + 1`
+        else
+	    if [ -n "$VERIFY" ] ; then
+                ndiffs=$(diff ${TEST_NAME}.dat verify/test_${t}.vfy | wc -l)
+	        if [ $ndiffs -gt 0 ] ; then
+		    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+		    echo "   (file ${TEST_NAME}_${t}.dat vs. verify/test_${t}.vfy)"
+                    mv ${TEST_NAME}.dat ${TEST_NAME}_${t}.dat
+		    rc=`expr $rc + 1`
+	        else
+		    rm -f ${TEST_NAME}.dat
+	        fi
+	    else	
+	        mv ${TEST_NAME}.dat verify/test_${t}.vfy
+	        rm -f ${TEST_NAME}.dat
+	    fi
+        fi
+
+        $PB delete -e ${TEST_NAME}_TEST -r $t --dontask
+
+        t=$(($t + 1))
+        idx=$(($idx + 1))
+    done
+done
+
+if  [ -z "$PB_RUNMODE" ] ; then 
+    # make sure the database server will be able to delete the database
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log 
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

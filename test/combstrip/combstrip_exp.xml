@@ -1,0 +1,52 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>combstrip_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>IAT GmbH</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for handling of combine and strip operators</synopsis>
+    <description>
+          Combine multiple data vectors, and strip dimensions from a data vector
+    </description>
+  </info>
+
+  <parameter>
+    <name>seq</name>
+    <synopsis>sequence number</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>t_A</name>
+    <synopsis>arrival time A</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>t_B</name>
+    <synopsis>arrival time B</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+</experiment>
+
+

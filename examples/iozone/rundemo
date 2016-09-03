@@ -1,0 +1,29 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -d iozone_exp.xml
+
+echo "* Importing data"
+perfbase input -u -f io=Local -d iozone_auto_inp.xml input/*auto*.dat
+
+echo "* Performing query for write bandwidth"
+perfbase query -d iozone_3d_qry.xml
+
+echo "* Performing query for re-write bandwidth"
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rewr
+
+echo "* Performing query for read bandwidth"
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rd
+
+echo "* Performing query for re-read bandwidth"
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rerd
+
+echo "* Performing query to determine differences between runs"
+perfbase query -d iozone_3d-diff_qry.xml
+
+echo "* Performing queries to determine differences between hosts"
+perfbase query -d iozone_host-comparison_qry.xml
+perfbase query -d iozone_explicit-host-comparison_qry.xml
+
+echo "* Deleting experiment"
+sleep 3
+perfbase delete -e iozone_DEMO --dontask

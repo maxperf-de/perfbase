@@ -1,0 +1,5 @@
+#!/bin/sh
+
+for d in 1 2 3 4; do
+    perfbase input -d runs_inp_desc.xml -p $d"-Dec-2004" data_$d.dat
+done

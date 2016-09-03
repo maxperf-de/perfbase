@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!-- Test a single named <run> selector which uses a 'fixed' element to specify a synopsis  -->
+<!-- range to be included. Only run3 and run4 should be shown. -->
+
+<query id="latency">
+  <experiment>runs_TEST</experiment>
+
+  <fixed id="f.synopsis">
+    <content>synopsis_[3-4]</content>
+  </fixed>
+
+  <run id="r.idx" mask="include">
+    <synopsis>f.synopsis</synopsis>
+  </run>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>r.idx</input>
+  </source>
+
+  <output target="raw_text">
+    <input>src.latency</input>
+  </output>
+</query>
+
+

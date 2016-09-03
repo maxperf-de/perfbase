@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="distrib">
+  <experiment>distrib_TEST</experiment>
+
+  <fixed id="f.s_msg">
+    <content>8</content>
+  </fixed>
+
+  <parameter show="filter" id="p.s_msg">
+    <value>S_msg</value>
+    <filter>
+      <equal>f.s_msg</equal>
+    </filter>
+  </parameter>
+
+  <source id="src.l">
+    <result>l_msg</result>      
+
+    <input>p.s_msg</input>
+  </source>
+
+  <operator id="op" type="distrib" option="samples">
+    <input>src.l</input>
+  </operator>
+
+  <output id="out" target="gnuplot" format="eps" type="steps">
+    <input>op</input>
+
+    <filename>qry_result</filename>
+  </output>
+</query>

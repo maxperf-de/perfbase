@@ -1,0 +1,8 @@
+# Version: 1.0.3 a
+# Algorithm: Dude
+# msg_size	latency [us]
+0		15.0
+1		15.1
+2		15.2
+4		17.4
+8		17.8

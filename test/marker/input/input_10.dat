@@ -1,0 +1,7 @@
+# Testing the skip feature
+
+RESULT_BEGIN
+line1
+line2
+line3
+RESULT_END

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<!-- ============================================================= -->
+<!--                    perfbase search specification             -->
+<!-- ============================================================= -->
+
+<!ELEMENT search       (experiment?,database?,condition+,output?)>
+<!ATTLIST search       name      CDATA   #IMPLIED>
+
+<!ELEMENT experiment   (#PCDATA)>
+
+<!ELEMENT database     (host?,port?,user?,passwd?)>
+<!ELEMENT host         (#PCDATA)>
+<!ELEMENT port         (#PCDATA)>
+<!ELEMENT user         (#PCDATA)>
+<!ELEMENT passwd       (#PCDATA)>
+
+<!ELEMENT condition    (created|modified|description|synopsis|string|value)>
+<!ATTLIST condition    type         (and|or)                    and)
+
+<!ELEMENT created      ((last|period+)?,by?)>
+<!ELEMENT modified     ((last|period+)?,by?)>
+<!ELEMENT last         (period)>
+<!ELEMENT period       (second|minute|hour|day|month|year)+>
+<!ELEMENT from         (date|time)+>
+<!ELEMENT to           (date|time)+>
+<!ELEMENT date         (day|month|year)+>
+<!ELEMENT time         (hour,(minute|second)?)>
+<!ELEMENT by           (user+)>
+
+<!ELEMENT day          (#PCDATA)>
+<!-- valid months are 1..12 or Jan, Feb, Mar, ..., Nov, Dec -->
+<!ELEMENT month        (#PCDATA)>
+<!ELEMENT year         (#PCDATA)>
+<!ELEMENT hour         (#PCDATA)>
+<!ELEMENT minute       (#PCDATA)>
+<!ELEMENT second       (#PCDATA)>
+
+<!ELEMENT value        (name,filter?)>
+<!ATTLIST value        aggregate     (min|max|avg|stddev|first)  first)
+<!ATTLIST value        sort          (up|down|none)              none)
+<!ELEMENT name         (#PCDATA)>
+<!ELEMENT filter       ((all|null|notnull|lesser|lessequal|greater|greaterequal|equal|notequal|bool|contain|match|range)|filter*)>
+<!ATTLIST filter       boolean  (and|or|not)   "and">
+<!ELEMENT all          (#PCDATA)>
+<!ELEMENT null         (#PCDATA)>
+<!ELEMENT notnull      (#PCDATA)>
+<!ELEMENT lesser       (#PCDATA)>
+<!ELEMENT lessequal    (#PCDATA)>
+<!ELEMENT greater      (#PCDATA)>
+<!ELEMENT greaterequal (#PCDATA)>
+<!ELEMENT equal        (#PCDATA)>
+<!ELEMENT notequal     (#PCDATA)>
+<!ELEMENT bool         (#PCDATA)>
+<!ELEMENT contain      (#PCDATA)>
+<!ELEMENT match        (#PCDATA)>
+<!ELEMENT range        (base,variance)>
+<!ELEMENT base         (#PCDATA)>
+<!ELEMENT variance     (#PCDATA)>
+
+<!ELEMENT output       (value+)>
+
+<!ELEMENT description  (#PCDATA)>
+<!ELEMENT synopsis     (#PCDATA)>
+<!ELEMENT string       (#PCDATA)>
+
+<!ELEMENT name         (#PCDATA)>

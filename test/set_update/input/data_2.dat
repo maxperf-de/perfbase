@@ -1,0 +1,6 @@
+#
+# msg_size	direction       gap [us]
+10		in              0.13
+11		in              0.23
+12		out             0.33
+14		out             0.43

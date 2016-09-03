@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>set_update_TEST</experiment>
+
+  <tabular_location>
+    <match>gap [us]</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_msg</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>d</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_gap</name>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location>
+    <match>latency [us]</match>
+    <skip>1</skip>
+
+    <tabular_value update="yes">
+      <name>S_msg</name>
+    </tabular_value>
+
+    <tabular_value update="yes">
+      <name>d</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_pp</name>
+    </tabular_value>
+  </tabular_location>
+
+</input>

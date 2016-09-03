@@ -1,0 +1,9 @@
+# msg_size	latency [us]
+0		3.30
+1		3.31
+2		3.32
+4		3.33
+
+interconnect: Quantum
+buffering: invisible
+

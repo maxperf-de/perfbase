@@ -1,0 +1,7 @@
+# V_net = 100.0Mbit/s  V_net = 1000.0Mbit/s  
+# Bytes|op.sort~p.speed~0[byte]	min(Time)|op.sort~p.speed~0[s]	min(Time)|op.sort~p.speed~1[s]	
+0 	2.0 	1.0 	
+1 	2.1 	1.1 	
+2 	2.2 	1.2 	
+4 	2.4 	1.4 	
+8 	2.8 	1.8 	

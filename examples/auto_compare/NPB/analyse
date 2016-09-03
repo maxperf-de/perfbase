@@ -1,0 +1,116 @@
+#!/bin/sh
+# This script uses a perfbase query to generate plots *only* for cases in which 
+# the performance of two MPI implemenations differs more than a certain threshold.
+
+#
+# user-adjustable parameters
+#
+
+# The reference MPI implementation ("your" MPI)
+MPI_1=A
+# The MPI implementation to be compared with MPI_1
+MPI_2=B
+# This is the threshold (in percent) for the filter: only absolute differences above or 
+# equal N% will be shown. To show all data, set this threshold to 0.
+THRESHOLD=5
+# all available tests are: BT CG EP FT IS LU MG SP
+TESTS="LU FT"
+
+
+#
+# don't change anything below this line
+#
+LB=`expr 100 - $THRESHOLD`
+UB=`expr 100 + $THRESHOLD`
+
+LOG="analysis.log"
+
+# psjoin, psnup might not be available per default on all systems.
+process_ps()
+{
+    t=$1
+    
+    files=`ls NPB_${t}_*.ps 2>/dev/null`
+    if [ -n "$files" ] ; then
+	psjoin NPB_${t}_*.ps >NPB_${t}_ALL.ps 2>/dev/null
+	psnup -l -m2cm -pa4 -Pa4 -nup 2 NPB_${t}_ALL.ps >NPB_${t}_ALL_2on1.ps 2>/dev/null
+    fi
+}
+
+rename_output()
+{
+    t=$1
+
+    for variant in better worse comparison full ; do
+	for suffix in ps dat ; do
+	    if [ -r NPB_${variant}.${suffix} ] ; then
+		mv NPB_${variant}.${suffix} NPB_${t}_${variant}.${suffix}
+	    fi
+	done
+    done
+}
+
+print_summary()
+{
+    prefix=$1
+    op=$2
+    np=$3
+    nn=$4
+    ppn=$5
+
+    n_datapts=`cat ${PREFIX}_full.dat | wc -l`
+    n_datapts=`expr $n_datapts / 2`
+
+    for variant in better worse ; do
+	read -d x cnt avg stddev <${prefix}_${variant}.dat
+	# cut of fractional part
+	if [ $n_datapts -gt 0 ] ; then
+	    if [ $cnt -gt 0 ] ; then
+		frac=`expr $cnt \* 100 / $n_datapts`
+		# strip of decimal places to avoid incorrect "precision"
+		avg=`echo $avg | cut -d . -f 1`
+		stddev=`echo $stddev | cut -d . -f 1`
+		frac=`echo $frac | cut -d . -f 1`
+
+		stats=": avg $avg%, stddev $stddev"
+	    else
+		frac=0
+		stats=""
+	    fi
+	    echo "  [$op:np$np:nn$nn:ppn$ppn] $MPI_1 $variant than $MPI_2 for $frac% ($cnt of $n_datapts)${stats}."
+	    echo "  [$op:np$np:nn$nn:ppn$ppn] $MPI_1 $variant than $MPI_2 for $frac% ($cnt of $n_datapts)${stats}." >>$LOG
+	fi
+    done
+}
+
+# main()
+echo "#* Comparison of NPB results of two MPI implementations:"
+echo "   MPI 1: $MPI_1"
+echo "   MPI 2: $MPI_2"
+echo "   threshold: $THRESHOLD%"
+echo ""
+
+rm -f $LOG *.ps *.dat *.gp
+
+for t in $TESTS; do
+    echo "#* performing query for $t "
+    fixed_args="f.bench=$t,f.lb=$LB,f.ub=$UB,f.threshold=$THRESHOLD,f.mpi_a=$MPI_1,f.mpi_b=$MPI_2"
+    if perfbase query -f $fixed_args -d comparison_qry.xml ; then
+	# print_summary $PREFIX $op $np $nn $ppn
+	# rename_output $t
+	echo ""
+    else
+	echo "ERROR IN QUERY!"
+    fi
+    process_ps $t
+done
+
+# create summaries for better and worse, ranked by number of data points and avg 
+# performance difference.
+# NOT YET AVAILABE
+#cat $LOG | grep 'better than' | grep -v ' 0% ' | sort -k 12 -r -n > better.log
+# no -r for this case!
+#cat $LOG | grep 'worse than' | grep -v ' 0% ' | sort -k 12 -n > worse.log
+
+# Done.
+exit 0

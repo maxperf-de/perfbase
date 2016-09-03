@@ -1,0 +1,8 @@
+# library version: 1.2
+# interconnect: SCI
+#
+# msg_size	latency [us]    gap [us]
+0		2.0             0.12            
+1		2.1             0.22
+2		2.2             0.32
+4		2.3             0.42

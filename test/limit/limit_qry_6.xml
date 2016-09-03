@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="limit query 5">
+  <experiment>limit_TEST</experiment>
+
+  <synopsis>parallize two filters for a logical OR of the two conditions</synopsis>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r1</result>      
+    <result>r2</result>      
+
+    <input>p.p</input>
+  </source>
+
+  <operator id="op1" type="limit" variant="greater" value="30" option="r1">
+    <input label="ignore">src.r</input>
+  </operator>
+
+  <operator id="op2" type="limit" variant="greater" value="0.3" option="r2">
+    <input label="ignore">src.r</input>
+  </operator>
+
+  <combiner id="comb" datasets="append">
+    <input>op1</input>
+    <input>op2</input>
+  </combiner>
+
+  <output id="out">
+    <input>comb</input>
+  </output>
+
+</query>

@@ -1,0 +1,5 @@
+# test for latency in the range of us
+2 processes
+processes 4
+
+latency 3.2 us

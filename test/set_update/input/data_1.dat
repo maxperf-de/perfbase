@@ -1,0 +1,11 @@
+# msg_size	direction       gap [us]
+0		in              0.13
+1		in              0.23
+2		in              0.33
+4		in              0.43
+
+# msg_size	direction       latency [us]
+0		in              1.0
+1		in              1.1
+2		in              2.0
+4		in              2.1

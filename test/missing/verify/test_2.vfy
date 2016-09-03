@@ -1,0 +1,13 @@
+Dataset 0 in run 1
+{'S_msg': '0', 'T_pp': '22.0'}
+Dataset 1 in run 1
+{'S_msg': '1', 'T_pp': '22.1'}
+Dataset 2 in run 1
+{'S_msg': '2', 'T_pp': '22.2'}
+#* ERROR: No content was found, and no default content provided for at least one value.
+   Input file(s): ['input_2.dat']
+   Value names:
+    OS_version
+    MPI_version
+   No data written to database.
+#* ERROR: 'no data could be stored'

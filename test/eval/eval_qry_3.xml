@@ -1,0 +1,67 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="eval">
+  <experiment>eval_TEST</experiment>
+
+  <fixed id="Q">
+    <content>0.01</content>
+  </fixed>
+
+  <parameter id="p.minimal.P">
+    <value>P</value>
+    <filter>
+      <lesser>5</lesser>
+    </filter>
+  </parameter>
+
+  <!-- 'show=data' is required for a "only-once" parameter as by default, only the filter -->
+  <!-- condition will be applied and shown, but no data added to the datasets. For the -->
+  <!-- eval-operator below, however, it is necessary that each dataset also contains the -->
+  <!-- content of the only-once parameter. -->
+  <parameter id="p.T" show="data">
+    <value>T</value>
+    <filter>
+      <greaterequal>10</greaterequal>
+    </filter>
+  </parameter>
+
+  <source id="src.data">
+    <result>R_1</result>
+    <result>R_2</result>
+    
+    <input>p.minimal.P</input>
+    <input>p.T</input>
+  </source>
+
+  <operator id="op.calc" type="eval">
+    <input>src.data</input>
+
+    <!--  x = (P + sqrt(R_1) + R_2 + Q)/T -->
+    <term id="func">
+      <fraction>
+	<dividend>
+          <sum>
+	    <summand><variable name="P">src.data</variable></summand>
+	    <summand><function type="sqrt"><argument><variable name="R_1">src.data</variable></argument></function></summand>
+	    <summand><variable name="R_2">src.data</variable></summand>
+	    <summand><constant>Q</constant></summand>
+	  </sum>
+        </dividend>
+	<divisor><variable name="T">src.data</variable></divisor>
+      </fraction>
+    </term>
+  </operator>
+
+  <combiner id="comb.data">
+    <input>op.calc</input>
+
+    <omit>T</omit>
+  </combiner>
+
+  <output target="raw_text">
+    <input>comb.data</input>
+  </output>
+</query>
+
+

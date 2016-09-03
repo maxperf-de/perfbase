@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latency">
+  <experiment>fixed_TEST</experiment>
+
+  <fixed id="f.scale">
+    <content>2.0</content>
+  </fixed>
+
+  <fixed id="f.version">
+    <content>1.24</content>
+  </fixed>
+
+  <parameter id="p.version" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>f.version</equal>
+    </filter>
+  </parameter>
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.version</input>
+
+    <parameter id="p.msgsize">
+      <value>S_msg</value>
+    </parameter>
+  </source>
+
+  <operator id="op.scale" type="scale" value="f.scale">
+    <input>src.latency</input>
+  </operator>
+
+  <output target="raw_text">
+    <input>src.latency</input>
+    <input>op.scale</input>
+  </output>
+</query>
+
+

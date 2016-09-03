@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<!ELEMENT experiment_update (experiment,info?,database?,access_add?,access_change?,access_revoke?,parameter*,result*,import?,attachment?)>
+
+
+<!ELEMENT info         (performed_by?,project?,synopsis?,description?)>
+<!ELEMENT performed_by (name?,organization?)>
+<!ELEMENT database     (host?,port?,user?,passwd?)>
+
+<!ELEMENT access_add      (admin_access?,input_access?,query_access?) >
+<!ELEMENT access_change   (admin_access?,input_access?,query_access?) >
+<!ELEMENT access_revoke   (group|user)+                               >
+
+<!ELEMENT admin_access   (group|user)+                                >
+<!ELEMENT input_access   (group|user)+                                >
+<!ELEMENT query_access   (group|user)+                                >
+
+<!ELEMENT parameter    (name,new_name?,synopsis?,description?,datatype?,unit?,valid*,default?)>
+<!ATTLIST parameter     action (auto|replace|drop) "auto"
+                        is_numeric  (yes|no) "no"
+                        occurrence  (once|multiple) "multiple">
+
+<!ELEMENT result       (name,new_name?,synopsis?,description?,datatype?,unit?,default?)>
+<!ATTLIST result        action (auto|replace|drop) "auto"
+                        is_numeric  (yes|no) "no"
+                        occurrence  (once|multiple) "multiple">
+
+<!ELEMENT unit         (fraction|product|(base_unit,scaling?))>
+<!ELEMENT fraction     (dividend,divisor)>
+<!ELEMENT dividend     (fraction|product|(base_unit,scaling?))>
+<!ELEMENT divisor      (fraction|product|(base_unit,scaling?))>
+<!ELEMENT product      (factor+)>
+<!ELEMENT factor       (fraction|product|(base_unit,scaling?))>
+
+<!-- Valid 'datatype's are integer,float,string,text,date,timeofday,duration,timestamp,binary,boolean,version -->
+<!ELEMENT datatype     (#PCDATA)>
+<!ATTLIST datatype     size  (2|4|8)  "4">
+<!-- Valid 'base_unit's are $ and % are none,%,byte,bit,flop,op,process,event,s,m,g,A,K,mol,cd,Y,$,EUR -->
+<!ELEMENT base_unit    (#PCDATA)>
+<!-- Valid 'scaling' factors are Kilo,Mega,Giga,Tera,Peta,milli,micro,nano,pico,femto,Ki,Mi,Gi,Ti,Pi -->
+<!ELEMENT scaling      (#PCDATA)>
+
+<!ELEMENT valid        (#PCDATA)>
+<!ELEMENT default      (#PCDATA)>
+<!ELEMENT experiment   (#PCDATA)>
+<!ELEMENT name         (#PCDATA)>
+<!ELEMENT new_name     (#PCDATA)>
+<!ELEMENT organization (#PCDATA)>
+<!ELEMENT project      (#PCDATA)>
+<!ELEMENT host         (#PCDATA)>
+<!ELEMENT port         (#PCDATA)>
+<!ELEMENT user         (#PCDATA)>
+<!ELEMENT group        (#PCDATA)>
+<!ELEMENT passwd       (#PCDATA)>
+<!ELEMENT synopsis     (#PCDATA)>
+<!ELEMENT description  (#PCDATA)>
+<!ELEMENT import       (#PCDATA)>
+<!ELEMENT attachment   (#PCDATA)>

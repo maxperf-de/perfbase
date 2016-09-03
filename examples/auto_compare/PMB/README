@@ -1,0 +1,87 @@
+
+This directory contains the auto-comparison framework for the "Pallas MPI Benchmark"
+(PMB, now available from Intel as IMB). 
+auto-pmb_exp.xml: experiment description. For clarity, it does not contain any
+                  machine/platform-describing parameter values which you normally 
+                  would include. Add them as necessary.
+
+auto-pmb_input.xml: input description that parses the output of the PMB benchmark.
+
+comparison-*_qry.xml: compare the PMB performance of two software/hardware 
+                      platforms. Creates plots and stores the same data in 
+                      text files. Different (but similar) scripts for collective 
+                      operations, point-to-point communication and barrier 
+	              synchronization.
+analyse:      shell script that performs the analysis
+SGE:          containes a batch file for job submission on a SunGridengine-based
+              cluster and some mpirun-wrapper scripts for NEC's MPI, Open-MPI and
+              the Topspin MPI (which is MVAPICH).
+
+[ Set up the experiment. ]
+perfbase setup -d auto-pmb_exp.xml
+
+[ Import the data. This example provides results for three different MPI implementations.
+  The test have been executed on a 16-node, dual-socket dual-core Opteron cluster with 
+  Infiniband interconnect.. The test job had 64 processes. ]
+perfbase input -d auto-pmb_input.xml input/*.out
+
+[ Run the analysis. This will perform a large number of queries, with brief information
+  on the results printed to the console. 
+  At the top of this script, you can set parameters for the analysis, namely the names
+  of the two MPI implementations to be compared, the threshold to filter out measuring
+  noise, and the topology of the run. 
+
+  To determine all MPI vendors for which data is available, do
+  perfbase ls --distinct --show=MPI_vendor --exp=PMB_auto_DEMO
+]
+./analyse
+
+[ Look at the graphical results which are stored as postscript documents. Here,
+  we use 'gv' to display them. Four types of result summaries are provided for each
+  type of operation 'OP' tested (Barrier, Alltoall, Sendrecv, ...):
+  OP_better_ALL.ps: shows the relative performance of MPI implementation 1 vs 2 for
+                    the test points the performance of of 1 was better than the 
+                    performance of 2 for more than the specified threshold. For each
+                    number of processes, a separate page is shown.
+  OP_worse_AlL.ps:  Same as above, but shows where 1 is worse than 2.
+  OP_comparison_ALL.ps: Shows the relative performance of 1 vs. 2 for all test points 
+                        where the performance difference exceed the threshold. This 
+                        gives a very nice overview. The scale for the performance 
+                        differences goes from -100% (less is not possible!) to +200%.
+                        It is of course possible to have differences above +200%, but
+                        the scale is limited here to make the comparison of different
+                        plots more intuitive.
+  OP_full_ALL.ps:   The classical bandwidth/latency charts that show the absolute 
+                    performance of both MPI implementations in a single plot.                         
+  Thus, to see the results of the broadcast operation, do:
+   ]
+gv Bcast_comparison_ALL.ps
+gv Bcast_full_ALL.ps
+
+[ The same data is also available as text files (.dat suffix) and in spearate postscript
+  documents, which have the topology encoded in the filename:
+  Bcast_np032_nn16_ppn004_better.dat list the data for Bcast for 32 processes for a job
+  executed on 16 nodes with 4 processes per node. ]
+cat Bcast_np032_nn16_ppn004_better.dat
+
+[ Finally, 'analyse.log' gives a textual analysis which can be conveniently be used with 
+  'grep' to check for specific results. Each sub-test (operation on a specific topology)
+   is documented on two lines that look like this example:
+
+   [Exchange:np32:nn16:ppn4] A better than C for 54% (13 of 24): avg 159%, stddev 45.
+   [Exchange:np32:nn16:ppn4] A worse than C for 4% (1 of 24): avg 89%, stddev .
+
+   The first line prints the data for tests in which implemation 1 is better than 2, the 
+   second line summarizes the cases in which 1 is worse than 2.
+   Each line first lists the operation and topology, than gives the percentage of chunk
+   sizes within this sub-test for which the better/worse statement applies. Finally, the
+   average of the relative differences and its standard deviation is shown.
+
+   In the example above, MPI implemenation 1 is named 'A' and implementation 2 is named 'C'.
+   A is better than C for the Exchange point-to-point communication pattern for 13 of the 24 
+   tested datasizes. The performance advantages was on average 159% (which means the bandwidth
+   was 1.59 times higher *if* it exceeded the threshold.) Similar for the second line: A 
+   reached 89% of C's bandwidth for a single chunk size (for a single data point, the 
+   standard deviation can not be calculated). For 10 chunk sizes, the performance differences
+   are within the defined threshold. ]
+

@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="multiple_reverse">
+  <experiment>sweep_group_TEST</experiment>
+
+  <synopsis>Same as qry_3, but limit "confusion" in output by using only a single sweep.</synopsis>
+
+  <description>Limited to 1 and 2 threads to simplify the query. Still not what we really want!</description>
+
+  <parameter id="p.bench" show="data">
+    <value>bench</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.threads_1" show="filter">
+    <value>N_threads</value>
+    <filter>
+      <equal>1</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.threads_2" show="filter">
+    <value>N_threads</value>
+    <filter>
+      <equal>2</equal>
+    </filter>
+  </parameter>
+
+  <source id="src.T_1">
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.threads_1</input>
+  </source>
+
+  <source id="src.T_2">
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.threads_2</input>
+  </source>
+
+  <operator id="op.min_1" type="min">
+    <input>src.T_1</input>
+  </operator>
+
+  <operator id="op.min_2" type="min">
+    <input>src.T_2</input>
+  </operator>
+
+  <!-- Create a single chart with all data in it by setting 'sweep_resolve="intern"' below (which is 
+  default for <output> elements). -->
+  <output target="gnuplot" format="ps" type="bars">
+    <input label="parameter">op.min_1</input>
+    <input label="parameter">op.min_2</input>
+
+    <option>yrange [0:]</option>
+    <filename>sweep_group_5</filename>
+  </output>
+
+  <output>
+    <input>op.min_1</input>
+    <input>op.min_2</input>
+  </output>
+
+</query>
+
+

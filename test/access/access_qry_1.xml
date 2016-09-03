@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!--  -->     
+
+<query id="latency">
+  <experiment>access_TEST</experiment>
+
+  <parameter id="p.version" show="filter">
+    <value>MPI_version</value>
+
+    <filter>
+      <greater>1.23</greater>
+    </filter>
+  </parameter>
+
+  <parameter id="p.platform" show="filter">
+    <value>machine</value>
+
+    <filter>
+      <equal>SX-6</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency"> 
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version</input>
+    <input>p.platform</input>
+  </source>
+
+  <!-- Create a single chart. -->
+  <output target="gnuplot" format="eps" type="graphs" style="points">
+    <input>src.latency</input>
+
+    <option>yrange [0:]</option>
+    <filename>latency</filename>
+  </output>
+
+</query>

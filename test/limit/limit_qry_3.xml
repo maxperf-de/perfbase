@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="limit query 3">
+  <experiment>limit_TEST</experiment>
+
+  <synopsis>invalid query (missing value attribute) that has to fail</synopsis>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r1</result>      
+    <result>r2</result>      
+
+    <input>p.p</input>
+  </source>
+
+  <operator id="op" type="limit" variant="greater">
+    <input>src.r</input>
+  </operator>
+
+  <output id="out">
+    <input>op</input>
+  </output>
+
+</query>

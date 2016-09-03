@@ -1,0 +1,619 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../../src/perfbase/dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>iozone_DEMO</name>
+  
+  <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>iozone Benchmark</project>
+    <synopsis>
+      Results of the iozone benchmark on different platforms.
+    </synopsis>
+    <description>
+      Gather results of the iozone benchmark using parameter sets to
+      describe the individual testing platform. The input for the 
+      parameter sets is gathered via a script.
+    </description>
+  </info>
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+
+  <parameter occurrence="once">
+    <name>fs</name>
+    <synopsis>file system</synopsis>
+    <datatype>string</datatype>
+
+    <valid>GFS</valid>
+    <valid>SFS</valid>
+    <valid>NFSv3</valid>
+    <valid>ext3</valid>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>io</name>
+    <synopsis>i/o system</synopsis>
+    <datatype>string</datatype>
+
+    <valid>FibreChannel</valid>
+    <valid>Ethernet</valid>
+    <valid>Memory</valid>
+    <valid>Local</valid>
+
+    <default></default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>mode</name>
+    <synopsis>test mode</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>OS</name>
+    <synopsis>operating system</synopsis>
+
+    <datatype>string</datatype>
+    <default>unknown</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>OS_version</name>
+    <synopsis>OS version</synopsis>
+
+    <datatype>string</datatype>
+    <default>unknown</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>host</name>
+    <synopsis>hostname of the test system</synopsis>
+
+    <datatype>string</datatype>
+    <default>unknown</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>iozone_version</name>
+    <synopsis>benchmark version</synopsis>
+
+    <datatype>string</datatype>
+    <!-- should be "version" instead, but this datatype needs to be installed in the
+         database server which does not always work automatically (depending on the
+         access rights of the user). -->
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>iozone_args</name>
+    <synopsis>command line arguments</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>date_run</name>
+    <synopsis>date of benchmark execution</synopsis>
+
+    <datatype>date</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>path</name>
+    <synopsis>file</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+ 
+  <parameter occurrence="once">
+    <name>N_nodes</name>
+    <synopsis>number of nodes</synopsis>
+    <description>Number of nodes on which the test was run (-1 means 'unknown')</description>
+    
+    <datatype>integer</datatype>
+    <default>1</default>
+  </parameter>
+
+  <!-- iozone runtime parameters -->
+  <parameter occurrence="once">
+    <name>S_stride</name>
+    <synopsis>stride size</synopsis>
+    <description>stride factor for non-contig read test (option -j)</description>
+
+    <datatype>integer</datatype>
+    <default></default>
+  </parameter>
+
+  <parameter occurrence="multiple">
+    <name>S_file</name>
+    <synopsis>file size</synopsis>
+    <description>file size for this test (option -s)</description>
+
+    <datatype size="8">integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Ki</scaling>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="multiple">
+    <name>S_record</name>
+    <synopsis>record size</synopsis>
+    <description>record size for this test</description>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Ki</scaling>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_tp</name>
+    <synopsis>throughput processes</synopsis>
+    <description>number of processes for throughput test (option -t)</description>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+    <default></default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>lock_file</name>
+    <synopsis>file locking</synopsis>
+    <description>lock files when reading or writing (option -W)</description>
+
+    <datatype>boolean</datatype>
+    <default>false</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>lock_record</name>
+    <synopsis>record locking</synopsis>
+    <description>lock each record when reading or writing (option -+l)</description>
+
+    <datatype>boolean</datatype>
+    <default>false</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>inc_close</name>
+    <synopsis>include close</synopsis>
+    <description>include close operation in timing (option -c)</description>
+
+    <datatype>boolean</datatype>
+    <default>false</default>
+  </parameter>
+
+  <parameter occurrence="multiple">
+    <name>acc</name>
+    <synopsis>access</synopsis>
+    <description>type of file access operation</description>
+
+    <datatype>string</datatype>
+    <valid>write</valid>
+    <valid>rewrite</valid>
+    <valid>read</valid>
+    <valid>reread</valid>
+    <valid>random_read</valid>
+    <valid>random_write</valid>
+    <valid>bkwd_read</valid>
+    <valid>record_rewrite</valid>
+    <valid>stride_read</valid>
+    <valid>fwrite</valid>
+    <valid>frewrite</valid>
+    <valid>fread</valid>
+    <valid>freread</valid>
+
+    <default></default>
+  </parameter>
+
+
+  <!-- *** -->
+  <!-- *** results -->
+  <!-- *** -->
+  <result occurrence="multiple">
+    <name>B_wr</name>
+    <synopsis>write bw</synopsis>
+    <description>file access bandwidth for write() operation, creating a new file</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rewr</name>
+    <synopsis>rewrite bw</synopsis>
+    <description>file access bandwidth for write() operation, writing into existing data </description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rd</name>
+    <synopsis>read bw</synopsis>
+    <description>file access bandwidth for read() operation, on initial access </description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rerd</name>
+    <synopsis>reread bw</synopsis>
+    <description>file access bandwidth for read() operation, on repeated access </description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rndrd</name>
+    <synopsis>random read bw</synopsis>
+    <description>file access bandwidth for random read() operation</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rndwr</name>
+    <synopsis>random write bw</synopsis>
+    <description>file access bandwidth for random write() operation</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_bkwrd</name>
+    <synopsis>backward read bw</synopsis>
+    <description>file access bandwidth for backward read() operation</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_rrewr</name>
+    <synopsis>record rewrite bw</synopsis>
+    <description>file access bandwidth for record write() operation, into existing data</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_strdrd</name>
+    <synopsis>strided read bw</synopsis>
+    <description>file access bandwidth for strided read() operations</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_fwr</name>
+    <synopsis>fwrite bw</synopsis>
+    <description>file access bandwidth for fwrite() operations, creating new file</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_frewr</name>
+    <synopsis>frewrite bw</synopsis>
+    <description>file access bandwidth for fwrite() operations, into existing data</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_frd</name>
+    <synopsis>fread bw</synopsis>
+    <description>file access bandwidth for fread() operations, for initial access</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>B_frerd</name>
+    <synopsis>freread bw</synopsis>
+    <description>file access bandwidth for fread() operations, repeated access</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_prnt</name>
+    <synopsis>parent througput</synopsis>
+    <description>throughput as seen by parent process</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_chld</name>
+    <synopsis>child througput</synopsis>
+    <description>throughput as seen by child processes</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_min</name>
+    <synopsis>min througput</synopsis>
+    <description>minimal throughput of all process</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_max</name>
+    <synopsis>max througput</synopsis>
+    <description>maximal throughput of all process</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_avg</name>
+    <synopsis>avg througput</synopsis>
+    <description>average throughput of all process</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Ki</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+
+    <default></default>
+  </result>
+
+  <result occurrence="multiple">
+    <name>T_xmin</name>
+    <synopsis>min xfer</synopsis>
+    <description>minimal transfer of all process</description>
+    
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Ki</scaling>
+    </unit>
+
+    <default></default>
+  </result>
+
+</experiment>
+
+

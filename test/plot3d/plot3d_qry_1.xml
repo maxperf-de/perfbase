@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="plot3d query 1">
+  <experiment>plot3d_TEST</experiment>
+
+  <synopsis>
+    3D-plot with N_proc as x and S_msg as y. Because data is sorted by N_proc 
+    over the input files, we don't need a sort operator here.
+  </synopsis>
+
+  <parameter id="p.np" show="data">
+    <value>N_proc</value>
+  </parameter>
+
+  <parameter id="p.s_msg" show="data">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.l">
+    <result>l_msg</result>      
+
+    <input>p.np</input>
+    <input>p.s_msg</input>
+  </source>
+
+  <output id="out" target="gnuplot" format="ps" dimensions="3">
+    <input>src.l</input>
+
+    <filename>test_1</filename>
+  </output>
+
+</query>

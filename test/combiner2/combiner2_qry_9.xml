@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="two-param_intern_merge">
+  <experiment>combiner2_TEST</experiment>
+  <description>
+    Sweep over two parameters, and resolve internally with merged output.
+    Sweep combination is "match", but this does not matter here because
+    of internal resolvement.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value alias="Bytes">S_msg</value>
+  </parameter>    
+
+  <parameter id="p.speed">
+    <value>V_net</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.api">
+    <value>API</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.latency">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>p.speed</input>
+    <input>p.api</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <combiner id="comb.min" datasets="merge">
+    <input sweep_resolve="intern" sweep_combine="match">op.sort</input>
+  </combiner>
+
+  <output>
+    <input>comb.min</input>
+  </output>
+  
+</query>
+
+

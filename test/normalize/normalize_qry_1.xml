@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_query.dtd">
+
+<query name="test_1">
+  <experiment>normalize_TEST</experiment>
+  <synopsis>basic relative scaling</synopsis>
+
+  <description> 
+    normalize result value to 1
+  </description>  
+  
+  <!-- parameter -->
+  <parameter id="p:t">
+    <value>t</value>
+  </parameter>
+  
+  <!-- source -->
+  <source id="src:s">
+    <result>s</result>
+
+    <input>p:t</input>
+  </source>  
+  
+  <!-- operators -->
+  <operator type="normalize" variant="scale" option="float" id="op:norm_scale">
+    <input>src:s</input>
+  </operator>
+
+  <!-- output -->
+  <output>
+    <input>op:norm_scale</input>
+
+    <filename>normalize_1</filename>
+  </output>
+
+</query>

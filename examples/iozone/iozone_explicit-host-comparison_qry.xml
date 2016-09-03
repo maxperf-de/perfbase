@@ -1,0 +1,99 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE query SYSTEM "../../../src/perfbase/dtd/pb_query.dtd">
+
+<query>
+  <experiment>iozone_DEMO</experiment>
+
+  <fixed id="f.metric">
+    <content>B_wr</content>
+  </fixed>
+
+
+  <!--            -->
+  <!-- parameters -->
+  <!--            -->
+  <parameter id="p.mode" show="nothing">
+    <value>mode</value>
+    <filter>
+      <equal>auto</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.fs" show="filter">
+    <value>fs</value>
+    <filter>
+      <equal>ext3</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_file" show="nothing" unit="yes">
+    <value>S_file</value>
+    <filter>
+      <equal>131072</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_record" show="data">
+    <value>S_record</value>
+  </parameter>
+
+  <!--            -->
+  <!-- source     -->
+  <!--            -->
+  <source id="src.b">
+    <result>f.metric</result>
+
+    <input>p.s_record</input>
+
+    <input>p.s_file</input>
+    <input>p.fs</input>
+    <input>p.mode</input>
+  </source>
+
+  <!--               -->
+  <!-- operators     -->
+  <!--               -->
+  <operator type="min" id="op.minmax">
+    <input>src.b</input>
+  </operator>
+
+  <operator type="sort" id="op.sort">
+    <input>op.minmax</input>
+  </operator>
+
+  <operator type="scale" id="op.scale" value="1/Ki">
+    <input label="ignore">op.sort</input>
+  </operator>
+
+  <!-- The "runindex" operator adds for each element the index of the run 
+  in which it is stored. This index can than be used by the "param" operator
+  to add the content of a parameter value from this run. 
+
+  However, determining the run-index for a specific element is not possible if 
+  the element does not stem from an actual run, but was created by perfbase 
+  during the query. Example: when the "avg" operator calculates an average, the
+  calculated average value can not be related to any run index! You can try this
+  by using the "avg" operator instead of the "min" operator above. -->
+  <operator id="op.ridx" type="runindex">
+    <input>op.scale</input>
+  </operator>
+
+  <operator id="op.param_host" type="param" value="host">
+    <input>op.ridx</input>
+  </operator>
+
+  <!-- We want to see both, the hostname *and* the bandwidth that was achieved
+  on this host. -->
+  <combiner id="comb">
+    <input>op.scale</input>
+    <input>op.param_host</input>
+  </combiner>
+
+  <!--                               -->
+  <!-- simple ASCII table output     -->
+  <!--                               -->
+  <output>
+    <input>comb</input>
+  </output>
+</query>
+

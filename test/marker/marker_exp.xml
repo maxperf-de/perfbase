@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>marker_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test marker attribute of match in named_location.</synopsis>
+    <description> 
+      Using the marker attribute, it is possible to import one or more lines
+      after a matching string, and before another matching string.  Raw text
+      is imported into a vlaue of type "string" or "text".
+    </description>
+  </info>
+
+  <result occurence="once">
+    <name>string</name>
+    <datatype>string</datatype>
+
+    <synopsis>result string</synopsis>
+    <default>null</default>
+  </result>
+  
+  <result>
+    <name>int</name>
+    <datatype>integer</datatype>
+
+    <synopsis>result integer</synopsis>
+    <default></default>
+  </result>
+  
+  <result>
+    <name>text</name>
+    <datatype>text</datatype>
+
+    <synopsis>result text</synopsis>
+    <default></default>
+  </result>
+  
+</experiment>
+
+

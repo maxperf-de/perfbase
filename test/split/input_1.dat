@@ -1,0 +1,6 @@
+# very simple trace file with time stamps
+enter func1 (0.00)
+enter func2 (0.21)
+leave func2 (0.45)
+leave func1 (0.47)
+

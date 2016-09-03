@@ -1,0 +1,9 @@
+
+interconnect: IXS
+buffering: none
+
+# msg_size	latency [us]
+0		1.0
+1		1.1
+2		1.2
+4		1.3

@@ -1,0 +1,89 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="missing"
+unset PB_RUNMODE
+
+input_args=("-t -u" "-t --missing=abort" "-t --missing=ignore" "-t -a ask" "-t -f MPI_version=1.25")
+stdin_file=("empty.dat" "empty.dat" "empty.dat" "stdin_3.dat" "empty.dat")
+input_file=("input_1.dat" "input_2.dat" "input_3.dat" "input_4.dat" "input_4.dat" )
+pb_rc=( 0 1 0 0 0 )
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running ${#input_args[@]} tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# import data
+# test 1: 
+#   - MPI_version is found
+#   - missing value for OS_version has a default value which is to be used
+# test 2:
+#   - MPI_version is not found -> abort
+# test 3:
+#   - MPI_version is not found -> ignore 
+# test 4:
+#   - MPI_version is not found -> ask
+# test 5:
+#   - MPI_version is not found, but set via command line
+rc=0
+for (( i = 0 ; i < ${#input_args[@]} ; i++ )) ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+    INPUT_ARGS="-d ${TEST_NAME}_inp.xml ${input_args[$i]} ${input_file[$i]}"
+    INPUT_OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    $PB input $INPUT_ARGS <${stdin_file[$i]} > $INPUT_OUT 2>&1
+    test_rc=$?
+    if [ $test_rc != ${pb_rc[$i]} ]; then
+	echo "#* ERROR in ${TEST_NAME}: could not import ${input_file[$i]}. "
+	echo "   $PB input $INPUT_ARGS <${stdin_file[$i]}"
+	echo "   (see file $INPUT_OUT)"
+	rc=`expr $rc + 1`
+	exit 1
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}: import $t processed wrong data "
+	    echo "   $PB input $INPUT_ARGS <${stdin_file[$i]}"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f $INPUT_OUT
+	fi
+    fi
+done
+
+# Could do some queries to verify that the data was imported correctly, but the dry-run output
+# is enough for now.
+# ...
+
+# clean up
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log *.err
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

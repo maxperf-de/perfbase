@@ -1,0 +1,6 @@
+# multiple begin markers - should match first one
+
+RESULT_BEGIN
+OTHER_BEGIN line1
+line2
+line3RESULT_END

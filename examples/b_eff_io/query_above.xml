@@ -1,0 +1,181 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="listless.stddev">
+  <experiment>b_eff_io_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.op_write" show="filter" style="content">
+    <value>operation</value>
+    <filter>
+      <equal>write</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.op_rewrite" show="filter" style="content">
+    <value>operation</value>
+    <filter>
+      <equal>rewrite</equal>
+    </filter>
+  </parameter>
+  
+  <parameter id="p.op_read" show="filter" style="content">
+    <value>operation</value>
+    <filter>
+      <equal>read</equal>
+    </filter>
+  </parameter>
+  
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+  
+  <parameter id="p.n_proc" show="filter" unit="no">
+    <value>N_proc</value>
+    <filter>
+      <equal>4</equal>
+    </filter>
+  </parameter>    
+  
+  <parameter id="p.listless" show="nothing">
+    <value>noncontig</value>
+    <filter>
+      <equal>listless</equal>
+    </filter>
+  </parameter>
+  
+  <parameter id="p.listbased" show="nothing">
+    <value>noncontig</value>
+    <filter>
+      <equal>listbased</equal>
+    </filter>
+  </parameter>
+  
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.listless_write">
+    <result>B_scatter</result>
+    
+    <input>p.op_write</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased_write">
+    <result>B_scatter</result>
+    
+    <input>p.op_write</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listbased</input>
+  </source>
+
+  <source id="src.listless_rewrite">
+    <result>B_scatter</result>
+    
+    <input>p.op_rewrite</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased_rewrite">
+    <result>B_scatter</result>
+    
+    <input>p.op_rewrite</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listbased</input>
+  </source>
+
+  <source id="src.listless_read">
+    <result>B_scatter</result>
+    
+    <input>p.op_read</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased_read">
+    <result>B_scatter</result>
+    
+    <input>p.op_read</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listbased</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.max.listless.write" type="max">
+    <input>src.listless_write</input>
+  </operator>
+
+  <operator id="op.max.listbased.write" type="max">
+    <input>src.listbased_write</input>
+  </operator>
+
+  <operator id="op.above.listless.write" type="above">
+    <input>op.max.listless.write</input>
+    <input>op.max.listbased.write</input>
+  </operator>
+
+  <operator id="op.max.listless.rewrite" type="max">
+    <input>src.listless_rewrite</input>
+  </operator>
+
+  <operator id="op.max.listbased.rewrite" type="max">
+    <input>src.listbased_rewrite</input>
+  </operator>
+
+  <operator id="op.above.listless.rewrite" type="above">
+    <input>op.max.listless.rewrite</input>
+    <input>op.max.listbased.rewrite</input>
+  </operator>
+
+  <operator id="op.max.listless.read" type="max">
+    <input>src.listless_read</input>
+  </operator>
+
+  <operator id="op.max.listbased.read" type="max">
+    <input>src.listbased_read</input>
+  </operator>
+
+  <operator id="op.above.listless.read" type="above">
+    <input>op.max.listless.read</input>
+    <input>op.max.listbased.read</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output - for the demo, we additionally plot to the screen -->
+  <!-- *** Note how the "filterstring" attribute is used to display legend information -->  
+  <!-- *** which is identical for all graphs not in the label of each graph, but in the -->  
+  <!-- *** title. A very useful feature! -->  
+  <!-- *** -->
+  <output title="Performance Differences of Non-contiguous File Access with MPI-IO" 
+    target="gnuplot" format="screen" type="bars">
+    <input label="title">op.above.listless.write</input>
+    <input label="title">op.above.listless.rewrite</input>
+    <input label="title">op.above.listless.read</input>
+
+    <option>-persist</option>
+    <option>grid ytics</option>
+  </output>
+
+  <output title="Performance Differences of Non-contigous File Access with MPI-IO" 
+    target="gnuplot" format="ps" type="bars" fontsize="large">
+    <input label="title">op.above.listless.write</input>
+    <input label="title">op.above.listless.rewrite</input>
+    <input label="title">op.above.listless.read</input>
+
+    <filename>listless_vs_listbased</filename>
+    <option>grid ytics</option>
+  </output>
+
+</query>

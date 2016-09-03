@@ -1,0 +1,7 @@
+# benchmark: crunch
+#
+# threads	wall clock time [s]
+1		6
+2		3.4
+4		2.1
+8               1.7

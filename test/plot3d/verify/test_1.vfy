@@ -1,0 +1,28 @@
+set terminal postscript enhanced color "Helvetica" 12
+set output 'test_1.ps'
+set xtics (2,3,4,5,6)
+set xlabel "# processes [process]"
+set ytics (1,2,3,4,5,6,7,8)
+set ylabel "message size [byte]"
+set zlabel "message latency [us]"
+splot '-' using 1:2:3 title 'l_{msg}'  with linespoints lw 2 ps 2
+2 1 1.0 
+2 2 2.0 
+2 4 4.0 
+2 8 8.0 
+
+3 1 1.5 
+3 2 3.0 
+3 4 6.0 
+3 8 12.0 
+
+4 1 2.0 
+4 2 4.0 
+4 4 8.0 
+4 8 16.0 
+
+6 1 3.0 
+6 2 6.0 
+6 4 12.0 
+6 8 24.0 
+e

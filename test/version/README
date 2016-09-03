@@ -1,0 +1,6 @@
+
+This test uses the SQL dataype "version_nbr", which is not a standard
+datatype with PostgreSQL. Instead, it is a user-defined datatype 
+provided by perfbase. To make this test pass, you need to build
+the according library and install it in PostgreSQL's default library 
+directory (see pgsql/version_datatype). 

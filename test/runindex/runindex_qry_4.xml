@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>runindex_TEST</experiment>
+  <description>
+    Determine the protocol version which delivers the minimal latency.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.ridx" type="runindex">
+    <input>op.min</input>
+  </operator>
+
+  <operator id="op.param" type="param" value="v_prot">
+    <input>op.ridx</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.param</input>
+  </operator>
+
+  <output>
+    <input>op.sort</input>
+  </output>
+  
+</query>
+
+

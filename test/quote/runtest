@@ -1,0 +1,142 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="quote"
+N_TEST=5
+
+# make sure we run in normal, not in debug mode!
+unset PB_RUNMODE
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+
+rm -f *.out *.log
+
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+rc=0
+t=1
+# Test 1
+echo "  test "$t
+if $PB input -d ${TEST_NAME}_inp.xml -s "low values" input_1.dat >test_$t.out 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import succeeded, but should have failed. See test_$t.out"
+    rc=`expr $rc + 1`
+elif [ -z "$VERIFY" ] ; then
+    mv test_$t.out verify/test_$t.vfy
+else
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: wrong output of input command"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+fi
+
+t=`expr $t + 1`
+# Test 2
+echo "  test "$t
+if $PB input -d ${TEST_NAME}_inp.xml --synopsis=low values input_1.dat >test_$t.out 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import succeeded, but should have failed. See test_$t.out"
+    rc=`expr $rc + 1`
+elif [ -z "$VERIFY" ] ; then
+    mv test_$t.out verify/test_$t.vfy
+else
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: wrong output of input command"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+fi
+
+t=`expr $t + 1`
+# Test 3
+echo "  test "$t
+if $PB input -d ${TEST_NAME}_inp.xml --synopsis=\"low values input_1.dat >test_$t.out 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import succeeded, but should have failed. See test_$t.out"
+    rc=`expr $rc + 1`
+elif [ -z "$VERIFY" ] ; then
+    mv test_$t.out verify/test_$t.vfy
+else
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: wrong output of input command"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+fi
+
+t=`expr $t + 1`
+# Test 4
+echo "  test "$t
+if $PB input -s "low values" -d ${TEST_NAME}_inp.xml input_1.dat >test_$t.out 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import succeeded, but should have failed. See test_$t.out"
+    rc=`expr $rc + 1`
+elif [ -z "$VERIFY" ] ; then
+    mv test_$t.out verify/test_$t.vfy
+else
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: wrong output of input command"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+fi
+
+# no tests, but import operations that should succeed
+if ! $PB input -d ${TEST_NAME}_inp.xml --synopsis=\"low values\" input_1.dat >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import 1 failed. See test.log"
+    exit 1
+fi
+if ! $PB input -d ${TEST_NAME}_inp.xml -s '"the high values"' input_2.dat >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import 2 failed. See test.log"
+    exit 1
+fi
+
+
+t=`expr $t + 1`
+echo "  test "$t
+if ! $PB query -d quote_qry_1.xml >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform query (see test.log)"
+    echo "   $PB query -d quote_qry_1.xml"
+    exit 1
+fi
+if [ -n "$VERIFY" ] ; then
+    mv qry_result.dat test_$t.out
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+else
+    mv qry_result.dat verify/test_$t.vfy
+fi    
+
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm test.log
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

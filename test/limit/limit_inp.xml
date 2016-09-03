@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>limit_TEST</experiment>
+  
+  <tabular_location>
+    <match># p</match>
+    <skip>1</skip>
+    
+    <tabular_value>
+      <name>p</name>
+      <pos>0</pos>
+    </tabular_value>
+    
+    <tabular_value>
+      <name>r1</name>
+      <pos>1</pos>
+    </tabular_value>
+    
+    <tabular_value>
+      <name>r2</name>
+      <pos>2</pos>
+    </tabular_value>
+
+  </tabular_location>
+</input>

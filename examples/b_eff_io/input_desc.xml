@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>b_eff_io_DEMO</experiment>
+  
+  <!-- *** -->
+  <!-- *** parameters from the filename (constant per experiment) -->
+  <!-- *** -->
+  <filename_location len="3">
+    <name>fs</name>
+    <match match="fuzzy">fs-</match>
+  </filename_location>
+
+  <filename_location>
+    <name>noncontig</name>
+  </filename_location>
+
+  <!-- *** -->
+  <!-- *** parameters from the .sum file (constant per experiment) -->
+  <!-- *** -->
+  <named_location>
+    <name>MT</name>
+    <match>, MT=</match>
+  </named_location>
+
+  <named_location>
+    <name>MB</name>
+    <match>MEMORY_PER_PROCESSOR = </match>
+  </named_location>
+
+  <named_location>
+    <name>T</name>
+    <match> T=</match>
+  </named_location>
+
+  <named_location>
+    <name>OS_version</name>
+    <match>OS release  :</match>
+  </named_location>
+
+  <named_location>
+    <name>machine</name>
+    <match>hostname    :</match>
+  </named_location>
+
+  <named_location>
+    <name>path</name>
+    <match terminator=",">PATH=</match>
+    <ws>,</ws>
+  </named_location>  
+
+  <named_location len="0">
+    <name>date_run</name>
+    <match>of measurement:</match>
+  </named_location>
+
+  <!-- *** -->
+  <!-- *** b_eff occurs once per experiment -->
+  <!-- *** -->
+  <named_location>
+    <name>B_eff</name>
+    <match>b_eff_io of these measurements =</match>
+  </named_location>
+
+  <!-- *** -->
+  <!-- *** parameters & results from the table(s) -->
+  <!-- *** We need to specify multiple tables due to the irregular row at the end of each sub-table. -->
+  <!-- *** -->
+  <tabular_location columns="10" rows="8">
+      <match>of PEs     size (l) methode scatter  shared  separate segmened seg-coll</match>
+      <skip>4</skip>
+    <tabular_value>
+      <name>N_proc</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>operation</name>
+      <pos>4</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_scatter</name>
+      <pos>5</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_shared</name>
+      <pos>6</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sep</name>
+      <pos>7</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmt</name>
+      <pos>8</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmtcoll</name>
+      <pos>9</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="10" rows="8">
+      <match>total-write</match>
+      <skip>2</skip>
+    <tabular_value>
+      <name>N_proc</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>operation</name>
+      <pos>4</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_scatter</name>
+      <pos>5</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_shared</name>
+      <pos>6</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sep</name>
+      <pos>7</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmt</name>
+      <pos>8</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmtcoll</name>
+      <pos>9</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="10" rows="8">
+      <match>total-rewrite</match>
+      <skip>2</skip>
+    <tabular_value>
+      <name>N_proc</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>operation</name>
+      <pos>4</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_scatter</name>
+      <pos>5</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_shared</name>
+      <pos>6</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sep</name>
+      <pos>7</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmt</name>
+      <pos>8</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_sgmtcoll</name>
+      <pos>9</pos>
+    </tabular_value>
+  </tabular_location>
+</input>
+

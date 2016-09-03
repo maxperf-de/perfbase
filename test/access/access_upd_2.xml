@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Change privilege of user to only perform query operations -->
+<experiment_update>
+  <name>access_TEST</name>
+
+  <access_change>    
+    <query_access>
+      <user>pb_input_usr_1_</user>
+    </query_access>
+  </access_change>
+
+</experiment_update>

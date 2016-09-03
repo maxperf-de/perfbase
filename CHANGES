@@ -1,0 +1,434 @@
+This file lists the changes between releases in reverse chronological order.
+
+Marking of items denotes category of change (may be combined):
++ added feature or component
+x bug fix
+~ changed behaviour
+# break of XML backward compatibility
+- other changes
+
+Following the marking is the affected command(s) or file(s), then the actual 
+change description.
+
+RELEASE 1.0.1 (?, ? ? ?)
+x query: avoid '/' characters from filenames being created with 'unify="filter"' attribute
++ query: microsecond units are properly printed with gnuplot (greek symbol)
+x check: fix invalid use of 'autocommit' for database vacuum
+x update: fix exception when appending <valid> values to a parameter
+
+RELEASE 1.0.0 (Fri, April 9th 2010)
++ input: implemented <match> element for <tabular_values> 
++ input: if neither a <match> nor a <pos> element is specified for a <tabular_values>,
+  then it will parse the next data element (to the right) relative to the previous
+  <tabular_value>. Useful for tables with a variable layout.
+x query: using a query that is stored in the database now works
+~ query: parameter contents of blind sweeps is now sorted (in ascending order)
+x attach: missing experiment name handled properly 
++ check: database index counters are fixed (sometimes necessary for datatabases that
+  have been dumped & restored)
+x query: a query element would store it's data only once, even if different storage
+  targets are requested through the structure of the query. This could result in "empty"
+  query results i.e. in conjunction with the "sort" operator.
++ query: improved handling options for multiple data streams created by one or 
+  more <sweeps> result in better output (plots). See test/sweep_group/README.
+x query: "sweep_resolve=extern" for <output> objects did not work correctly (created only
+  a single output element instead of N)
+- perfbase: line counting is more reliable now (contributed by Patrick Ohly)
++ query: the sort operator now accepts an arbitrary number of keys for sorting 
+  like 'value="x,y,z"' (contributed by Patrick Ohly)
+x input: set_separation now also works with <regexp> matching (contributed by Patrick Ohly)
+~ query: always specify 'using ..:..' to gnuplot which is needed to plot timevalues
+  (contributed by Patrick Ohly)
++ query: support the creation of OpenDocument spreadsheets. This works in a smart way 
+  for various combinations of filters, parameter values and result values, but not 
+  for all possible queries. For details, see test/opendoc.
+x setup: <..._access> elements in experiment description now work as expected
++ check: checking for and removing stray runs with "check -f" command
++ query: new attribute "style=value" for <parameter> makes only the value name appear
+  in the filter string. Useful in combinatin with "alias=..." for <value>.
++ query: quantile operator now supports float numbers in "value" attribute - necessary to
+  determine the 99.9% percentile. Before, the "value" attribute was interpreted as
+  integer.
++ query: distribution plots (histograms) now show the probabilty in real 
+  percentage values ("80%" instead of "0.8")
++ input: improve data import flexibility by supporting updates of value sets within a run
+  (see test/set_update)
++ query: add new 'showstyle="toogle"' attribute for boolean parameters (toggles visibility
+  of value name)
+x query: properly support zero result with count operator
++ query: 'option' attribute for count operator allows to chose between "float" and "integer"
+  result datatype
++ query: combiner element supports the conversion of a result vector into a paramter vector
+  (see test/combstrip)
++ query: added new operator type 'frequency' which calculates the frequency at which data points
+  show up (see test/frequency)
++ query: added new operator type 'normalize' which scales/offsets a vector based on its first
+  element (see test/normalize)
++ query: support individual plot types and styles for the <input>s of a single <output> element
+  via attributes 'style' and 'type' for each <input> element
+- general: adapted to psycopg2 - no need to install the outdated version 1 any longer
+- general: test suite updated, and some minor issues fixed, passes for Python 2.6 and PostgreSQL 8.4
+- general: 'python' subdirectory removed as its content is no longer relevant
+
+RELEASE 0.9.5 (Wed, 13th September 2006)
++ query: the query description can now be read from stdin like: 
+ 'create_query | perfbase query -d -'
+x query: index error for gnuplot output when data from different <source>s with 
+  different numbers of filter strings (for the label) are plotted into a single 
+  chart
++ input: it is now possible to assign content to a parameter A based on the content
+  of parameter B (see example in test/map2)
+# input: 'mode="set"' is depreciated now (warning is given); use 'store_set="yes"'
+  instead. Reason: 'set' is not mutually exclusive with the other possible values
+  for this attribute.
+x query: aggregation (i.e. max) for an empty vector that was generated by another 
+  operator (not a source) caused an invalid SQL clause.
++ query: filter string/text data by regular expressions using the <regexp> filter
+# update: experiment name needs to be specified via <experiment>, not via <name> (for
+  consistency with other description formats)
+~ query: for a parameter filter "IS NULL" and style="content", nothing is shown for the
+  label (before, "P = NULL"  was printed)
+x query: label generation fixed for data input with a different number of label sub-strings
+  (sub-strings could disappear before)
++ added perfbase_manual.pdf to the distribution (generated from perfbase_docbook.xml)
++ added binary version of the SQL version number library
+x input: definition of empty strings as <valid> strings caused error in input
+x query: boolean values with occurence=multiple would cause SQL exception in certain cases
+~ version datatype: Makefile is generate by configure script now; this should fill in the
+  correct pathes
+x restore: strip pathname from automatically determined experiment name 
++ info: option --xml dumps content of attached XML files
+x attach: fixed typo in help & fixed bug for verbose listing of attachments w/o description
++ query: operators 'median' and 'quantile' now support the attribute 'variant': 'lower' 
+  (default) gives the boundary for the lower X% of the values, while 'upper' gives the
+  boundary for the upper X%.
++ input: data can now be scaled on import using the attibute "scale". Useful to convert
+  between differet units in the experiment and input file. Implemented for 
+  <named_location> and <tabular_value>
+x improved exception handling
+x query: fixed SQL construction for 'contain' and 'match' <filter> expressions
+~ input: increased robustness for parsing corrupted input files
+x query: catch the case of a "blind <sweep>" that fails if no data is available for this 
+  parameter
++ query: reduction operators can now be used with "run" scope (attribute "scope" set to "run)
+  which will perform the reduction for each run, instead of doing a global reduction
+  on all runs (with parameter-set matching). See test/scope.
+x testsuite: added workaround for "false failed alerts" in testsuite which are caused by differing 
+  data orders of different PostgreSQL versions (do a second diff with sorted output files).
+  With this workaround, no errors should be reported in the testsuite no matter which version 
+  of PostgreSQL is used.
+x find: added missing parentheses to avoid that false matches are delivered
+
+RELEASE 0.9.1 (Fri, 30th June 2006)
+x setup: installation of version datatype was broken due to invalid return value 
+  specification
+x restore: experiments which used custom SQL datatypes ('version_nbr') failed to restore
+  correctly.
+x update: adding/changing multiple users/groups in an update description failed (only 
+  the first entry was evaluated)
+- query: removed duplicate creation of tics for gnuplot output
+- further worked on the documentation (XML docbook)
+
+RELEASE 0.9.0 (Wed, 24th May 2006)
+~ query: improved the generation of parameter filter labels for operators which have 
+  two or more <input>s: only labels that *every* input provides are passed up. This 
+  avoids irritating information of parameter filters.
+~ query: the unified output filenames (attribute 'unify="filter"' for 'filename' element)
+  now appends the filter strings in a strict order. This makes it easier to differentiate
+  the filenames.
++ query: setting the attribute 'unify' to 'fixed' in the 'filename' element will 
+  replace all '(id)' within the specified filename with the content of 'fixed'
+  elements with this id. (also see new feature below)
++ query: most strings, including attribute content, can now be customized on run-time of the
+  query via "macros". A macro looks like '(id)' (an id string within parentheses). If the
+  id string is the id of a <fixed> object, the macro will be replaced with the content
+  of the <fixed> object. See the queries in examples/auto_compare/PMB.
+- added new example auto_compare, which contains two sub-examples for (semi-)automatic
+  performance comparison: PMB (Pallas MPI Benchmark, aka IMB), and NPB (NAS Parallel 
+  Benchmarks). A preprint of a poster abstract concerning this technique has been added
+  as doc/preprint_europvmmpi2006.pdf
+- added new example for processing 'iozone' benchmark output
+- query: performance optimization by having query object that provide data to N other
+  objects store this (read-only) data only in *one* table (read by all N other objects)
+  instead of storing the same data in N different tables.
+x query: completed support of attribute 'label' for input objects in operators
+~ input: if no content could be found for a value, or if no input definiton was found
+  for a value, the valid content is now also printed (if applicable)
++ undelete: finally, deleted runs can now be un-deleted using this command.
++ check: the new option --index=... allows to create an additional index in the run 
+  data table for arbitrary values with multiple occurenc This can significantly speed 
+  up queries which filter for this value.
++ delete: parameters sets can now be deleted
++ query: the attribute "unit" with values "on" or "off" controls the display of 
+  the unit (see below). Default is "on".
+~ query: the unit of a parameter value used as a filter is now also displayed in 
+  the output
++ query: "style" attribute now supports the values "on_off" and "yes_no". They can
+  be used to print filters for boolean parameters in a more intuive way. I.e., 
+  using "on_off" for a parameter value name "prefetch" will show "prefetch off"
+  or "prefetch on" in the output, depending on the boolean filter condition.
+~ query: a <series> object can now also be placed outside a <source> object to be
+  referenced via <input>
+x find: wrong SQL query was created if only filtering by the synopsis
+x check: option '--all' was disfunctional (plus some other minor changes)
+~ info: when printing all run indexes (option '--inventory'), this list is sorted now.
++ all commands now support the option '--sqltrace' which will print all SQL command
+  string sent to the database server
++ query: added operator type 'round' to round floating point data. The attrbute
+  'value' is used to specify the number of decimal places.
+~ the internal database format was changed: all data for the runs which is of 
+  type "occurrence=multiple" is now stored in a single table. This speeds up
+  some functionality sigificantly, esp. with a large number of runs. Before, 
+  a new table was created for every run, and each table required a separate
+  query in some cases. This didn't scale very well.
+  The database format version has been bumped to '5'. A 'perfbase check -u' will
+  transform existing databases into the new format without loosing any data.
+  NOTE: Because the new database format requires different SQL query statements,
+  it is possible that the order of the data returned by a query does change 
+  (i.e. is reversed). This can be fixed from within the query either by the 
+  attributes 'order' and 'key' of the <source> object, or via a 'sort' operator
+  (the first being faster, the latter being more powerful). However, the changed
+  order does not matter if data is plotted, only for text or table ouptut.
++ input: a named_location may now have the attribute 'mode="abort"' which will 
+  abort an input operation when matched. Useful for automatic import of different
+  data files into the same experiment.
++ input: until now, all files to be imported have been read into memory completely
+  for this operation. Now, arbitrarily sized files can be imported due to the
+  introduction of a (simple) cached-access technique. For very large files, the
+  input performance is at about 600 lines/s on a single Pentium4 2GHz.
+x find: exception caused by using wrong case for names of values to be printed.
+x find: exception caused when no "show" or "value" parameter was provided
++ query: two new ways to print parameter filters (attribute 'style')
+# query (parameter): content 'value' of attribute 'style' changed to 'content' to 
+  make naming consistent.  
+# query (combiner): attribute name 'exclude' changed to 'omit' to avoid confusion
+  with 'input'
+# query: the attribute 'sweep_combine' is now an attribute of <combiner> and
+  <operator>, not of <input> any more.
++ query: redesigned parsing of query description. Now, it is also possible to 
+  use a <combiner> as input for an <operator>. Next to this, broken inter-element
+  references within unreferenced objects do no longer cause an error.
++ query: the attributes "sweep_resolve" and "sweep_combine" now also work for 
+  <input> elements within <operators>, which allows for simpler query design when 
+  using <sweeps> (see test/sweep/sweep_qry_5.xml).
+~ examples/mpptest: updated the query for better gnuplot output
++ query: new operators "limit" and "abslimt" allow to filter data streams for 
+  thresholds. Useful to i.e. show only deviations larger than a specified noise
+  level. See test/limit.
+x query: adapted some SQL expressions to PostgreSQL versions >= 8.1 (it is no
+  longer valid to use "SELECT table.column"; instead, it is necessary to use
+  "SELECT column FROM table", or "SELECT table.column FROM table". Whyever...
+x query (gnuplot output): only those data streams from <input> elements which 
+  actually provide data will be plotted. Avoids potential confusion (i.e. for labels).
++ query (gnuplot output): creating 3-dimensional plots with gnuplot is now supported.
+  See test/plot3d and examples/PMB for examples.
++ query: new attribute 'axislabel' allow to specify, well, the label that will be 
+  printed on an axis of a parameter/result (see examples/PMB/pmb_query_3d.xml)
++ input: multi-line text import improved: next to the 'lines' attribute which allows
+  import of a fixed (known) number of lines, the new 'marker' attribute for the 
+  <match> element allows to import text between a "begin" and "end" marker. See
+  test/marker for examples. (Thanks to Andrew Friedley <afriedle@open-mpi.org>)
++ query (xml output): XML was added as a new output format. See test/xml. 
+  (Thanks to Andrew Friedley <afriedle@open-mpi.org>)
+x query: resolving "open parameters" (<parameter> elements with no <filter> or 
+  <sweep> elements) now works as it should. For an example, see test/xml.
+x input/query: properly escaping of '-character in strings which are used to build
+  SQL statements (see test/marker and test/input) 
+x find: version numbers in find conditions get properly quoted now
++ check: when fixing a database, check will now also look for inconsistently added 
+  values and will ask to remove them. This may occur if an update operation has been
+  interrupted (it can not be performed all in one transaction).
++ info: option --value=<v> allows to print information on a specific parameter or 
+  result value. <v> is a regular expression to match the name of the value; thus, to
+  display all values, provide an empty <v> ("--value="). The switch -v controls the
+  verbosity of the output.
+
+RELEASE 0.8.0 (Thu, 2nd Feb 2006)
++ input, attach: if a single dash (´-´) is given as synopsis or description, the
+  respective command will read the real text from stdin. Example:
+  perfbase input -s - -d input.xml data.txt
++ find: implemented this command. For now, XML parsing is not yet implemented, but
+  most functionality can also be accessed via the command line arguments.
+x check: updating the database version now works also when multiple version numbers
+  have to be covered (i.e. from 2 to 4). Data was never corrupted!
++ query: new operator types 'slice' has been introduced. It allows to select 
+  a subset of runs from all runs matching the parameter filters of a query. An 
+  example is the case where multiple runs have been stored with the same contents 
+  of all parameter values. However, you know that want to see only data from, say,
+  the latest of these runs in a query. It would be possible to specify this run 
+  explicitely by its run index of timestamp. However, you'd have to change the 
+  query after adding another run which you want to see. The 'slice' allows to
+  select i.e. the last one of the chronologically sorted data of all runs. See
+  test/slice for some example applications.
++ query: new operator types 'oldest' and 'latest' are convenience operators for
+  special applications of the 'slice' operator.
++ query: new attribute 'chronology' for <source> element determines how the runs
+  that fit the parameters are sorted: either by the creation timestamp ("created"),
+  which is the default, or by the timestamp when the run was performed ("performed").
++ query: new operators 'runindex' and 'param'. 'runindex' delivers the index of the 
+  run from which a data element of a result vector was taken. Thus, it transforms
+  a result vector with any kind of data into a vector of run indices. The 'param'
+  operator in turn transforms a vector of run indices into the content of any
+  only-once parameter of the according run. Together, these two operators allow
+  for very convenient optimization as it is easily possible to determine which 
+  setting of a parameter gives the desired (max. or min.) results. See test/runindex
+  for a sample application.
++ perfbase now provides a new scalar SQL data type 'version_nbr' to handle software
+  versions correctly. To install the new data type, go to pgsql/version_datatype and
+  follow the instructions in README. A testcase is provided in test/version.
+~ update: The new update command replaces the somewhat strange "setup -u" way to modify
+  an existing enviroment.
++ query: combiner objects do now accept an arbitrary number of input objects (instead
+  of only 2); added related test in test/combiner
++ query: attribute 'alias' can now be used for result and parameter elements to specify
+  a different name to be used for output (test/combiner also tests for this). Thanks to
+  Jesper L. Träff for this suggestion.
++ input: it is now possible to use an arbitrary number of parameter sets with the
+  pset-use option. Priority of parameters which are defined in more than one parameter
+  set is that the first definition (in the order of the parameter sets on the command 
+  line) is used. Thanks to Pavel Shamis for this suggestion.
++ input: the new attribute 'lines' for a named location does allow to store one or
+  more lines of text as content for a value. See test/lines for more info. Thanks to 
+  Andrew Friedly for this suggestion.
+x query: fixed a problem with the runindex operator which could provide the wrong
+  runindex if different datasets had some identical content for a value.
+- added README.DOCUMENTATION and removed old & imcomplete Word .doc files
+# setup: fixed typo with 'occurrence' attribute ('rr' instead of 'r'). However, for
+  backward compatibility, the old-style 'occurence' is still understood. Thanks to 
+  Sam Lang for pointing this out.
+
+RELEASE 0.7.8a (Thu, 15th Dec 2005)
++ info: show attached XML input and query descriptions in verbose mode
+x query: boolean relations in <filter> expressions now work correctly. I.e.
+    <filter boolean="or">
+      <equal>100</equal>
+      <greater>1000</greater>
+    </filter>
+   will atually match if value==100 or value>1000. Also, the filter description
+   strings are now build correctly. Also see test/filter.
+~ query: new strategy when formatting strings for gnuplot's enhanced font rendering
+  considerig the "meta chars" '_' for subscript and '^' for superscript:
+  - if a word contains a single "meta char", the affected substring will be
+    put in parenthesis (as usual). Example: 'S_msg' -> 'S_{msg}'
+  - if a word contains a multiple "meta chars", they will be escaped as gnuplot
+    can not handle such a case, and because this is usually not what the user
+    wanted anyway. Example: 'MPI_File_write' -> 'MPI\_File\_write'
+x pb_query.dtd: multiple conditions within a single filter are allowed.
+
+RELEASE 0.7.8 (Tue, 13th Dec 2005)
+~ info: Improved readability of 'info' output for content of only-once 
+  parameters and results and for the names of the input files
+~ info: Option '-v' is no longer used with 'info -r' command to specify how much 
+  information on a run is printed. 
++ info: New option '--data' for 'info' command allows to specify which data (if 
+  any) should be shown of a run.
++ input: If an input description for one or more values is missing, each of these
+  values is now printed on a separated line together with its default content
+  (if any). This improves readability and makes it easier to decide if it is 
+  safe to use default content for these values.
++ input, query: multiple instances of the '-f'/'--fixed=' options can now be joined
+  as comma-separated lists, like: '-f a=1 -f b=2 ' into '-f a=1,b=2'
+x input: empty input files are now processed "correctly" w/o exceptions. Of course,
+  all empty input files have the same hash value 0.
+x query: plotting without a title and label-type "title" caused an exception
+~ setup script: setup aborts if no 'pidof' command is found either in the PATH
+  or in /sbin, /bin, /usr/sbin.
+# input: the 'retrigger' attribute for a <named_location> is set to "auto" by 
+  default. This means that by default, content for only-once values is only stored 
+  once per run: the content of the first trigger. Subsequent triggers are 
+  ignored unless the 'retrigger="yes"' attribute is specified (example in
+  test/update/update_inp.xml for the input_2.dat input file).
+# input: the hash generation for the imported files has been vastly improved - up
+  to a factor of 1000. However, this caused a compatibility break for the generated
+  hash values: the new algorithm creates different hash values for the same file.
+  This means that the input command will eventually re-import files that already
+  have been imported as it does create a different hash value.
+  Also see doc/performance.txt for more information on this optimisation.
++ input: option '--join' will merge all input files into a single virtual file (in 
+  the order of how they are listed on the command line). This allows to use
+  multiple files with a single XML description to create a single run.
++ input: option '--sequential' can be used when multiple input description and
+  input files are used to create a single run. Normally, data would be gathered
+  from all files in "parallel" to allow a dataset to contain data from more than
+  one file. If this behaviour is not desired, the new option enforces "sequential"
+  processing of all input description/file combinations.
++ new command 'attach': Using the 'attach' command, XML files for input and query
+  descriptions can now be stored within the experiment database (called "attachments").
+  The 'input' and 'query' commands can use these descriptions directly - just 
+  specify their names using the '--name' option (instead of the '--desc' option 
+  which specifies a file name). See test/attach for some examples. This feature
+  simplifies the management and also the collaboration between multiple users of
+  an experiment because they no longer need to have access to a common file system
+  to use the same input and query descriptions.
+
+RELEASE 0.7.5 (Fri, 4 Nov 2005)
++ Filters can now also displayed as "value" only, instead of "name = value". 
+  This is i.e. useful for string parameters where the value alone is meaningful 
+  enough. Use the "style" attribute of <parameter> to control this.
+~ Label style "title" can now also be used without the "filterstring" attribute 
+  of <output>. In this case, the related part of the label is simply appended 
+  to the title string as "(x=y, a=b)"
+~ Synopsis for "pair" operator (division and substraction) is now created as 
+  "synopsis1 - synopsis2" (for substraction)
+x NULL default values now work for only-once values, too. See test/default.
++ fontsize attribute for <output> allows to set, well, the font size
+  in generated plots
++ data can now be sorted within a query. Either directly at the source with the
+  first parameter as index (attribute "order"), or fully flexible with the new
+  'sort' operator for which the sort index can be determined, See test/order.
++ auto-<sweep>ing is now supported: if no <filter> is provided for a <sweep>,
+  the sweep will be performed across all distinct content of this parameter.
+ (see queries 3 and 4 in test/sweep)
+x issue #6 (problems with default values for input in complex setups)
+x info: default content "NULL" is now also shown
+~ input: list ALL values which have missing definitions at once
++ new feature "parameter sets" helps to manage static parameters for series
+  of runs in an identical envrionment. See test/pset for usage information.
+  Used via the input command (switches "--pset-store" and "--pset-use")
++ info command knows about parameter sets and can list their names and
+  the content of an individual parameter set
+~ database version is now at '3', check command can update existing
+  experiments
++ ls command can now list the distinct content for a parameter or result
+  value or meta information (switch --distinct)
+~ info command sorts and structures the "verbose" output of parameters
+  and results better
+x fixed the automatic unit conversion when using the scale operator
+  with scale prefixes (like 'value="Mega"')
+~ made the filename-unification <filename unify="filter"> more clever
+  when <sweep>s are used: duplicate filter strings are only added once
+  to the filename
+x fixed problem (wrong label) when using more than one "open"
+  parameter filter
++ added new option "default" to the "--missing" argument of the input
+  command which allows to use the combination "ask for value content that
+  is not contained in the input description, and use default content for
+  values that are contained, but for which no data is found in the input file."
+
+RELEASE 0.7.1 (Mon, 29 Aug 2005)
++ new test 'exist' which tests import of duplicate files
++ target 'clean' to all Makefiles of the test suite
++ 'info' command can now sort the output when listing all experiments
+  of a database
++ 'info' command can now filter the experiments listing by the
+  name of the creator
++ 'info' command can now filter the experiments listing by the
+  access rights of one or more users
+~ 'delete' command with --force option exits silently if the experiment
+  to be deleted does not exist.
++ new target 'dbclean' in testsuite Makefiles removes stray test experiments
+~ distrib-operator generates "number of samples" as additional parameter 'N_samples'
+  which is i.e. shown in charts
+- some code cleanup
+- some output has changed, test suite was adapted accordingly
++ perfbase can now handle trace files, too (in a way); added required
+  functionality and a new examples (slog2) for this application
+x fixed exception for "distrib" operator with no data
++ added mode="accumulate" to input via <named_location>
++~ Automatically (or explicitely) use the second x/y axis when plotting
+  different types of data into a single chart. The difference between the
+  data is determined by its physical unit.
+  For an example query, see examples/mpptest/mpptest_query_dual.xml
+
+RELEASE 0.7.0 (Mon, 29 Aug 2005)
+- initial public release

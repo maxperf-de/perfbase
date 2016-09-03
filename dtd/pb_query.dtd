@@ -1,0 +1,421 @@
+<?xml version="1.0"?>
+
+<!-- ============================================================= -->
+<!--                    perfbase query specification               -->
+<!-- ============================================================= -->
+
+<!--                    Root Element                               -->
+<!--                    For perfbase, the order of the elements
+                        within <query> does not matter. However,
+                        if you want to validate your document
+                        based on this DTD, use the order as listed
+                        here.                                      -->
+<!ELEMENT  query
+                         (experiment?,synopsis?,description?,fixed*,run*,parameter*,series*,source+,operator*,combiner*,output+)>
+<!--         id         Name of this query (used when storing it in
+                        the database)                              -->
+<!ATTLIST  query
+             id         ID                                 #IMPLIED  >
+
+
+<!--                    Generic input element                      -->
+<!--                    Whenever an element of the query refers to
+                        another element within a specification, it
+                        does so by giving its ID as the content of
+                        an input element.                          -->
+<!ELEMENT  input        (#PCDATA)                                    >
+<!--         label      Specify if and how a label for a data series
+                        should be generated (not all possible values
+                        supported within all elements)
+             labeltext  Explict Text to be used as label.
+             labelprefix  Explict Text to be prepended to a generated label.
+             sweep_resolve      
+                        Specify how the multiple instances of a data
+                        series based on one or more sweeped
+                        parameters should be processed. "intern" will process them all
+                        within a single instance of this object;
+                        "extern" will create one instance of the
+                        current object for each instance of the
+                        input. "auto" will choose according to the type
+                        of object (intern for <output> and <combiner>, extern 
+                        for <operator>).
+             errors     Plot data with or without error
+                        information. "disable" plots no error
+                        information, "ydelta" requires a second
+                        result vector in the input element for error
+                        delta values, and "ylowhigh" requires two
+                        additional result vectors in the input
+                        element for minimal and maximal values.
+             priority   Give the input a priority. Not yet considered.
+             alias      Specify an alias name for an input. Not yet
+                        considered.
+             type       plot type
+             style      Further define how a data series is to be
+                        plotted. The valid content depends on the
+                        type of output object. Only relevant within
+                        an <output> object.                        -->
+<!ATTLIST  input
+             label      (empty|value|parameter|full|title|fulltitle|input_id|explicit|auto|ignore)
+                                                           "auto"                
+             labeltext  CDATA                              #IMPLIED
+             labelprefix CDATA                             #IMPLIED
+             sweep_resolve    
+                        (auto|intern|extern)               "auto"
+             errors     (disable|ydelta|ylowhigh)          "disable"
+             priority   CDATA                              #IMPLIED
+             alias      CDATA                              #IMPLIED
+             axislabel  CDATA                              #IMPLIED
+             type       (graphs|points|boxes|bars|steps)   "graphs"
+             style      CDATA                              #IMPLIED  
+             xaxis      (left|right|auto)                  "left"
+             yaxis      (top|bottom|auto)                  "bottom" >
+
+<!ELEMENT output      (input+,option*,filename?,endian?,intsize?,floatsize?,stringsep?,tics*)>
+<!--         dimensions chooses between 2d and 3d plot;
+                        for 3d plots the input data must be sorted at least
+                        on the first column and usually also on the second to
+                        generate a grid - the sort operator with two keys in the value
+                        attribute can be used for this -->
+<!ATTLIST output      target       (raw_binary|raw_text|netcdf|hdf5|gnuplot|grace|latex|xml|opendoc) "raw_text"
+                      sweep_combine (match|alltoall)                                     "match"
+                      type         (graphs|points|boxes|bars|steps)                      "graphs"
+                      dimensions   (2|3)                                                 "2"
+                      errors       (disable|ydelta|ylowhigh)                             "disable"
+                      format       (screen|ps|eps|pdf|png)                               "screen"
+                      style        CDATA                                                 #IMPLIED
+                      ntics        CDATA                                                 #IMPLIED
+                      fontsize     (tiny|small|normal|large|huge)                        "normal"
+                      elements     (tiny|small|normal|large|huge)                        "normal"
+                      color        (yes|no)                                              "yes"
+                      id           ID                                                    #IMPLIED
+                      filterstring CDATA                                                 #IMPLIED
+                      title        CDATA                                                 #IMPLIED>
+
+<!--                    Name of ouput file(s)                      -->
+<!--                    Specify the basename of the output file(s)
+                        to be created. Do not supply a suffix as a
+                        matching suffix will automatically
+                        appended for each type of output file.     -->
+<!ELEMENT  filename     (#PCDATA)                                    >
+<!--         unify      If set to 'filter', the status of all parameter values with 
+                        'show="filter"' attributes will be appended to the filename
+                        to make it unique. This way, it is not necessary to provide
+                        a new filename each time you change a parameter to avoid
+                        overwriting existing output files. 
+                        For 'sweep', numerical indexes which refer to the
+                        sweep instances, will be appended. 
+                        With 'fixed', all macros '(id)' will be replaced
+                        with the content of a 'fixed' element with this id.
+             parameters optionally allows to provide comma-separated list
+                        of parameter names to be used for filename unification
+                        with the 'unify="filter"' attribute.  -->
+<!ATTLIST  filename
+             unify      (no|filter|sweep|fixed)                        "no"      
+             parameters CDATA                                          #IMPLIED>
+
+<!ELEMENT endian      (#PCDATA)>
+<!ELEMENT intsize     (#PCDATA)>
+<!ELEMENT floatsize   (#PCDATA)>
+<!ELEMENT stringsep   (#PCDATA)>
+
+<!ELEMENT tics        (start?,increment?)>
+<!ATTLIST tics
+             axis      (x|y|z)                             "x"      
+             grid      (on|off)                            "off"    >
+<!ELEMENT start       (#PCDATA)>
+<!ELEMENT increment   (#PCDATA)>
+<!ATTLIST increment
+             increase (linear|exponential)                 "linear" >      
+
+<!--           A combiner provides means to merge together multiple "data streams"     -->
+<!--           which are read from the <input> elements. By default, the single output -->
+<!--           data stream will contain all non-duplicate parameter and result values  -->
+<!--           of the input data streams. By default, the datasets of the different    -->
+<!--           input data streams are matched by their order (not by the content of    -->
+<!--           the parameter values). Therefore, it is important to only combine data  -->
+<!--           streams from the same <source> unless you know what you are doing.      -->
+<!--           The <omit> element allows to specify parameter or result values which   -->
+<!--           should be omitted by giving the related column name.                    -->
+<!--           Attributes can be used to control how data sets from different data     -->
+<!--           streams are matched, and how <sweep> parameters are handled:            -->
+<!--                                                                                   -->
+<!--                                                                                   -->
+<!--                                                                                   -->
+<!--                                                                                   -->
+<!ELEMENT combiner    (input+,omit*)>
+<!--          sweep_combine 
+                        "match" and "alltoall" are relevant in
+                        other elements with more than one sweeped
+                        parameter and specify how the multiple
+                        instances of the parameters are combined:
+                        either "match"ed by the order in which the
+                        sweeps are defined, or as a full permutation
+                        ("alltoall").                                                  -->
+<!--          sweep_group 
+                        Specify the ID of a single sweeped parameter which must 
+                        *not* split up (but grouped) when resolving the sweep 
+                        externally. See test/sweep_group for an application.           -->
+<!--          parameters 
+                        Keep "all" parameter vectors from the merged data stream, 
+                        only those that are "unique" or remove them all ("none") .     -->
+<!--          mkparam
+                        If "yes", the first (most left) result vector dimension 
+                        will be converted into a parameter vector if there is no
+                        parameter vector (left). This is to ensure there is a 
+                        parameter vectore (required for some outputs etc.). .          -->
+<!--          axislabel  
+                        Replace the standard axis label (<synopsis> [<unit>]) with 
+                        this text. Note: successing operators may combine this label 
+                        with labels from other inputs.   -->
+
+<!ATTLIST combiner    id          ID   #REQUIRED
+                      parameters    (all|unique|none)    "unique"
+                      mkparam       (yes|no)             "no"
+                      sweep_combine (match|alltoall)     "match"
+                      sweep_group   CDATA                #IMPLIED
+                      axislabel     CDATA                #IMPLIED
+                      datasets      (merge|append)       "merge">
+<!ELEMENT block       (#PCDATA)>
+
+<!ELEMENT operator    (input+,omit*,term?,filter?)>
+<!-- Attritubes for operator:                                       -->
+<!-- id:       unique id for reference from other objects           -->
+<!-- value:    numerical or string argument (as required by the     -->
+<!--           specific operator, i.e. scale factor)                -->
+<!--           sort - a comma or white-space separated list of one  -->
+<!--                  or more keys to sort by                       -->
+<!-- option:   option for the operator                              -->
+<!-- match:    determine how datasets from different sources are    -->
+<!--           matched to apply an operation on them. I.e., if      -->
+<!--           calculating the difference of the values of two      -->
+<!--           sources, it typically makes sense to calculate the   -->
+<!--           difference between the result values of these data-  -->
+<!--           sets which have identical parameters. This is the    -->
+<!--           default. However, sometimes it makes sense to do the -->
+<!--           matching via the index of the dataset in the table   -->
+<!--           (match="index"). But beware: this does only make     -->
+<!--           if the order in the table is known and fixed, i.e.   -->
+<!--           if the data is from the same source!                 -->
+<!-- variant:  select different variants of one operator            -->
+<!-- sweep_combine 
+               "match" and "alltoall" are relevant in
+                other elements with more than one sweeped
+                parameter and specify how the multiple
+                instances of the parameters are combined:
+                either "match"ed by the order in which the
+                sweeps are defined, or as a full permutation
+                ("alltoall").                                       -->
+<!-- scope:     Applies to reduction operators only: "global" performs 
+                a single reduction on all data sets (with matching parameters)
+                that are returned by the source. "run" performs one
+                reduction per run, also on data sets that do not
+                have fully matching parameters.                     -->
+<!ATTLIST operator    type      (null|sum|max|min|prod|scale|offset|normalize|avg|stddev|variance|diff|div|percentof|above|below|count|eval|median|quantile|distrib|sort|slice|latest|oldest|runindex|param|round|limit|abslimit)  "null"
+                      id            ID                       #REQUIRED
+                      value         CDATA                    #IMPLIED
+                      option        CDATA                    #IMPLIED
+                      match         (parameter|index|modulo) "parameter"
+                      scope         (run|global)             "global"
+                      sweep_combine (match|alltoall)         "match"
+                      variant        CDATA                   #IMPLIED>
+
+<!-- Attritubes for source:                                         -->
+<!-- booelan:  logical operation by which the input parameters are  -->
+<!--           combined (not yet implemented, always uses 'and')    -->
+<!-- order:    order in which the data value is sorted according    -->
+<!--           to *the first parameter value* (this is quite basic  -->
+<!--           for now - use the 'sort' operator otherwise!)        -->
+<!-- key:      specify a value name to be used as sort index        -->
+<!ELEMENT source      (result+,run*,input*,parameter*,series*,sweep?)>
+<!ATTLIST source      boolean    (and|or|not)   "and"
+                      id         ID   #REQUIRED
+                      order      (keep|ascending|descendig)   "ascending"
+                      key        CDATA                        #IMPLIED
+                      chronology (created|performed)          "created">
+
+<!--                    Generate a series of numbers as an
+                        artificial input vector                    -->
+<!--                    Use a series if you need to add an index
+                        to the result vector of a query.           -->
+<!ELEMENT  series       (name,synopsis?,description?,base?,increment?)
+                                                                     >
+<!--         inc        A 'linear' increment creates the next entry in the
+                        series by adding the increment; for the
+                        'exponential' type, the increment is used as
+                        a factor.
+             id         Reference identifier                      -->
+<!ATTLIST  series
+             id        ID                                  #REQUIRED
+             inc        (linear|exponential)              "linear"  >
+
+<!--                    First numerical value of a series          -->
+<!--                    This has to be an numerical value.         -->
+<!ELEMENT  base         (#PCDATA)                                    >
+<!--                    Summand or factor used to generate the
+                        next value within a 'series'               -->
+<!--                    This has to be an numerical value.         -->
+<!ELEMENT  increment    (#PCDATA)                                    >
+
+<!--                  A parameter is defined to specify how a <source> filters the -->
+<!--                  data from the experiment database. For this purpose, it may  -->
+<!--                  defined a <filter>. If no <filter> is given, all available   -->
+<!--                  data (within the selected runs) for this parameter value     -->
+<!--                  will be provided.                                            -->
+<!ELEMENT parameter   (value,sweep?,filter*)>
+<!--                  'boolean' defines how multiple filter are combined.          -->
+<!--                  'show' defines which elements of a parameter value will show -->
+<!--                  up in the output of the query; those set to "auto" are used  -->
+<!--                  as the varying values on the independent axis(es) of 2d and  -->
+<!--                  3d plots                                                     -->
+<!--                  'style' further defines how data from a filter shows up in   -->
+<!--                  the output. For a value "v" with filter content "c", "full"  -->
+<!--                  prints everything ('v = c');"content" prints only the        -->
+<!--                  content ('c'); "true" and "false" only show the value name   -->
+<!--                  (of a boolean) if its content is true resp. false. "reverse" -->
+<!--                  will print 'c v', and plain will print 'v c'                 -->
+<!--                  'on_off' and 'yes_no' are for boolean values only and        -->
+<!--                  will print "<value_name/alias> on" etc.                      -->
+<!ATTLIST parameter   boolean    (and|or)                                "and"
+                      show       (auto|data|filter|title|all|nothing)    "auto"
+                      style      (full|content|reverse|plain|true|false|on_off|yes_no|with_without|enabled_disabled) "full"
+                      unit       (yes|no)                                "yes"
+                      id          ID   #REQUIRED>
+
+<!ELEMENT value       (#PCDATA)>
+<!--                  The alias name is used for the output.                     -->
+<!ATTLIST value       alias      CDATA #IMPLIED>
+
+<!--                  A <sweep> is used to automatically run a set of queries    -->
+<!--                  which only differ by one parameter filter. These filters   -->
+<!--                  are specified here. If no filter is provided, the sweep    -->
+<!--                  will be performed across all distinct values of this para- -->
+<!--                  meter that are available in the experiment (identical to   -->
+<!--                  explicitely adding a list of "equal" filters).             -->
+<!ELEMENT sweep       (filter*|result*)>
+
+<!--                  Filter the runs to be queried by their meta information    -->
+<!--                  like creation date, date when the run was performed, run   -->
+<!--                  index, snynopsis or description.                           -->
+<!--                  Attention: the strings that are provided for synopsis and  -->
+<!--                  description are matched as regular expressions!            -->
+<!ELEMENT run         (index+|((created?,performed?),synopsis*,description*))>
+<!ATTLIST run         id          ID   #REQUIRED
+                      mask     (exclude|include)    "include"
+                      boolean  (and|or)             "and">
+<!ELEMENT created     (from?,to?)>
+<!ELEMENT performed   (from?,to?)>
+<!ELEMENT from        (date?,time?)>
+<!ELEMENT to          (date?,time?)>
+<!ELEMENT date        (day?,month?,year?)>
+<!ELEMENT time        (hour,minute,second?)>
+
+<!--                  A fixed element allows to define a sort of "macro" within  -->
+<!--                  the query description. The text within the <content>       -->
+<!--                  element will be put into all locations which reference     -->
+<!--                  the fixed element via its id. Additonally (and this is the -->
+<!--                  major benefit of this feature) the <content> can be set    -->
+<!--                  from the command line via the --fixed= option of the query -->
+<!--                  command.                                                   -->
+<!--                  Also see test/fixed for an example on how to use this.     -->
+<!ELEMENT fixed       (content)>
+<!ATTLIST fixed       id          ID   #REQUIRED>
+
+<!ELEMENT filter      ((all|null|notnull|lesser|lessequal|greater|greaterequal|equal|notequal|bool|contain|match|regexp)+|filter*)>
+<!ATTLIST filter       boolean  (and|or|not)   "and"
+                       alias    CDATA   #IMPLIED>
+<!ELEMENT all          (#PCDATA)>
+<!ELEMENT null         (#PCDATA)>
+<!ELEMENT notnull      (#PCDATA)>
+<!ELEMENT lesser       (#PCDATA)>
+<!ELEMENT lessequal    (#PCDATA)>
+<!ELEMENT greater      (#PCDATA)>
+<!ELEMENT greaterequal (#PCDATA)>
+<!ELEMENT equal        (#PCDATA)>
+<!ELEMENT notequal     (#PCDATA)>
+<!ELEMENT bool         (#PCDATA)>
+<!ELEMENT contain      (#PCDATA)>
+<!ELEMENT match        (#PCDATA)>
+<!ELEMENT regexp       (#PCDATA)>
+
+<!-- <term> describes an arbitrary calculation on the input data. The input data     -->
+<!-- is linked into the term via the <variable> element: the 'name' attribute of the -->
+<!-- variable element specifies the variable from the <input> which is specified     -->
+<!-- via the content of the <variable> element.                                      -->
+<!ELEMENT term         (fraction|product|sum|difference|function|variable|constant)>
+<!ATTLIST term          id          ID      #REQUIRED
+                        unit        CDATA   #IMPLIED>
+<!ELEMENT fraction     (dividend,divisor)>
+<!ELEMENT dividend     (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT divisor      (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT product      (factor+)>
+<!ELEMENT factor       (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT sum          (summand+)>
+<!ELEMENT summand      (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT difference   (minuend,subtrahend)>
+<!ELEMENT minuend      (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT subtrahend   (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT function     (argument+)>
+<!ATTLIST function     type (acos|acosh|asin|asinh|atan|atanh|atan2|ceil|cos|cosh|exp|fabs|floor|fmod|hypot|ldexp|log|log10|pow|sin|sinh|sqrt|tan|tanh|max|min|erfc)       #REQUIRED>
+<!ELEMENT argument     (fraction|product|sum|difference|function|variable|constant)>
+<!ELEMENT variable     (#PCDATA)>
+<!--         name       This is the name of the variable which has to
+                        be a visible parameter or value of the input
+                        object specifed as the content of this
+                        element.
+             type       A variable can either be a scalar variable
+                        (constant for all evaluations), or a vector
+                        variable (part of the actual dataset that is
+                        used for an evaluation). I.e., use "scalar" if 
+                        you need to scale datasets to a constant value 
+                        which is also derived from the experiment data and 
+                        not provided as constant in the query definition.
+                                                                   -->
+<!ATTLIST  variable
+             name       CDATA                              #REQUIRED
+             type       (scalar|vector)                    "vector"  >
+<!ELEMENT constant     (#PCDATA)>
+
+<!ELEMENT experiment  (#PCDATA)>
+<!ELEMENT synopsis    (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT result      (#PCDATA)>
+<!--                  alias      The alias name is used for the output instead of the original
+                                 value name.
+                      axislabel  Replace the standard axis label (<synopsis> [<unit>]) with 
+                                 this text. Note: successing operators may combine this label 
+                                 with labels from other sources.   -->
+<!ATTLIST result      alias      CDATA    #IMPLIED
+                      axislabel  CDATA    #IMPLIED>
+
+
+<!--                  Within a combiner, this value is ignored and not passed through.                 -->
+<!ELEMENT omit        (#PCDATA)>
+<!--         input    If the value is supplied by more than one <input>, specify which ones to         -->
+<!--                  omit. To omit the same value from multiple inputs, just specify multiple         -->
+<!--                  omit elements. Without an input attribute, the value will be omitted from        -->
+<!--                  all input data streams.                                                          -->
+<!ATTLIST omit        input      CDATA    #IMPLIED>
+
+<!ELEMENT day         (#PCDATA)>
+<!-- valid months are 1..12 or Jan, Feb, Mar, ..., Nov, Dec -->
+<!ELEMENT month       (#PCDATA)>
+<!ELEMENT year        (#PCDATA)>
+<!ELEMENT hour        (#PCDATA)>
+<!ELEMENT minute      (#PCDATA)>
+<!ELEMENT second      (#PCDATA)>
+<!-- run-index can be specified as a comma-separated list of specifiers. Valid formats for             -->
+<!-- such specifiers are: single (numerical) run indexes (like '12'), specific range using dash        -->
+<!-- (like '12-45'), up-to-range using triple dots (like '...45'), or start-with-range (like '12...'). -->
+<!ELEMENT index       (#PCDATA)>
+
+<!ELEMENT content     (#PCDATA)>
+<!--                    Generic option passed to plot backend.     -->
+<!--                    Specify an option that will be passed to
+                        the plot backend. How exactly this option
+                        is passed depends on the type of
+                        backend. For gnuplot, content starting
+                        with a dash will be passed as commnandline
+                        argument (like -persist); other content
+                        will be used as arguments for the gnuplot
+                        command 'set' (like 'yrange[0:]').         -->
+<!ELEMENT  option       (#PCDATA)                                    >

@@ -1,0 +1,93 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="multiple sources">
+  <experiment>opendoc_TEST</experiment>
+  <description>
+    A variant of test 4: here, the differing parameter filters are not
+    derived via sweeps, but explicitely. In a similar real-world query,
+    this caused problems with data being placed in the wrong cells, 
+    leading to bogus tables.
+  </description>
+
+  <parameter id="p.version_1.1" show="filter" style="plain">
+    <value alias="library version">MPI_version</value>
+    <filter>
+      <equal>1.1</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.version_1.2" show="filter" style="plain">
+    <value alias="library version">MPI_version</value>
+    <filter>
+      <equal>1.2</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.interconnect" show="filter" style="content">
+    <value>I</value>
+    <filter>
+      <equal>SCI</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.size" show="filter">
+    <value>S_msg</value>
+    <filter>
+      <lesser>100</lesser>
+    </filter>
+  </parameter>
+
+  <source id="src.latency_1.1"> 
+    <result>T_pp</result>
+    
+    <input>p.version_1.1</input>
+    <input>p.interconnect</input>
+    <input>p.size</input>
+  </source>
+
+  <operator id="op.median_1.1" type="median">
+    <input>src.latency_1.1</input>
+  </operator>
+
+  <operator id="op.min_1.1" type="min">
+    <input>src.latency_1.1</input>
+  </operator>
+
+  <operator id="op.max_1.1" type="max">
+    <input>src.latency_1.1</input>
+  </operator>
+
+  <source id="src.latency_1.2"> 
+    <result>T_pp</result>
+    
+    <input>p.version_1.2</input>
+    <input>p.interconnect</input>
+    <input>p.size</input>
+  </source>
+
+  <operator id="op.median_1.2" type="median">
+    <input>src.latency_1.2</input>
+  </operator>
+
+  <operator id="op.min_1.2" type="min">
+    <input>src.latency_1.2</input>
+  </operator>
+
+  <operator id="op.max_1.2" type="max">
+    <input>src.latency_1.2</input>
+  </operator>
+
+  <!-- Create separate tables by setting 'sweep="extern"' below. -->
+  <output id="Opendoc Test 6" target="opendoc">
+    <input>op.median_1.1</input>
+    <input>op.min_1.1</input>
+    <input>op.max_1.1</input>
+
+    <input>op.median_1.2</input>
+    <input>op.min_1.2</input>
+    <input>op.max_1.2</input>
+
+    <filename>opendoc_6</filename>
+  </output>
+</query>

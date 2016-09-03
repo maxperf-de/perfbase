@@ -1,0 +1,54 @@
+# PGLIB has to specify the (default) library directory for PostgreSQL
+PGLIB=@PGLIB@
+
+# PGINCLUDE has to specify the path where the PostgreSQL-specific 
+# include files like postgres.h) can be found
+PGINCLUDE=@PGINC@
+
+# The setting below are valid for Gnu CC/ld. Set accordingly for
+# different environment. Yes, autoconf/libtool would be nice...
+CC=gcc
+OPTCC=-fPIC -Wall
+OPTLD=-shared -Wl,-soname,libvnbr.so.1
+
+# END OF CONFIGURATION SECTION
+LIBNAME=libvnbr.so
+
+lib: $(LIBNAME)
+$(LIBNAME): version_nbr.o
+	$(CC) $(OPTLD) -o $@.1.0 $?
+
+version_nbr.o: version_nbr.c
+	$(CC) $(OPTCC) -I$(PGINCLUDE) -c $?
+
+install: lib
+	cp $(LIBNAME).1.0 $(PGLIB)
+	(cd $(PGLIB) ;\
+	ln -s $(LIBNAME).1.0 $(LIBNAME).1 ;\
+	ln -s $(LIBNAME).1 $(LIBNAME) )
+
+LIB=-L.
+
+TESTOPTCC=-Wall -fPIC -g
+TESTLIBNAME=libtvnbr.so
+TESTOPTLD=-g -shared -Wl,-soname,libtvnbr.so
+
+test_version_nbr.o: version_nbr.c
+	$(CC) $(TESTOPTCC) -I$(PGINCLUDE) -c $? -o $@ -DTESTING
+
+testlib: $(TESTLIBNAME)
+$(TESTLIBNAME): test_version_nbr.o
+	$(CC) $(TESTOPTLD) -o $@ $?
+
+test: test_vnbr
+test_vnbr: test_vnbr.c
+	$(CC) -g $? -o $@ -I$(PGINCLUDE) $(LIB) -ltvnbr
+
+sql:
+	psql <setup.sql
+
+clean:	
+	 @rm -f libvnbr* *.o *~ test_vnbr core*
+
+distclean: clean
+	@rm -f Makefile

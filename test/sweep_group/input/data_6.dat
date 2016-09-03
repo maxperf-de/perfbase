@@ -1,0 +1,7 @@
+# benchmark: swim
+#
+# threads	wall clock time [s]
+1		9.3
+2		6.3
+4		4.2
+8               3.1

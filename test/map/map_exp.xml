@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>map_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for mapping of data</synopsis>
+    <description>
+      Map data that was retrieved via filename, named or explicit location, or table.
+    </description>
+  </info>
+
+  <parameter>
+    <name>fs</name>
+    <synopsis>filesystem</synopsis>
+
+    <datatype>string</datatype>
+    <valid>UFS</valid>
+    <valid>SFS</valid>
+    <valid>NFS</valid>
+    <valid>XFS</valid>
+  </parameter>
+
+  <result>
+    <name>T</name>
+    <synopsis>time to start</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

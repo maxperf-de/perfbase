@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>update_TEST</experiment>
+
+  <named_location is_separator="yes" retrigger="yes">
+    <name>platform</name>
+    <match>machine:</match>
+  </named_location>
+
+  <named_location retrigger="yes">
+    <name>MPI_version</name>
+    <match>MPI version:</match>
+  </named_location>
+
+  <tabular_location columns="2">
+    <match># msg_size</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_pp</name>
+      <pos>1</pos>
+    </tabular_value>
+
+  </tabular_location>
+
+</input>

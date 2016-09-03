@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>oponesrc_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct operator functionality.</synopsis>
+    <description>
+      This test lets operators work on a single data vector from a single source.
+    </description>
+  </info>
+
+  <parameter>
+    <name>p</name>
+    <synopsis>the parameter</synopsis>
+
+    <datatype>float</datatype>
+  </parameter>
+
+  <result>
+    <name>r</name>
+    <synopsis>the result</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+
+</experiment>
+
+

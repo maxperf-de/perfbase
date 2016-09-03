@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>count_TEST</experiment>
+
+  <named_location mode="count">
+    <name>N_gaga</name>
+    <match>gaga</match>
+  </named_location>
+  
+  <named_location is_separator="yes">
+    <name>S</name>
+    <match>###</match>
+  </named_location>
+</input>

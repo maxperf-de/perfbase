@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>normalize_TEST</experiment>
+
+  <tabular_location>
+    <match># arrival</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>t</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>s</name>
+    </tabular_value>
+
+  </tabular_location>
+
+</input>

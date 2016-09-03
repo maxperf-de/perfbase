@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>regexp2_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Maxperf</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for querying regular expressions</synopsis>
+    <description>
+      Find the data you are looking for by matching regexps.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>D</name>
+    <synopsis>data description</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>dummy</name>
+    <synopsis>number</synopsis>
+
+    <datatype>integer</datatype>
+    <default>0</default>
+  </parameter>
+
+  <result occurrence="once">
+    <name>N</name>
+    <synopsis>data</synopsis>
+
+    <datatype>integer</datatype>
+  </result>
+
+</experiment>
+
+

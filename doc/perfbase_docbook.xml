@@ -1,0 +1,4781 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<book>
+  <bookinfo>
+    <title>perfbase</title>
+
+    <author>
+      <firstname>Joachim</firstname>
+
+      <surname>Worringen</surname>
+
+      <affiliation>
+        <address><email>joachim@maxperf.de</email></address>
+      </affiliation>
+    </author>
+
+    <copyright>
+      <year>2005-2006</year>
+
+      <holder role="mailto:joachim@ccrl-nece.de">C&amp;C Research
+      Laboratories, NEC Europe Ltd.</holder>
+    </copyright>
+
+    <pubdate role="rcs">January 2nd, 2005</pubdate>
+
+    <releaseinfo>incomplete and preliminary</releaseinfo>
+
+    <abstract>
+      <para>User Manual, Command Reference and XML Reference for perfbase, the
+      system for experiment management and analysis.</para>
+    </abstract>
+  </bookinfo>
+
+  <part>
+    <title>User Manual</title>
+
+    <partintro>
+      <para>The perfbase user manual is designed to show you how to do all the
+      things you typically might want to do with perfbase in a step-by-step
+      way. It does so by starting with an introduction into the problem that
+      perfbase was designed to solve, and which approach it uses for this
+      purpose. We then look at the installation of perfbase, continue with the
+      setup of a new experiment, the modification of an existing experiment,
+      the import of data into an experiment, and describe how to query the
+      data previously stored. Next to this, the management of an experiment is
+      also described.</para>
+
+      <para>Note that this manual is not a reference manual. The complete
+      reference for perfbase is provided in the other two parts, namely Part
+      II for the syntax of the command line interface, and Part III for the
+      document type definition of the XML files that perfbase requires for
+      certain tasks.</para>
+    </partintro>
+
+    <chapter>
+      <title>Introduction</title>
+
+      <para>perfbase is a software toolkit for experiment management and
+      analysis. perfbase is designed to efficiently support all types of
+      scientists and engineers who perform arbitrary computer-based
+      experiments which deliver their results as text files.</para>
+
+      <para>perfbase allows to define experiments with an arbitrary number of
+      <phrase>parameter</phrase> and <phrase>result values</phrase> of
+      different data types. Unformatted experimental data can easily be
+      processed to extract relevant information which is then stored in a
+      database. perfbase features a clearly structured and powerful query
+      language which allows to structure and post-process the data to create
+      meaningful results. The results can be created as raw data, tables, or a
+      variety of plots.</para>
+
+      <sect1>
+        <title>Problems Processing Experiment Output</title>
+
+        <para>In order to understand why perfbase can be a valuable tool, it
+        is best to take a look on how experimental data is gathered, managed
+        and analysed in the typical ad-hoc fashion, and to see which problems
+        this widespread approach bears.</para>
+
+        <para>The way that the typical performance evaluation and result
+        analysis is done is to store output data of the experiments (a run of
+        a benchmark, application or simulation) in individual files. The
+        format of the output data is typically ASCII text, as this is the
+        easiest and most portable format to be generated from within any kind
+        of software. Another advantage of ASCII files is that the content is
+        still usable even when parts of the file are corrupted. All files are
+        then organised by their name and sorted into directories. From these
+        files, the data is in some way, either using some custom scripts or by
+        manually copying the required data, fed into software for
+        visualisation or analysis.</para>
+
+        <para>This naive, but widespread approach has a number of
+        problems:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Translating the benchmark output into the presentable form
+            is often a tedious, manual task as the data needs to be extracted
+            and transferred between different software tools.</para>
+          </listitem>
+
+          <listitem>
+            <para>It is complex and error-prone to manage all results in a
+            (big) number of files (of a certain type, usually text). It is not
+            easy to discover which dimensions of the parameter space have not
+            yet been measured precisely enough, or which one may need a closer
+            look due to irregular results.</para>
+          </listitem>
+
+          <listitem>
+            <para>Access to the output files is often difficult for people
+            different from the one who performed the experiments that need the
+            information contained within. Even with access, the way the output
+            files are organised and the format of the file content can be hard
+            to understand.</para>
+          </listitem>
+
+          <listitem>
+            <para>Because of this complexity, the performance measurements are
+            often limited in the range of the applicable test parameters, and
+            in the number of samples taken for a certain set of test
+            parameters. This leads to results of limited usefulness due to the
+            unknown statistical variance in the results. This is especially
+            true for application areas with a significant variation of results
+            like testing of I/O performance, testing performance on a non
+            dedicated system or running simulations which include error
+            estimation.</para>
+          </listitem>
+
+          <listitem>
+            <para>It is useful to track the performance development over a
+            longer period of time or multiple software and hardware revisions.
+            Typically, an analysis is done for a series of experiments at one
+            point of time. Plotting and analysing data over time requires
+            substantial additional efforts and is thus only performed by
+            looking at the individual analysis – if the past analysis’ are
+            still available and have been generated in a way that allows a
+            comparison.</para>
+          </listitem>
+
+          <listitem>
+            <para>Generally, it is hard to perform a more complex analysis,
+            like filtering the data by certain parameters or result values.
+            Because the user knows this in advance, he will limit the
+            parameter range of experiments to what be can processed with the
+            naive approach he uses. This potentially leads to wrong
+            conclusions.</para>
+          </listitem>
+        </itemizedlist>
+      </sect1>
+
+      <sect1>
+        <title>Experiment Management &amp; Analysis with perfbase</title>
+
+        <para>perfbase solves these problems by automating the processing of
+        the output data, extracting and storing its relevant content in a
+        database, and offereing sophisticated and highly flexible methods to
+        inspect, process, analyse, visualize and export processed data for
+        furrther usage with other software like text processors or
+        spreadsheets. The data analysis functionality includes many
+        statistical functions. This way, it is easy to make sure that a
+        sufficient number of "tries" of an experiment is performed to derive
+        statiscally solid statements on the outcome and meaning of the
+        experiment.</para>
+
+        <para>It is important to note that perfbase does in no way mandate or
+        change the way the experiments are conducted as long as the output
+        data consists of text files. perfbase also does not rely on a
+        complicated software infrastructure; it is possible to install and run
+        perfbase and the backend tools in a non-root user account. On the
+        other hand, perfbase supports multi-user scenarios where different
+        users contribute data to a single experiment and query this data with
+        different levels of access rights.</para>
+
+        <sect2>
+          <title>Example Experiment</title>
+
+          <para>To illustrate the application of perfbase to an existing,
+          unmodified benchmark, we will discuss one of the examples that come
+          with the perfbase distribution. The benchmark is
+          <literal>b_eff_io</literal>, an MPI-IO based test for performance of
+          parallel file access. This benchmark creates two text ouput files, a
+          detailed test protcol with suffix <code>.prot</code>, and a test
+          summary with suffix <code>.sum</code>.</para>
+        </sect2>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>First Steps</title>
+
+      <para>This chapter will show you how to get up and running with
+      perfbase. This includes setting up the software under your account (if
+      necessary), testing the installation and finally taking a look at an
+      example pb_entity experiment. By the step-by-step description of this
+      experiment, you will get to know the basic work-flow of
+      <productname>perfbase</productname>.</para>
+
+      <sect1>
+        <title>Installation of perfbase</title>
+
+        <para>This chapter is only relevant for users who want or need to set
+        up their own pb_entity working environment. In case that someone else
+        has already done this for you, please skip this section and proceed
+        with XXX.</para>
+
+        <para>pb_entity supports different working environments. The
+        differences are in the way that the required database server is
+        operated, and if the pb_entity instance to be installed is to be
+        available only for you or for other users as well. pb_entity supports
+        all modes of operation, but some small differences have to be
+        considered during setup.</para>
+
+        <sect2>
+          <title>Requirements</title>
+
+          <para>pb_entity has been developed and mostly used under Linux. Next
+          to this, all operating systems that meet the requirements listed
+          below are supported as well, but not necessarily validated. Before
+          installing pb_entity, make sure your system meets the requirements
+          that are listed below. <variablelist>
+              <title>pb_entity System Requirements</title>
+
+              <varlistentry>
+                <term>Python</term>
+
+                <listitem>
+                  <para><productname>Python</productname> version 2.4 or later
+                  needs to be installed. Older versions of
+                  <productname>Python</productname> might work, but have not
+                  been tested.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>Python Modules</term>
+
+                <listitem>
+                  <para>To process XML files, the
+                  <productname>Python</productname> module
+                  <productname>ElementTree</productname> needs to be
+                  installed. To access the SQL database server, the module
+                  <productname>psycopg</productname> (version 1)is used and
+                  thus needs to be installed. Both of these modules are
+                  included with the pb_entity distribution. If necessary, you
+                  can download more recent versions from the web.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>PostgreSQL</term>
+
+                <listitem>
+                  <para>The experiment data is managed by an SQL database
+                  server. pb_entity supports
+                  <productname>PostgreSQL</productname>, versions 7.4 and
+                  later. Older versions may work, too, but have not been
+                  tested. The database server does not need to be running as
+                  pb_entity can start it up by itself if necessary, using the
+                  commands <command>initdb</command> and
+                  <command>postmaster</command>. These commands are not needed
+                  if a database server which is already running is to be
+                  used.</para>
+
+                  <remark>Other SQL database servers, esp. MySQL, can not be
+                  used.</remark>
+                </listitem>
+              </varlistentry>
+            </variablelist></para>
+        </sect2>
+
+        <sect2>
+          <title>Running the installation script</title>
+
+          <para>To install and set up pb_entity, simply run the included
+          <filename>setup</filename> script which guides you through the
+          process and also checks if the requirements described above are met.
+          Detailed installation instructions are found in the file
+          <filename>README.INSTALL</filename> that is included in the
+          pb_entity distribution.</para>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Setting up the perfbase database server</title>
+
+        <para>It helps if the <command>perfbase</command> command is located
+        within your <envar>PATH</envar>. To verify, use the <command>perfbase
+        version</command> command which should print a message like this:
+        <screen> <prompt>$</prompt> <command>perfbase version</command> 
+ perfbase release 0.6.1 (May 6th 2005), database version 2 
+ (c) 2004-2005 C&amp;C Research Labs, NEC Europe Ltd. </screen> If this is
+        successful, pb_entity itself is running, and the next thing to do is
+        to configure the required database connection.</para>
+
+        <para>You need to decide if you want to use an existing database
+        server (to access experiments which are stored n this server or to
+        create new experiments on this server), or if you want to run you own
+        "personal" database server which, by default, can only be used by you.
+        <remark>It is also possible to make a "personal" database server
+        available for use by multiple users. The required configuration,
+        however, needs to be performed on the database level as pb_entity
+        offers no support for this.</remark></para>
+
+        <sect2>
+          <title>Using an Existing Database Server</title>
+
+          <para>The minimal information you need is the hostname of the system
+          on which the database server is running. Set the environment
+          variable <envar>PB_DBHOST</envar> to contain this value.
+          Additionally, the environment variables <envar>PB_DBPORT</envar>,
+          <envar>PB_DBUSER</envar> and <envar>PB_DBPASSWD</envar> may need to
+          be set to match the configuration of the database server. Ask the
+          administrator of the database server for the required
+          information.</para>
+        </sect2>
+
+        <sect2>
+          <title>Setting up Personal Database Server</title>
+
+          <para>Make sure that the <productname>PostgreSQL</productname>
+          commands <command>initdb</command> and <command>postmaster</command>
+          are found. If necessary, adjust the <envar>PATH</envar> environment
+          variable accordingly. Before being used for the first time, the
+          database needs to be initialized using the <command>init</command>.
+          This is not necessary if you use perfbase with an already running
+          database server.<screen> <prompt>$</prompt> <command>perfbase init</command> 
+ *# perfbase init: creating perfbase data directory /home/joe/.perfbase_data 
+ *# perfbase init: initializing PostgreSQL database server 
+ *# perfbase init: logging output in /home/joe/perfbase_init.log 
+ *# perfbase init: database initialization completed. </screen></para>
+
+          <para>Once the database server has successfully been initialized,
+          you can actually start the database server via the
+          <command>start</command>: <screen> <prompt>$</prompt> <command>perfbase start</command> 
+ *# perfbase start: starting PostgreSQL database server 
+ *# perfbase start: database server startup completed. </screen></para>
+
+          <para>For the default usage of this database server, which is to run
+          it on the same host on which the perfbase commands are executed, no
+          further action is required. Otherwise, adjust the pb_entity
+          environment variable <envar>PB_DBHOST</envar> accordingly.</para>
+
+          <sect3>
+            <title>Installing Custom SQL Datatypes</title>
+
+            <para>perfbase comes with a custom SQL datatype which allows
+            PostgreSQL to natively work with version numbers like 1.1.4,
+            1.2rc2, 1.4.0.10 and so on. The installation of this datatype is
+            not mandatory, but recommended if you plan to use vesion numbers
+            as parameters to differentiate result data obtained with different
+            versions of soft- or hardware. In principle, a version number can
+            also be represented as a string, but this does only allow to query
+            for identity, not for order: selecting all result data obtained
+            with software versions earlier or later than a specified version
+            is only possible when using the native version dataype.</para>
+
+            <para>More information concerning the installation of the version
+            datatype can be found in
+            <filename>pgsql/version_datatype/README</filename>.</para>
+          </sect3>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Testing the Installation</title>
+
+        <para>The execution of pb_entity commands in general has already been
+        tested above (by calling <command>perfbase version</command>). Now,
+        the interaction between the pb_entity commands and the database server
+        needs to be tested. For this purpose, let perfbase show all
+        experiments that are available on the database server using the
+        <command>info<option>--all</option></command>. By adding the
+        <option>-v</option> option, the command will give some additional
+        information. Here is an example for a personal database server that
+        has just been initialized and thus does not contain any experiment
+        yet: <screen linenumbering="numbered"> <prompt>$</prompt> <command>perfbase info <option>-all -v</option></command> 
+ #* Database server localhost:5432 does not contain any perfbase experiments. </screen>
+        Although no experiment has been found, the output shows that the
+        interaction with the database server is working correctly, and you
+        should now proceed to the next section.</para>
+
+        <para>In case of a problem, the output would look similar to this
+        example: <screen> <prompt>$</prompt> <command>perfbase info <option>-all -v</option></command> 
+ could not connect to server: Connection refused 
+ Is the server running on host "dbserver" and accepting TCP/IP connections on port 5432? </screen>
+        The error message already gives information on the problem. Verify
+        that the settings to access this server are correctly set: <screen> <prompt>$</prompt> <command>env | grep <parameter>PB_DB</parameter></command> 
+ PB_DBHOST=dbserver </screen> All necessary parameters concerning the
+        hostname, port number, user name and password need to show up here if
+        they need to differ from the default values (see XXX). If there is no
+        problem with these settings, ask the database administrator for
+        help.</para>
+
+        <para>If you happen to be the database administrator, you should try
+        to access the database server via the <command>psql</command> command.
+        <screen> <prompt>$</prompt> <command>psql <parameter>template1</parameter></command> 
+Welcome to psql 7.4.5, the PostgreSQL interactive terminal. 
+Type: 
+  \copyright for distribution terms 
+  \h for help with SQL commands 
+  \? for help on internal slash commands 
+  \g or terminate with semicolon to execute query 
+  \q to quit template1=# </screen> If local access to the database works as
+        shown above, you might need to set up the database server to accept
+        connections from remote nodes. This is done via the configuration file
+        <filename>pg_hba.conf</filename> which you find in
+        <envar>$HOME</envar><filename>/.perfbase_data</filename> for the
+        default setup. In this file, add a line like</para>
+
+        <para><code>host all joe 172.29.152.0 255.255.255.0
+        trust</code></para>
+
+        <para>This line gives user <quote>joe</quote> access to all databases
+        on this server from all hosts within the 172.29.152.* subnet without a
+        password. <remark> Please note that this setting is inherently
+        insecure as anyone who supplies the username <quote>joe</quote> will
+        be provided access and is thus not recommended in untrusted
+        environments. Other authentication methods (password, etc.) are
+        supported by <productname>PostgreSQL</productname> as well, but need
+        to be set up separately. See the <productname>PostgreSQL</productname>
+        documentation for more information on how to do this. </remark></para>
+      </sect1>
+
+      <sect1>
+        <title>Example Experiment</title>
+
+        <para>Now that pb_entity is installed and set up, it's time to follow
+        an example of how pb_entity can be used.</para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Experiment Management</title>
+
+      <para>This chapter explains how a new experiment is initially set up and
+      subsequently modified. You'll also learn how to transfer an existing
+      experiment to a new database server and how to delete an
+      experiment.</para>
+
+      <sect1>
+        <title>Setting up a New Experiment</title>
+
+        <para>Before setting up a new perfbase experiment, you need to
+        determine what the parameter values and what the result values of your
+        experiment are. Typically, this can easily be done by looking at
+        things like command line or envrironment options that control the
+        execution of the experiment, and at the output file(s) which show(s)
+        the outcome of the experiment. Additionally, things like the operating
+        environment might need to be considered, too. For each parameter and
+        result value, you also need to determine if it has constant content
+        throughout the experiment, or if its content changes in the course of
+        the execution of the experiment.</para>
+
+        <sect2>
+          <title>Experiment Description</title>
+
+          <para>An experiment is defined by an <phrase>experiment
+          description</phrase>, which is an XML formatted file. The related
+          <phrase>document type definition (DTD)</phrase> is found in
+          <filename>perfbase/dtd/pb_experiment.dtd</filename>. Each
+          <phrase>experiment description</phrase> consists of three parts
+          which provide some meta-information on the experiment, the parameter
+          and result values of the experiment, and optionally information that
+          gives users defined (limited) access rights. The according XML
+          elements are described briefly in this chapter. For a detailed
+          description, please consult the part <emphasis>XML
+          Reference</emphasis>.</para>
+
+          <sect3>
+            <title>Meta Information</title>
+
+            <para>The meta information is made up by the elements
+            <sgmltag>name</sgmltag>, <sgmltag>info</sgmltag> and
+            <sgmltag>database</sgmltag> and their related sub-elements. The
+            name of an experiment is case-insensitive: two experiments named
+            <varname>Test</varname> and <varname>test</varname> can not exist
+            on the same database server. Also, pb_entity does not provide
+            means to change the name of an experiment once it has been
+            created.</para>
+
+            <para>The subelements of the <sgmltag>info</sgmltag> element give
+            information on the background of the experiment. It is recommended
+            to actually provide meaningful and extensive information,
+            especially for the elements <sgmltag>synopsis</sgmltag> and
+            <sgmltag>description</sgmltag>.</para>
+
+            <para>The <sgmltag>database</sgmltag> element allows to define the
+            database server to be used. However, in most cases this
+            information will be provided via environment variables.</para>
+          </sect3>
+
+          <sect3>
+            <title>Multi-User Access Control</title>
+
+            <para>A perfbase experiment can be accessed by more than one user.
+            Three different user classes do exist on the level of a perfbase
+            experiment, which differ by their access rights:</para>
+
+            <variablelist>
+              <varlistentry>
+                <term>admin_access</term>
+
+                <listitem>
+                  <para>A user of the class <literal>admin_access</literal>
+                  has full, unlimited access rights to the experiment. Per
+                  default, the user who sets up an experiment is included in
+                  this user class implicitly if no other user is assigned to
+                  this class explicitly.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>input_access</term>
+
+                <listitem>
+                  <para>A user of the class <literal>input_access</literal> is
+                  thought to be a user who uses an existing experiment by
+                  adding new data (aka runs) to it and by performing queries.
+                  Such a user can not add, delete or change parameter or
+                  result values, can not delete runs (or the whole
+                  experiment), and he can not change the meta information of
+                  an experiment.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>query_access</term>
+
+                <listitem>
+                  <para>A user of the class <literal>query_access</literal> is
+                  thought to be a user who does not create any input data
+                  himself, but only performs queries. Therefore, this user
+                  class has all limitations of the
+                  <literal>input_access</literal> class, but is not allowed to
+                  create new runs. This means, a user of this class can not
+                  alter the experiment in any way.</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+
+            <para>For each user class element, an arbitrary number of
+            <sgmltag>user</sgmltag> and <sgmltag>group</sgmltag> sub-elements
+            can be specified.</para>
+
+            <important>
+              <para>perfbase manages the access rights of different users to
+              an experiment. However, it does not manage the
+              <emphasis>database</emphasis> users. This means, to add a new
+              user to an experiment, you first need to make sure that this
+              user exists as a database user.
+              <productname>PostgreSQL</productname> (or third party tools)
+              offer different ways to add a user, like the command line tool
+              <command>adduser</command>. Please refer to the
+              <productname>PostgreSQL </productname>manual for more
+              information of how to manage database users.</para>
+            </important>
+
+            <para>If an experiment description does not contain any user class
+            elements, only the creator of the experiment will have access on
+            the <literal>admin_access</literal> level. Likewise, if no
+            <sgmltag>admin_access</sgmltag> has been defined explicitely, the
+            creator of an experiment will be assigned to this user class
+            implicitely. Any database user who is not assigned to any of the
+            three user classes can not access the experiment at all.</para>
+          </sect3>
+
+          <sect3>
+            <title>Parameter and Result Values</title>
+
+            <para>Any perfbase experiment requires at least one result value,
+            and any number of parameter values. The definition of parameter
+            and result values is very similar. Each value needs a
+            <sgmltag>name</sgmltag> and a <sgmltag>datatype</sgmltag>. Other
+            elements are optional.</para>
+
+            <para>The name should be chosen like a variable name in a
+            programming language: as short as possible, but as long as
+            necessariy. The maximum length allowed by perfbase is 256
+            characters and is case-sensitive. Underscores in the name will be
+            used to mark an index for many output formats (i.e. gnuplot): a
+            value named <literal>v_max</literal> will be displayed as
+            v<subscript>max</subscript>.</para>
+
+            <para>The datatype is perfbase-specific and can be any of
+            <literal>integer</literal>, <literal>float</literal>,
+            <literal>string</literal> (text of up to 256 characters),
+            <literal>text</literal> (unlimited length),
+            <literal>date</literal> (day, month and year),
+            <literal>timeofday</literal>, <literal>duration</literal>,
+            <literal>timestamp</literal> (combination of date and timeofday),
+            <literal>binary</literal> (byte values),
+            <literal>boolean</literal> and <literal>version</literal> (version
+            number; see explanaition below).</para>
+
+            <para>The <literal>synopsis</literal> should be a brief
+            description of the value made up of very few words, like
+            <literal>message size</literal> for a value named
+            <literal>S_msg</literal>.</para>
+
+            <para>The <literal>description</literal> might look superflous at
+            first glance for most values, but especially for non-obvious
+            values, it pays of to describe the actual meaning and the
+            background. This will help lateron if the original idea for this
+            value is no longer present.</para>
+
+            <para>The <sgmltag>unit</sgmltag> is the physical or logical unit
+            of the value. It will be used for the labeling in output (charts)
+            created via queries, and also for correct scaling and conversion
+            (like <emphasis>speed multiplied with time is
+            distance</emphasis>). Therefore, it is defined as a term of
+            <sgmltag>base_unit</sgmltag> and <sgmltag>scaling</sgmltag>
+            elements. Valid base units are <literal>none</literal> (no unit),
+            <literal>%</literal> (percent), <literal>byte</literal>,
+            <literal>bit</literal>, <literal>flop</literal> (floating point
+            operation), <literal>op</literal> (generic operation),
+            <literal>process</literal> (in the sense of an execution context),
+            <literal>event</literal> (generic), <literal>s</literal> (second),
+            <literal>m</literal> (meter), <literal>g</literal> (gramm),
+            <literal>A</literal>, <literal>K</literal> (Kelvin),
+            <literal>mol</literal>, <literal>cd</literal> (candela),
+            <literal>Y</literal> (currency Yen), <literal>$</literal>
+            (currency dollar), <literal>EUR</literal> (currency Euro). Valid
+            scaling factors are <literal>Kilo</literal>
+            (10<superscript>3</superscript>), <literal>Mega</literal>
+            (10<superscript>6</superscript>), <literal>Giga</literal>
+            (10<superscript>9</superscript>), <literal>Tera</literal>
+            (10<superscript>12</superscript>), <literal>Peta</literal>
+            (10<superscript>15</superscript>), <literal>milli</literal>
+            (10<superscript>-3</superscript>), <literal>micro</literal>
+            (10<superscript>-6</superscript>), <literal>nano</literal>
+            (10<superscript>-9</superscript>), <literal>pico</literal>
+            (10<superscript>-12</superscript>), <literal>femto</literal>
+            (10<superscript>-15</superscript>), <literal>Ki</literal>
+            (2<superscript>10</superscript>), <literal>Mi</literal>
+            (2<superscript>20</superscript>), <literal>Gi</literal>
+            (2<superscript>30</superscript>), <literal>Ti</literal>
+            (2<superscript>40</superscript>), <literal>Pi</literal>
+            (2<superscript>50</superscript>).</para>
+
+            <remark>The use of different abbreviattions for 2-base and 10-base
+            scale factors (i.e. <literal>Mi</literal> and
+            <literal>M</literal>) is standardized and recommended as it is
+            simple to apply and helps to remove ambigousness.</remark>
+
+            <para>A <sgmltag>default</sgmltag> content can be specified for
+            parameter and result values. In case that no content will be
+            assigned to a value, it will return this default content when
+            being queried. If the <sgmltag>default</sgmltag> element does not
+            contain any text, it means that the default content should be
+            <sgmltag>NULL</sgmltag>. Although values that return
+            <sgmltag>NULL</sgmltag> will not be considered in queries (with
+            two exceptions), it means that it is possible to leave this value
+            unassigned within a run. If a value has no default content
+            defined, an assignment is mandatory: it won't be possible to
+            create a new run without assigning content to this value.</para>
+
+            <para>The element <sgmltag>valid</sgmltag> can be used for
+            parameter values of type <literal>string</literal> or
+            <literal>text</literal>. It indicates which content is valid for
+            this value. Any number of <sgmltag>valid</sgmltag> elements can be
+            used within a parameter value. Content which does not match one of
+            the valid strings will not be assigned to this value. Specifying
+            valid content this way does not only guarantee that only these
+            strings will be assigned to the value, but does also allow to look
+            for these strings directly within the input data.</para>
+
+            <para>The <sgmltag>occurrence</sgmltag> attribute is very
+            important for parameter and result values. It`s default content is
+            <literal>multiple</literal>, which means that this value will have
+            different content throughout a run because it may appear multple
+            times in the input data. On the other hand, this attribute can be
+            set to <literal>once</literal> which means there will be only one
+            content for this value per run. This difference is relevant on
+            different occasions when working with perfbase. Therefore, the
+            correct setting for each value is very important. It can not be
+            changed once a value has been created.</para>
+          </sect3>
+        </sect2>
+
+        <sect2>
+          <title>Setup Command</title>
+
+          <para>Once the <phrase>experiment description</phrase> has been
+          created, the <command>setup</command> can be invoked, using the name
+          of the <phrase>experiment description</phrase> file as the single
+          parameter:</para>
+
+          <screen><prompt>$</prompt><command> perfbase setup --desc=new_experiment.xml</command></screen>
+
+          <para>If everything works well, the setup command does not create
+          any output unless invoked with the verbosity option
+          <option>-v</option>. The result of the operation can be verified
+          using the <command>info</command> command:</para>
+
+          <screen><prompt>$</prompt><command> perfbase info --exp=<parameter>experiment_name</parameter></command></screen>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Changing an Existing Experiment</title>
+
+        <para>It is rather the rule than the exception that an initial
+        experiment setup needs to be changed in the course of the experimental
+        work. This can be done in perfbase using the <literal>update</literal>
+        command without loosing any of the existing information. The following
+        sections describe all possibilities. In all cases, it is necessary to
+        create an XML experiment update description, following the document
+        type definition provided by
+        <literal>pb_experiment_update.dtd</literal>. The update command uses
+        this description as input to perform the modifications. For some
+        examples of changing (updating) an experiment, see the files in
+        <filename>test/update</filename>.</para>
+
+        <sect2>
+          <title>Changing Meta Information</title>
+
+          <para>The parts of the meta information that can be changed are the
+          project information like synopsis, description and who performs the
+          experiment. The name and the owner of an experiment can not be
+          changed.</para>
+        </sect2>
+
+        <sect2>
+          <title>Adding a Parameter or Result Value</title>
+
+          <para>To add a parameter or result value to an experiment, provide
+          the same description that would be used to describe it when
+          initially setting up the experiment (see chapter XXX). After the
+          update, all existing runs will contain the new parameter or result
+          value either with its default content (if specified), or without any
+          content (null content). Parameter values with null content do not
+          match any specific query, and result values with null content do not
+          provide any data within a query. This means that existing queries
+          will deliver the same results for all runs before and after the
+          update.</para>
+        </sect2>
+
+        <sect2>
+          <title>Modifying a Parameter or Result Value</title>
+
+          <para>An existing parameter or result value can be modified in
+          different ways which are described below. All types of modifications
+          can be applied at once, using a single experiment update
+          description. Multiple modifications of a single parameter or result
+          value can be specified within a single <literal>parameter</literal>
+          or <literal>result</literal> element.</para>
+
+          <sect3>
+            <title>Changing the Name</title>
+
+            <para>To change the name of a parameter, a
+            <literal>new_name</literal> element has to be used.
+            Example:</para>
+
+            <programlisting>&lt;parameter&gt;
+   &lt;name&gt;v&lt;/name&gt;
+   &lt;new_name&gt;v_1&lt;/new_name&gt;
+&lt;/parameter&gt;</programlisting>
+
+            <para>This will assign the name <literal>v_1</literal> to the
+            parameter value <literal>v</literal>.</para>
+          </sect3>
+
+          <sect3>
+            <title>Changing the Default Content</title>
+
+            <para>To change the default content, or to assign a default
+            content to a value which has no default content, specify an
+            according default element. Example:</para>
+
+            <programlisting>&lt;parameter&gt;
+   &lt;name&gt;v&lt;/name&gt;
+   &lt;default&gt;0&lt;/default&gt;
+&lt;/parameter&gt;</programlisting>
+
+            <para>This will assign the default content <literal>0</literal> to
+            the parameter <literal>v</literal>.</para>
+
+            <remark>It is not yet possible to fully remove a default content
+            once it has been specified. It can only be changed, also to an
+            empty value.</remark>
+          </sect3>
+        </sect2>
+
+        <sect2>
+          <title>Removing a Parameter or Result Value</title>
+
+          <para>A parameter or result value can be removed from an experiment
+          by adding the attribute <literal>action="drop"</literal> to the
+          element <literal>parameter</literal> or <literal>result</literal>.
+          Example:</para>
+
+          <programlisting>&lt;parameter action="drop"&gt;
+   &lt;name&gt;v&lt;/name&gt;
+&lt;/parameter&gt;</programlisting>
+
+          <para>This will remove the parameter <literal>v</literal> from the
+          experiment.</para>
+
+          <para><remark>All data for the parameter or result value is removed
+          from the database and can not be recovered. Therefore, think twice
+          before removing a parameter or result value!</remark></para>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Experiment Backup and Transfer</title>
+
+        <para>Transferring an experiment means to dump it into a file from the
+        database server, and restore it from this file into the same or
+        another database server. This is also a method for backing up an
+        experiment. pb_entity supports such operations via the
+        <command>dump</command> and <command>restore</command> commands</para>
+
+        <sect2>
+          <title>Dumping an Experiment</title>
+
+          <para>A complete representation of an experiment can be created
+          using the <command>dump</command> command. This requires that the
+          <command>pg_dump</command> command from the PostgreSQL distribution
+          is in your path.</para>
+
+          <para><command>perfbase dump
+          </command><option>--exp=exp_name</option></para>
+
+          <para>This will create a single, automatically named file which can
+          be used with the restore command to restore the experiment on any
+          <productname>PostgreSQL</productname> database server. The option
+          <option>--file=</option><filename>filename</filename> (or
+          <option>-f</option> <filename>filename</filename>) can be used to
+          specify a different filename.<note>
+              <para>Dumping an experiment is only possible with admin
+              rights.</para>
+            </note></para>
+        </sect2>
+
+        <sect2>
+          <title>Restoring an Experiment</title>
+
+          <para>The <command>restore</command> command will create an active
+          experiment from a previously created experiment dump file. If the
+          name of the dump file was automatically created by pb_entity, only
+          the name of the dump file needs to be specified. The
+          <command>pg_restore</command> command from the PostgreSQL
+          distribution needs to be in your path for this operation.</para>
+
+          <para><command>perfbase restore
+          </command><option>--file=</option><filename>filename</filename></para>
+
+          <para>Otherwise, it is necessary to also specify the name of the
+          to-be-restored experiment using the <option>--exp exp_name</option>
+          (or <option>-e exp_name</option>) option.</para>
+
+          <note>
+            <para>After having restored an experiment, it is recommended to
+            check its integrity using the <command>check</command> command,
+            like</para>
+
+            <para><command>perfbase check
+            --exp=<parameter>exp_name</parameter> --fix</command></para>
+          </note>
+
+          <note>
+            <para>Dumping and restoring large experiments can take a
+            considerable amount of time, and may create large dump
+            files.</para>
+          </note>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Deleting an Experiment</title>
+
+        <para>An experiment can be delete via the <command>delete</command>
+        command. The experiment name needs to be specified explicitly; the
+        environment variable <envar>PB_EXPERIMENT</envar> is not evaluated
+        here to avoid unintentional deletion of an experiment.</para>
+
+        <para>Additionally, a warning message is printed and a verification
+        question needs to be answered with <literal>yes</literal> to actually
+        delete the experiment. This can be overridden using the
+        <option>--dontask</option> option.</para>
+
+        <note>
+          <para>A deleted experiment can not be restored, and no data can be
+          recovered from an experiment once it has been deleted. Therefore, it
+          is recommended to perform a backup before deleting an
+          experiment.</para>
+        </note>
+
+        <note>
+          <para>Deleting an experiment is only possible with admin
+          rights.</para>
+        </note>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Data Import</title>
+
+      <para>After an experiment has been created, result data from experiment
+      executions can be imported. pb_entity will create a <phrase>run</phrase>
+      for each set of result data, consisting of singular content for
+      parameter and result values with <literal>occurrence=once</literal>
+      attribute, and an arbitrary number of data sets that assign content to
+      the parameter and result values with
+      <literal>occurrence=multiple</literal> attribute.</para>
+
+      <sect1>
+        <title>Creating an Input Description</title>
+
+        <para>An input description is required to describe how content from
+        the result data, found in the input file(s), is assigned to the
+        parameter and result values defined in the experiment. An input
+        description is an XML file with a structure that complies to the
+        <phrase>document type definition</phrase> <filename>(DTD)
+        pb_input.dtd</filename>. According to this DTD, it may contain an
+        arbitrary number of elements of the same or different type per value
+        which describe where content for a value is to be extracted from the
+        file.</para>
+
+        <para>In this section, an overview on the different means provided to
+        extract content from the input files is provided. A detailed
+        description of all valid elements and attributes defined in the DTD
+        can be found in XXX.</para>
+      </sect1>
+
+      <sect1>
+        <title>Performing the Data Import</title>
+
+        <sect2>
+          <title>Basic Operation</title>
+
+          <para>The standard import operation is very simple to perform and
+          does only require the specification of an input description and an
+          input file which contains the output of the experiment
+          execution:</para>
+
+          <para><command>perfbase </command><option>input
+          --desc=input_desc.xml output.dat</option></para>
+
+          <para>This example will parse the file
+          <filename>output.dat</filename> according to the definitions in
+          <filename>input_desc.xml</filename>. If successful, a new run will
+          be created in the related experiment.</para>
+
+          <para>The input file can safely be deleted after a successful import
+          or be kept for later reference. However, if the latter is desired,
+          it is possibly a better idea to store the original content of the
+          input file directly in the experiment database using the
+          <option>--store </option>option.</para>
+
+          <para>By default, each input file can only imported once. pb_entity
+          verifies the identity of a new input file and any of the input files
+          that have been used to create existing runs by actually comparing
+          the content, not the filename. Thus, using an identically named
+          input file with different content will cause no conflict. This
+          mechanism serves to avoid corruption of the experiment data which
+          multiple runs created from the same input data would create. The
+          option <option>--force</option> can be used to override this
+          protection mechanism for all files specified for an import
+          operation. For a single file in a multiple-file import (according to
+          section XXX), the protection can be deactivated using the
+          -<option>-enforce=</option><filename>filename</filename>
+          option.</para>
+        </sect2>
+
+        <sect2>
+          <title>Handling Missing Data</title>
+
+          <para>One principle of pb_entity is to avoid the import of false
+          data into the experiment. Therefore, the default behaviour when no
+          content can be assigned to a parameter or result value is to issue a
+          diagnostic message and abort the import without storing any data in
+          the experiment. Other methods of handling such a situation, like
+          using default content or interactively providing content, are
+          supported, but the user has explicitly instruct pb_entity to apply
+          these methods. By this, pb_entity ensures that the user always is
+          aware of where the data for a newly created run stems from.</para>
+
+          <para>Two situations do exist in which pb_entity is not able to
+          assign content to a value: <orderedlist>
+              <listitem>
+                <para><phrase>missing definition</phrase>: The input
+                description(s) used do(es) not contain a definition for a
+                parameter or result value. This situation is detected and
+                handled at the start of the import operation.</para>
+              </listitem>
+
+              <listitem>
+                <para><phrase>missing content</phrase>: None of the
+                definitions provided for a parameter or result value does
+                retrieve valid content from the input file(s). This situation
+                can not be detected and handled until all input files have
+                been completely parsed.</para>
+              </listitem>
+            </orderedlist></para>
+
+          <para>In both cases, pb_entity will list the affected values, and
+          the user has to decide how to handle the situation by choosing any
+          combination of the three methods described below.</para>
+
+          <sect3>
+            <title>Provide Fixed Values on the Commandline</title>
+
+            <para>To provide static content for a value, a <phrase>fixed
+            value</phrase> can be defined either within the input description
+            or on the command line. For the first variant, refer to chapter
+            XXX. To define a fixed value on the command line, use the
+            <option>-f</option> option. As an example, to set the value
+            <literal>N</literal> to <literal>34</literal>, use a command line
+            like</para>
+
+            <para><command>perfbase input -f N=34 --desc
+            <filename>input.xml</filename>
+            <filename>input.dat</filename></command></para>
+
+            <para>In both cases, the definition of a fixed value overrides all
+            other possible definitions for a value in any of the used input
+            descriptions, and no content from the input files will be
+            considered.</para>
+
+            <para>This option is also very useful to run variations of a query
+            from within a script file: it allows to use the same XML query
+            descriptions to perform queries for different parameters.</para>
+          </sect3>
+
+          <sect3>
+            <title>Default Content</title>
+
+            <para>In the experiment definition, a default content can be
+            defined for each parameter or result value. To actually use this
+            default content for the case of a <phrase>missing
+            definition</phrase>, the option <option>--use-default</option> (or
+            <option>-u</option>) needs to be provided to the
+            <command>input</command> command. .</para>
+
+            <para>In case of <phrase>missing content</phrase>, it is necessary
+            to provide the option <option>--missing=default </option>(or
+            -<option>a default</option>) to assign default content to a
+            value.</para>
+
+            <para>This differentiation of the two cases <phrase>missing
+            definition</phrase> and <phrase>missing content</phrase> ensures
+            that in the case of a <phrase>missing definition</phrase>, no
+            default content will be assigned to a value for which the user
+            assumes the input files to provide content</para>
+
+            <note>
+              <para>It is valid to specify empty default content. In this
+              case, the content of a value will be NULL.</para>
+            </note>
+          </sect3>
+
+          <sect3>
+            <title>Interactive Input</title>
+
+            <para>Another way to assign content to parameter or result values
+            is <phrase>interactive input</phrase>. In the case of a missing
+            definition, the option <option>--stdin</option> (or
+            <option>-i</option>) will request content at the start of the
+            import operation. For <phrase>missing content</phrase>, use the
+            option <option>--missing=ask</option> (or <option>-a ask</option>)
+            to have pb_entity ask for input after all input files have been
+            parsed.</para>
+          </sect3>
+
+          <sect3>
+            <title>No Content</title>
+
+            <para>If a <phrase>missing definition</phrase> should be ignored,
+            it is necessary to specify empty default content to a value and
+            use <option>--use-default</option> (or <option>-u</option>). If
+            <phrase>missing content</phrase> should be ignored, provide the
+            option <option>--missing=ignore</option> (or <option>-a
+            ignore</option>).</para>
+          </sect3>
+        </sect2>
+
+        <sect2>
+          <title>Multiple Input Files and Multiple Runs</title>
+
+          <para>The standard usage of the <command>input</command> command is
+          to apply a single input description onto a single input file by
+          which a single run is created. However, it is possible to specify
+          multiple input descriptions and/or input files on the command line,
+          or to create multiple runs from a single input file. All
+          non-standard usage scenarios are covered in the following
+          sections.</para>
+
+          <sect3>
+            <title>Creating Multiple Runs from a Single Input File</title>
+
+            <para>If a single input file contains concatenated data from
+            multiple executions of an experiment, it is desired to create the
+            respective number of runs from it. This can be achieved by
+            splitting up the file and using the method from the next section.
+            However, this overhead can usually be avoided by defining a
+            <phrase>set separation</phrase> which will split the single file
+            into multiple input sets for the import operation.</para>
+
+            <para>A set separation can be defined explicitly via a
+            <literal>&lt;set_separation&gt;</literal> element in the input
+            description. A line in the input file which is matched by this
+            element will trigger the creation of a new run. Content for the
+            new run will be parsed from all lines of the input file including
+            and following this match, until a line matches a
+            <sgmltag>&lt;set_separation&gt;</sgmltag> again.</para>
+
+            <para>Am implicit definition of a set separation defines a
+            <sgmltag>&lt;named_location&gt;</sgmltag> or an
+            <sgmltag>&lt;explicit_location&gt;</sgmltag> to mark the start of
+            a new input set. This is achieved by providing the attribute
+            <literal>is_separator="yes"</literal> to the definition of this
+            location element. If this element is matched, it will create a new
+            run, and its content will be assigned to the value in this newly
+            created run.</para>
+          </sect3>
+
+          <sect3>
+            <title>Applying a Single Input Description on Multiple Input
+            Files</title>
+
+            <para>If a specification of a single input description is followed
+            by multiple input file names, this input description will be
+            applied to each of the input files to create a new run for each of
+            it. Example:</para>
+
+            <para><command>perfbase input -d inp_desc.xml output_1.dat
+            output_2.dat</command></para>
+
+            <para>This also allows for a convenient import like</para>
+
+            <para><command>perfbase input -d inp_desc.xml
+            *.dat</command></para>
+
+            <para>By default, the input files are parsed in parallel to allow
+            a data set to consist of data from more than one input file. This
+            means, that the files are searched until a data set is complete.
+            Other values that are found in any file during this search are
+            also stored. Using the option <option>--sequential</option>, it is
+            possible to parse the files in a strictly sequential manner, where
+            the order of the files on the commandline determines the order in
+            which the files are parsed.</para>
+          </sect3>
+
+          <sect3>
+            <title>Applying Multiple Input Descriptions on Multiple Input
+            Files</title>
+
+            <para>If an experiment executions produces multiple files which
+            all provide content for a single run representing this execution,
+            one solution would be to concatenate all input files to create a
+            single input file. This overhead can be avoided by applying a
+            dedicated input description on each input file. This can be
+            achieved by ordering the ordering the specification of the input
+            descriptions and the input file names on the command line:</para>
+
+            <para><command>perfbase input -d inp_desc_1.xml output_1.dat -d
+            inp_desc_2.xml output_2.dat</command></para>
+
+            <para>This will apply the input description
+            <filename>inp_desc_1.xml</filename> to
+            <filename>output_1.dat</filename>, and
+            <filename>inp_desc_1.xml</filename> to
+            <filename>output_1.dat</filename>, and a single run will be
+            created. It is important to understand that each input file will
+            only be parsed according to the definitions in the related input
+            description.</para>
+          </sect3>
+        </sect2>
+
+        <sect2>
+          <title>Parameter Sets</title>
+
+          <para>It is a typical situation that multiple runs are performed in
+          an environment in which a part of the parameter values does not
+          change for all these runs. An example is to perform benchmarks on a
+          specific machine, and parameters like CPU type and speed are the
+          same for all runs. However, it is often that just these parameters
+          are not described in the output data of the benchmark as it is not
+          concerned with this information. The way to provide these parameter
+          values with valid content would be to either set them as
+          <phrase>fixed values</phrase> on the command line (using the
+          <option>-f</option> switch of the <command>input </command>command),
+          or to gather this information in a separate file and import it from
+          there on each run in addition to the benchmark's output file(s). The
+          latter approach bears the problem that pb_entitiy by default refuses
+          to import data from the same file more than once. This can be
+          overcome by using the <option>--enforce</option> command line
+          switch. However, both methods are error-prone and not very
+          convenient.</para>
+
+          <para>To conveniently handle this situation, pb_entity offers
+          <phrase>parameter sets</phrase>. A parameter set is a named set of
+          parameter values with <literal>occurrence=once</literal> attribute
+          and its respective content. This means, a parameter set belongs to
+          an experiment and defines the content of one, multiple or all
+          parameters of an experiment.</para>
+
+          <para>To define a parameter set, the input command needs to be run
+          with an input description that will retrieve content for the
+          parameter values to be contained in the set from one or more input
+          files. This is similar to a standard import operation. The
+          difference is that no result values and parameter values with
+          <literal>occurrence=multiple </literal>attribute are parsed, and the
+          option
+          <option>--pset-store=</option><emphasis><option>name</option></emphasis>
+          has to be provided. It specifies the <option>name</option> of the
+          parameter set to be created, which has to be unique within the
+          experiment. All users with <phrase>input</phrase> and
+          <phrase>admin</phrase> rights can create a new parameter set.
+          However, <phrase>admin</phrase> rights are required to modify an
+          existing parameter set by overwriting it.</para>
+
+          <note>
+            <para>When storing a parameter set under a name that already
+            exists, any content of existing parameter values is overwritten
+            with the new content. It is not possible to delete single values
+            from a parameter set. Instead, delete the whole parameter set
+            using the <command>delete</command> command, and store the
+            parameter set again.</para>
+          </note>
+
+          <para>The currently defined parameter sets of an experiment can be
+          listed using the <command>info </command><option>-v</option>
+          command. To see the full definition of a parameter set
+          <option>name</option>, use the <command>info</command> command with
+          the <option>--pset=name</option> option.</para>
+
+          <para>If an <command>input</command> command refers to a parameter
+          set <option>name</option> using the <option>--pset-use=name</option>
+          option, it will set the content of all parameter values of the run
+          it creates to the content of those parameter values from the
+          parameter set for which content has been specified. All parameter
+          values which have no defined content defined in the parameter set
+          will have their content be retrieved from the input files. This
+          means that content from a parameter set overrides content that
+          eventually is found in the input files.</para>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>How do I...</title>
+
+        <para>Frequently asked questions and the respective answers.</para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Information Retrieval</title>
+
+      <sect1>
+        <title>Retrieving Information on Experiments</title>
+
+        <para>The info command allows to list the experiments that are
+        available on a database server, retrieve information on the
+        experiments and print data stored in the individual runs of an
+        experiment.</para>
+
+        <para>To list all experiments on a database server, use</para>
+
+        <para><command>perfbase info --all</command></para>
+
+        <para>As always, adding the option <option>-v</option> generates a
+        more verbose output. Once you have determined the name of the
+        experiment of interest, you can get more detailed information
+        via</para>
+
+        <para><command>perfbase info --exp=experiment_name</command></para>
+
+        <para>This will also print the number of runs within the experiment.
+        To get information on a specific run, you need its ID. The option -i
+        will print the IDs of all runs within an experiment:</para>
+
+        <para><command>perfbase info -e experiment_name -i</command></para>
+
+        <para>For a given run ID, the option -r will print information on this
+        run:</para>
+
+        <para><command>perfbase info -e experiment_name -r ID</command></para>
+
+        <para>To actually see the data stored within a run, specify the option
+        <option>-d</option> with either <parameter>once</parameter>,
+        <parameter>multiple</parameter> or <parameter>all</parameter> as
+        parameter to list the content of all values with appearance of once or
+        multiple, or all values:</para>
+
+        <para><command>perfbase info -e experiment_name -r ID -d
+        all</command></para>
+
+        <para>More sophisticated methods to find and list data stored within
+        an experiment are described in the next two sections.</para>
+      </sect1>
+
+      <sect1>
+        <title>Listing the Content of an Experiment</title>
+
+        <para>To get a quick overview of the content of an experiment,
+        perfbase provides the <command>ls</command> command. It allows to list
+        the content selected values of the runs within an experiment, similar
+        to the <command>ls</command> command of a shell which lists the
+        content of a directory.</para>
+
+        <para>By default, only the IDs of all active runs of the experiment
+        are listed. Generally, one line is printed for each run, and the
+        output is sorted by the first column:</para>
+
+        <para><command>perbase ls -e experiment_name</command></para>
+
+        <para>To list the content of specific values, add their names on the
+        command line, like:</para>
+
+        <para><command>perfbase ls -e experiment_name --show=T_0
+        --show=S</command></para>
+
+        <para>This will list the content of the values T_0 and S. The run IDs
+        are not listed if any value is explicitely listed. However, it is
+        possible to specifcy meta-values to be shown alongside with the other
+        values using the <parameter>--meta</parameter> parameter (abbreviated
+        as <parameter>-m</parameter>). Meta values are chosen by their
+        4-letter acronym. The parameter <parameter>--help</parameter> lists
+        all available meta acronyms. To additionally list the run ID and the
+        synopsis of each run for the example above, specify</para>
+
+        <para><command>perfbase ls -e experiment_name -s T_0,S -m
+        indx,syno</command></para>
+
+        <para>You will have noticed the abbreviation of the --show
+        parameter.</para>
+
+        <para>The content of values which have multiple different content per
+        run is not printed. Instead, a placeholder <type>#Nvalues#</type> is
+        printed to indicate that the value has N different contents in this
+        run. Use the option <parameter>--nvals=</parameter>N to print up to N
+        different contents of any value. The different contents are separated
+        by the character '<type>|</type>'.</para>
+
+        <para>A very useful feature of the <command>ls</command> command is
+        the possibility to list all <emphasis>distinct</emphasis> contents
+        that a value has within the experiment. If you would i.e. like to know
+        all different contents of the value cpu_arch, you would do</para>
+
+        <para><command>perfbase ls -e experiment_name -s cpu_arch
+        --distinct</command></para>
+
+        <para>With the <parameter>--distinct </parameter>parameter, one line
+        per value is printed which lists all distinct content of this value
+        throughout the experiment.</para>
+      </sect1>
+
+      <sect1>
+        <title>Finding Specific Data Sets within an Experiment</title>
+
+        <para>While the ls command lists data from <emphasis>all</emphasis>
+        active runs within an experiment, the <command>find</command> command
+        allows to filter the runs by a large variety of conditions. The
+        parameters <parameter>--show</parameter> and
+        <parameter>--meta</parameter> work the same as for the
+        <command>ls</command> command. The filtering of the runs is done via
+        additional parameters. Any number of conditions can be specified on
+        the command line. <emphasis>All</emphasis>conditions need to be
+        fulfilled by a run to be listed.A typical case would be to list only
+        data from runs where the content of a filter matches a condition.
+        I.e., to show the content of T and the run ID of all runs where the
+        value D is greater than 1 and less than 5, specify</para>
+
+        <para><command>perfbase find -e experiment_name -s T -m indx
+        --cond=D&gt;1 --cond=D&lt;5</command></para>
+
+        <remark><command>The characters '&gt;' and '&lt;' need to be escaped
+        to avoid an interpretation by the shell. Typically, you need to
+        replace '&gt;' with '\&gt;' and '&lt;' with '\&lt;' to get the
+        expected behaviour:</command></remark>
+
+        <para><command>perfbase find -e experiment_name -s T -m indx -c
+        D\&gt;1,D\&lt;5</command></para>
+
+        <para>The conditions can not only filter for the content of values,
+        but also for meta information of a run. To list the content of value T
+        for all runs performed yesterday or later and with a synopsis that
+        starts with "NFS", do</para>
+
+        <para><command>perfbase find -e experiment_name -s T
+        --performed-from=yesterday --synopsis="^NFS.*"</command></para>
+
+        <para>The synopsis is specified as a regular expression. All supported
+        parameters are listed when specifying the
+        <parameter>--help</parameter> parameter.</para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Query Operations</title>
+
+      <sect1>
+        <title>Structure of a Query</title>
+
+        <para>Queries are a very important part of perfbase as they actually
+        are the way to create insights from all the data that you have
+        gathered. A query is an operation which extracts data from the
+        experiment which satisfies formulated conditions, and furtheron
+        performs logical, arithmetic or statistical operations on this data.
+        Finally, the data is formatted and possbily fed into other
+        applications to create plots or other reprensations like formatted
+        tables. A simple example is the task "generate a line plot of the
+        minimal latency of operation <emphasis>op</emphasis> on platform
+        <emphasis>p<subscript>1</subscript></emphasis>". Once you've seen this
+        plot, you might want to see the <emphasis>difference</emphasis> of the
+        minimal latencies of operation <emphasis>op</emphasis> on the
+        platforms <emphasis>p<subscript>1</subscript></emphasis> and
+        <emphasis>p<subscript>2</subscript></emphasis>. Both of these task can
+        very easily performed with a perfbase query, and the second query will
+        require only very few modifications of the first query due to the
+        data-stream component-based architecture of perfbase queries.</para>
+
+        <para>A query is formulated as an <abbrev>XML</abbrev> formatted text
+        file validated agains the <abbrev>DTD</abbrev>
+        <filename>pb_query.dtd</filename>. This DTD defines a number of
+        elements which perform different actions and are interconnected via
+        references to the <abbrev>ID</abbrev> of each element. This way, a
+        directed acyclic graph of query elements is defined which controls the
+        data flow from the bottom (the experiment database providing the raw
+        data) to the top (the formatted output data). The resulting graph can
+        be a simple chain or any sort of tree.</para>
+
+        <para>At the bottom of the graph, one or more
+        <sgmltag>source</sgmltag> elements extract data from the runs of the
+        experiment. The data consists of one or more result values, each of
+        which will contribute one vector of data, and zero or more parameter
+        values, which also contribute one data vector each. The
+        <sgmltag>source</sgmltag> element references zero or more
+        <sgmltag>parameter</sgmltag> elements which define filter conditions
+        for parameter values. Only data from runs and datasets which match the
+        conditions of these <sgmltag>parameter</sgmltag> elements is passed up
+        to the next level via the described data vectors. At the very top of
+        the graph, one or more <sgmltag>output</sgmltag> elements present the
+        final data in one of multiple available output formats, like raw text,
+        tables, XML formatted data or graphical plots in two or three
+        dimensions. Between the bottom and the top, any number of
+        <sgmltag>operator</sgmltag> and <sgmltag>combiner</sgmltag> elements
+        can be placed to process the data (apply filters, perform reductions
+        and statistical operations, evaluate terms to derive new data, etc)
+        and control the flow of the data.</para>
+
+        <para>Within this chapter, we will illustrate the use of the different
+        elements with a simplified example experiment named PMB. The full
+        version of this example is provided in
+        <filename>perfbase/examples/PMB</filename>. This experiments processes
+        the result data of a message passing benchmark which measures the
+        <emphasis>latency</emphasis> (result value <literal>T</literal> wiht
+        multiple occurence) of different <emphasis>operations</emphasis>
+        (parameter value <literal>op</literal> with multiple occurence) across
+        varying <emphasis>message sizes</emphasis> (parameter value
+        <literal>S_chunk</literal> with multiple occurence) and
+        <emphasis>number of processes</emphasis> (parameter value
+        <literal>N_proc</literal> with multiple occurence). This benchmark is
+        run on different platforms or in different software environments,
+        characterized by a number of parameter values with single occurrence
+        like the <emphasis>version of the message passing library</emphasis>
+        (<literal>MPI_version</literal>) and the used
+        <emphasis>interconnection network</emphasis>
+        (<literal>interconnect</literal>).</para>
+
+        <para>Every XML query description needs to be nested wihin a pair of
+        <sgmltag>query</sgmltag> tags:</para>
+
+        <screen>&lt;query&gt;
+   ... query content ...
+&lt;/query&gt;</screen>
+
+        <para>This is omitted in the examples that follow to increase
+        readability.</para>
+
+        <sect2>
+          <title><sgmltag>source</sgmltag> Element</title>
+
+          <para>The source element extracts datasets from the database based
+          on arbitrarily defined filters and limits. The datasets that a
+          source element provides consists of at least one result value and
+          any number of parameter values. I.e., to create a 2-dimensional
+          plot, a single result value and a single parameter value (both with
+          multiple occurrence) need to be specified. These two will make the
+          source element generate a vector with the elements being
+          &lt;parameter, result&gt; tuples. These tuples can then easily be
+          plotted or presented as a table using an output element (discussed
+          later in this chapter).</para>
+
+          <screen>&lt;source id="simple_source"&gt;
+   &lt;result&gt;T&lt;/result&gt;
+   &lt;parameter&gt;
+      &lt;value&gt;S_chunk&lt;/value&gt;
+   &lt;/parameter&gt;
+&lt;/source&gt;
+</screen>
+
+          <para>Another way to write the same query is to use "external"
+          parameter elements. This will alllow to reuse a single parameter
+          element within multiple source elements. This will simplify the
+          maintenance of the query and at the same time increase the
+          readability. The extenal parameter element is then referenced from
+          the source element via an input element, using the content of its
+          <sgmltag>id</sgmltag> attribute:</para>
+
+          <screen>&lt;parameter id="p_chunk"&gt;
+   &lt;value&gt;S_chunk&lt;/value&gt;
+&lt;/parameter&gt;
+
+&lt;source id="simple_source"&gt;
+   &lt;result&gt;T&lt;/result&gt;
+
+   &lt;input&gt;p_chunk&lt;/input&gt;
+&lt;/source&gt;</screen>
+
+          <para>This basic source element will generate a vector with
+          <emphasis>all</emphasis> pairs of message size
+          (<literal>S_chunk</literal>) and latency (<literal>T</literal>) that
+          are stored within the experiment. This is rarely the intention of
+          the user. Instead, he wants to limit the range of the datasets to be
+          provided by the source to match certain criterias. This can be
+          achieved using more parameter elements as described in the next
+          chapter.</para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>parameter</sgmltag> Element</title>
+
+          <para>A parameter element can not only define a parameter value to
+          provide its content in the output vector of a source element, but
+          can also limit the selection of datasets to match user-specified
+          criterias. This applies to both, parameter values with single and
+          multiple occurrence. This is again illustrated using the PMB
+          example. We modify the query to only show datasets of benchmark runs
+          that were performed on a system with a Myrinet interconnect using a
+          version of the message passing library equal or greater than 1.0,
+          but below 1.1:</para>
+
+          <screen>&lt;parameter id="p_chunk"&gt;
+   &lt;value&gt;S_chunk&lt;/value&gt;
+&lt;/parameter&gt;
+
+&lt;parameter id="p_ic"&gt;
+   &lt;value&gt;interconnect&lt;/value&gt;
+   &lt;filter&gt;
+      &lt;equal&gt;Myrinet&lt;/equal&gt;
+   &lt;/filter&gt;
+&lt;/parameter&gt;
+
+&lt;parameter id="p_version"&gt;
+   &lt;value&gt;MPI_version&lt;/value&gt;
+   &lt;filter&gt;
+      &lt;greaterequal&gt;1.0&lt;/greaterequal&gt;
+      &lt;lesser&gt;1.1&lt;/lesser&gt;
+   &lt;/filter&gt;
+&lt;/parameter&gt;
+
+&lt;source id="simple_source"&gt;
+   &lt;result&gt;T&lt;/result&gt;
+
+   &lt;input&gt;p_chunk&lt;/input&gt;
+
+   &lt;input&gt;p_ic&lt;/input&gt;
+   &lt;input&gt;p_version&lt;/input&gt;
+&lt;/source&gt;</screen>
+
+          <para>The new element used here is the <sgmltag>filter</sgmltag>
+          element within the <sgmltag>parameter</sgmltag> element. It defines
+          the conditions which the datasets need to match to be included in
+          the output vector of the <sgmltag>source</sgmltag> element. The
+          filter element typically includes one or more condition sub-elements
+          which define the conditions which may equally express numerical,
+          boolean or string relations (depending on the data type of the
+          parameter value). If more than one condition elements are provided,
+          they per default are used to create a boolean <literal>AND</literal>
+          condition. This behaviour can be controlled via the
+          <sgmltag>boolean</sgmltag> attribute being set to
+          <literal>and</literal> or <literal>or</literal>.</para>
+
+          <para>As the parameter values used for the filtering in the example
+          above are both of the type <emphasis>single occurrence</emphasis>,
+          the output vector will look as without filtering, only being
+          shorter. The specified filter conditions are not visible, though.
+          However, the available output formats provide (different) means to
+          include this information in the final result of the query, like
+          column titles in a table or labels in a plot. The inclusion of the
+          filter conditions in the</para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>fixed</sgmltag> Element</title>
+
+          <para>A <markup>fixed</markup> element serves as a reference for
+          content of a query description. It can be referenced from any place
+          withing the query in which explicit content is expected..An example
+          would be a parameter filter for the data size. Within the filter,
+          the data size can be specified as a numerical value, but it can also
+          be specified via the <markup>id</markup> of a <markup>fixed</markup>
+          element. In this case, the content of the <markup>fixed</markup>
+          element is used within the filter. </para>
+
+          <para><markup>fixed</markup> elements are useful because they can
+          also be specified on the command line. This way, the same query file
+          can be used for query operations with different parameter filters.
+          For applications of this technique, have a look at the test cases
+          found in <filename>test/fixed</filename>.</para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>run</sgmltag> Element</title>
+
+          <para>The run element allows to explicitely specifiy which runs
+          shall be excluded from the query, or to define an exclusive set of
+          runs to be considered in a query. Possible criterias for this
+          filtering a described below. It is possible to either provide
+          numerical run indexes, or an arbitrary combination of the other
+          criterias. For the latter case, the specified filter conditions are
+          combined as a logical <emphasis>and</emphasis> expressions (all
+          filter conditions need to be met by a run to match). The attribute
+          <markup>boolean</markup> can be set to <literal>or</literal> to let
+          the filter match all runs that meets any of the conditions</para>
+
+          <para>The default action of the <markup>run </markup>element is to
+          <emphasis>include</emphasis> all runs that match the filter. Setting
+          the attribute <markup>mask</markup> to <literal>exclude</literal>
+          reverses this to <emphasis>exclude</emphasis> all runs that match
+          from this query.</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>Index</term>
+
+              <listitem>
+                <para>Any number of single run indices, index lists or index
+                ranges can be specified.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Synopsis</term>
+
+              <listitem>
+                <para>The specified string represents a regular expression
+                that is matched against the synopsis of each run.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Description</term>
+
+              <listitem>
+                <para>The specified string represents a regular expression
+                that is matched against the description of each run.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Creation Time</term>
+
+              <listitem>
+                <para>Specify a time range in which the run data was created
+                within the database.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Time of Performance </term>
+
+              <listitem>
+                <para>Specifiy a time range in which the original data was
+                created (i.e.. the time stamp of the input files which was
+                carried over to the database).</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>series</sgmltag> Element</title>
+
+          <para>Certain types of result values do come without a parameter
+          value. I.e., sampled durations of an operation are just time values;
+          the data set that contains these time values may contain no
+          parameter value. However, for most processing and plotting
+          operations, perfbase requires a parameter </para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>operator</sgmltag> Element</title>
+
+          <para>Operators are intensively used in queries as they process the
+          data that the sources deliver. There are many different types of
+          operators, and a single operator can work in different ways
+          depending on which kind of input data it works on. This section
+          gives a brief description and a table with the most relevant
+          characteristics of all available operator types For a full XML
+          reference of the <literal>&lt;operator&gt;</literal> element, see
+          section XXX.</para>
+
+          <para>The available operators differ in various characteristics
+          which are explained below. It is important to understand these
+          differences to create queries which perform as desired.</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>Reduction Operators</term>
+
+              <listitem>
+                <para>Some operators (like <sgmltag>max</sgmltag> or
+                <sgmltag>sum</sgmltag>) are reduction operators which
+                calculate one value for an input vector of arbitrary length.
+                If such an operator processes an input from a
+                <sgmltag>source</sgmltag> object, it behaves differently from
+                operating on input from <sgmltag>operator</sgmltag>
+                elements.</para>
+
+                <remark>For this reason, mixing input of
+                <sgmltag>operator</sgmltag> and <sgmltag>source</sgmltag>
+                elements is not supported.</remark>
+
+                <para>If the input is generated by a <sgmltag>source</sgmltag>
+                object, it is possible that it contains data from multiple
+                runs which all match the specified parameter filters.
+                Therefore, the reduction is performed elementwise across the
+                input vectors from the different runs. The reduction operator
+                determines the matching elements by matching the parameters of
+                the elements. The result of this reduction is again a
+                vector.</para>
+
+                <para>If a single operator provides input for the reduction
+                operator, the input vector is reduced to a single value (i.e.
+                the largest value for the <sgmltag>max</sgmltag>
+                operator).</para>
+
+                <para>Finally, if multiple operators provide input, the
+                reduction is again performed elementwise across all input
+                vectors, generating a single result vector. The matching of
+                the elements is again performed by matching the parameter
+                values of each element. If no parameter values are provided,
+                the matching is done via the order of the elments within the
+                vector. In this case, it might be necessary to apply the
+                <sgmltag>order</sgmltag> operator before.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Algebraic Operators</term>
+
+              <listitem>
+                <para>Algebraic operators perform an algebraic calculation on
+                exactly one, exactly two or an arbitrary number of input
+                vectors. An example is the <sgmltag>diff</sgmltag> operator
+                which calculates the difference between each element of
+                exactly two input vectors. The result of an algebraic operator
+                is a single vector. The number of elements of the result
+                vector depends on the number of elements of the input
+                vector(s), and the type of the elements of the result vector
+                depends on the type of the elements of the input
+                vector(s).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Transforming Operators</term>
+
+              <listitem>
+                <para>Some operators transform the input vector(s) into a
+                partially or totally new vector (with respect to the number or
+                type of elements). I.e., the <sgmltag>distrib</sgmltag>
+                operator calculates a statistical distribution of the input
+                vector's elements. Here, the number of elements of the result
+                vector is determined by the bin width, and the values
+                represent propabilities. Other transforming operators cut of
+                parts of the input vector, or filter out data from specific
+                runs.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <sect3>
+            <title><literal>null</literal></title>
+
+            <para>Supported attributes:</para>
+
+            <variablelist>
+              <varlistentry>
+                <term>None</term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </sect3>
+
+          <sect3>
+            <title><literal>sum</literal> and <literal>prod</literal></title>
+
+            <para>This operator calculates the sum respectively the product of
+            one or more input vectors.</para>
+          </sect3>
+
+          <sect3>
+            <title><literal>max</literal> and <literal>min</literal></title>
+
+            <para>This operators determine the maximum respectively the
+            minimum element of an input vector. If the object that generates
+            the input vector is of type <sgmltag>source</sgmltag>, the
+            operator will determine the extreme of each vector of</para>
+          </sect3>
+
+          <sect3>
+            <title><literal>scale</literal> and
+            <literal>offset</literal></title>
+
+            <para>These operators perform simple algebraic operations:
+            <sgmltag>scale</sgmltag> multiplies all result value of the input
+            vectors with a constant factor, while <sgmltag>offset</sgmltag>
+            adds a (positive or negative) constant to all result
+            values.</para>
+
+            <para>The <sgmltag>scale</sgmltag> operator is also able to adapt
+            the unit of the value to be scaled accordingly. I.e., if the unit
+            of a value is <literal>kg</literal>, and the scale factor is 1000,
+            the unit will be adapted to <literal>g</literal>. For this
+            mechanism to work, it is necessary that the scale factor is
+            specified in terms of a scale prefix (like <literal>k</literal>,
+            <literal>M</literal>, <literal>ki</literal>,
+            <literal>Mi</literal>, etc.). To scale a value down using prefix
+            symbols, they need to be specified like <literal>1/k</literal>
+            (for a scale factor of 10<superscript>-3</superscript>).</para>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Algebraic</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>value</term>
+
+                          <listitem>
+                            <para>The factor (for <sgmltag>scale</sgmltag>) or
+                            constant (for <sgmltag>offset</sgmltag>). Data type
+                            has to be numeric. For the <sgmltag>scale</sgmltag>
+                            operator, scaling prefixes are also supported (see
+                            description above), optionally preprended with a
+                            <literal>1/</literal> term.</para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal>avg</literal>, <literal>stddev</literal> and
+            <literal>variance</literal></title>
+
+            <para>These operators calculate the arithmetic avg
+            (<sgmltag>avg</sgmltag>), the standard deviation
+            (<sgmltag>stddev</sgmltag>), or the variance
+            (<sgmltag>variance</sgmltag>), respectively.</para>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Reduction</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>None</term>
+
+                          <listitem>
+                            <para></para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal>diff</literal> and <literal>div</literal></title>
+
+            <para>These operators calculate the elementwise difference
+            (<sgmltag>diff</sgmltag>) respectively the fraction
+            (<sgmltag>div</sgmltag>, for division) of two input vectors. The
+            assignment of minuend and subtrahend (respectively dividend and
+            divisor) is determined by the order of the
+            <sgmltag>input</sgmltag> elements.</para>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Algebraic</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>2</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>None</term>
+
+                          <listitem>
+                            <para></para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal>percentof</literal>, <literal>above</literal> and
+            <literal>below</literal></title>
+
+            <para>These operators put two input vectors into relation by
+            elementwise calculating the ratio of two vector's elements
+            (percentof) or the increase (<sgmltag>above</sgmltag>)
+            respectively the decrease (<sgmltag>below</sgmltag>) that
+            transforms one vector's elements into the other vector's elements.
+            The order of the input elements determines the order of the
+            elements in the term.</para>
+
+            <para>For two input vectors A and B, two corresponding terms for
+            the elements a and b are as follows:</para>
+
+            <variablelist>
+              <varlistentry>
+                <term>percentof</term>
+
+                <listitem>
+                  <para>a / b * 100</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>above</term>
+
+                <listitem>
+                  <para>(a / b - 1) * 100</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>below</term>
+
+                <listitem>
+                  <para>(1 - a / b) * 100</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Algebraic</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>2</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>None</term>
+
+                          <listitem>
+                            <para></para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal><literal>count</literal></literal></title>
+
+            <para></para>
+          </sect3>
+
+          <sect3>
+            <title><literal>eval</literal></title>
+
+            <para>This operator allows to define arbitrary terms to be
+            calculated. Both, variable values from input vectors as well as
+            constants and singular parameter values can be used in the
+            definition of the term.</para>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Algebraic</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>one or more</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>one or more</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>None</term>
+
+                          <listitem>
+                            <para></para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal>median</literal> and
+            <literal>quantile</literal></title>
+
+            <para></para>
+
+            <informaltable>
+              <tgroup cols="2">
+                <colspec align="right" />
+
+                <tbody>
+                  <row>
+                    <entry>Operator type</entry>
+
+                    <entry>Reduction</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of input vectors</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Number of result values per vector</entry>
+
+                    <entry>1</entry>
+                  </row>
+
+                  <row>
+                    <entry>Supported attributes</entry>
+
+                    <entry><variablelist>
+                        <varlistentry>
+                          <term>Value</term>
+
+                          <listitem>
+                            <para></para>
+                          </listitem>
+                        </varlistentry>
+                      </variablelist></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>
+          </sect3>
+
+          <sect3>
+            <title><literal>distrib</literal></title>
+
+            <para></para>
+          </sect3>
+
+          <sect3>
+            <title><literal>sort</literal></title>
+
+            <para></para>
+          </sect3>
+
+          <sect3>
+            <title><literal>slice</literal>, <literal>latest</literal> and
+            <literal>oldest</literal></title>
+
+            <para></para>
+          </sect3>
+
+          <sect3>
+            <title><literal>runindex</literal></title>
+
+            <para>The <literal>runindex</literal> operator does not modify
+            data, but instead replaces for each data value of the result
+            vector with the index of the run that it belongs to. This is
+            useful for parameter optimization, like to answer the question
+            <emphasis>Which setting of parameter P gives the maximum
+            performance? </emphasis></para>
+
+            <para>It often makes sense to use the output of this operator as
+            input for the <literal>param</literal> operator.</para>
+
+            <remark>The run index of a data value is not always available.
+            I.e., if a data value was created from multiple different data
+            values that belong to different runs (like the
+            <literal>avg</literal> operator being applied on a mix of data
+            values), no single run index can be related to this data value. In
+            this case, the run index is set to <literal>-1</literal>.</remark>
+          </sect3>
+
+          <sect3>
+            <title><literal>param</literal></title>
+
+            <para>The param operator transform a run index into the content of
+            a only-once parameter from this run. This operator requires a
+            <literal>runindex</literal> operator to provide the run indexes
+            for input.</para>
+          </sect3>
+
+          <sect3>
+            <title><literal>limit</literal></title>
+
+            <para>The limit operator removes all datasets where the content of
+            the result value does not satisfy a specified condition. A typical
+            application of this operator is to let only pass datasets where
+            the numerical content of a result value is larger or smaller than
+            a given threshold.</para>
+
+            <remark>If you want to apply a band filter (only content above
+            threshold A and below threshold B should pass), you need to
+            concatenate two appropriate limit operators.</remark>
+          </sect3>
+        </sect2>
+
+        <sect2>
+          <title>Combiner Element</title>
+
+          <para>A combiner element does not modify any data, but is used to
+          direct streams of data. Especially, it allows to combine multiple
+          output streams into one input stream for another element. The data
+          vectors of parameter and result values are not changed; however,
+          duplicate vectors are removed.</para>
+
+          <para>A combiner can also be used in conjunction with sweep queries:
+          the independent data vectors created for each sweep variant can be
+          merged into one single object which contains multiple
+          vectors.</para>
+        </sect2>
+
+        <sect2>
+          <title>Output Element</title>
+
+          <para></para>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Performing a Query</title>
+
+        <para>Running the query command.</para>
+
+        <sect2>
+          <title>Handling Error Messages</title>
+
+          <para></para>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>How do I...</title>
+
+        <para>Question &amp; answer section on common query problems.</para>
+      </sect1>
+    </chapter>
+  </part>
+
+  <part>
+    <title>Command Reference</title>
+
+    <chapter>
+      <title>Generic Behaviour</title>
+
+      <para>All pb_entity commands share some common behaviour, which is
+      explained within this chapter.</para>
+
+      <sect1>
+        <title>Environment Variables</title>
+
+        <para>All pb_entity commands evaluate a set of environment variables
+        for their internal configuration. <variablelist>
+            <title>Supported Environment Variables</title>
+
+            <varlistentry>
+              <term><envar>PB_DBHOST</envar></term>
+
+              <listitem>
+                <para>Hostname of the system on which the database server to
+                be used is running (default: localhost)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><envar>PB_DBPORT</envar></term>
+
+              <listitem>
+                <para>Port number on which the database server is accepting
+                incoming requests (default: 5432).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><envar>PB_DBUSER</envar></term>
+
+              <listitem>
+                <para>Username to be used to access the database server
+                (default: login name).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><envar>PB_DBPASSWD</envar></term>
+
+              <listitem>
+                <para>Password to be used to access the database server
+                (default: no password).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><envar>PB_EXPERIMENT</envar></term>
+
+              <listitem>
+                <para>Name of the default experiment to be used by all
+                pb_entity commands that require an experiment name. The
+                content of this environment variable can still be overridden
+                by the command line option.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist><important>
+            <para>The content of an environment variable is overridden by a
+            possible setting of the same variable on the command line (see
+            next section) or within an XML file used by any pb_entity
+            command.</para>
+          </important></para>
+      </sect1>
+
+      <sect1>
+        <title>Common Options</title>
+
+        <para>Each pb_entity command accepts the following options:
+        <variablelist>
+            <title>Common Command Line Options</title>
+
+            <varlistentry>
+              <term><option>--dbhost=<replaceable>host</replaceable></option></term>
+
+              <listitem>
+                <para>Specify the hostname of the system on which the database
+                server to be used is running (default: localhost)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--dbport=<replaceable>port</replaceable></option></term>
+
+              <listitem>
+                <para>Specify the port number on which the database server is
+                accepting incoming requests (default: 5432).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--dbuser=<replaceable>user</replaceable></option></term>
+
+              <listitem>
+                <para>Specfiy a username to be used to access the database
+                server (default: login name).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--dbpasswd=<replaceable>passwd</replaceable></option></term>
+
+              <listitem>
+                <para>Specify the password to be used to access the database
+                server (default: no password).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--version</option> or <option>-V</option></term>
+
+              <listitem>
+                <para>Print the version information on this command and
+                exit.</para>
+
+                <remark>All commands of a pb_entity release carry the same
+                version information.</remark>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--verbose</option> or <option>-v</option></term>
+
+              <listitem>
+                <para>Give some more information on what is happening While
+                executing the command.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--help</option></term>
+
+              <listitem>
+                <para>Show a command's synopsis and a short explanation of all
+                available arguments.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--sqltrace</option></term>
+
+              <listitem>
+                <para>Print all SQL commands that are executed to standard
+                output. This can i.e help to determine the reason if a query
+                does not return any data at all.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><option>--debug</option></term>
+
+              <listitem>
+                <para>Print debug information to standard output (including
+                all SQL commands).</para>
+              </listitem>
+            </varlistentry>
+          </variablelist><important>
+            <para>Configuration information provided via one of these command
+            line options does override a possible respective setting of an
+            environment variable and also a possible setting within an XML
+            file processed by this command.</para>
+          </important></para>
+      </sect1>
+
+      <sect1>
+        <title>Configuration File</title>
+
+        <para>pb_entity stores some configuration data in a configuration file
+        (<envar>$HOME</envar>/<filename>.pbconf</filename>). <important>
+            <para>This file must not be edited manually unless you know
+            exactly what you are doing. pb_entity may cease to function if
+            invalid content is found in this file.</para>
+          </important></para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Command Syntax</title>
+
+      <sect1>
+        <title>init</title>
+
+        <refentry id="init">
+          <refnamediv>
+            <refname>init</refname>
+
+            <refpurpose>Set up a (personal) database server for perfbase
+            experiments.</refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase init</command>
+
+              <arg>-d <replaceable>path</replaceable></arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command>init</command> command is used to set up a
+            <productname>PostgreSQL</productname> database server to store
+            perfbase experiments. While a database server set up via the
+            <command>init</command> can be used either as a personal
+            (single-user) server or a multi-user server, the most common case
+            will be to only use this command for a single-user application.
+            For a multi-user application of perfbase, it is necessary to
+            further configure the server to support remote connections, user
+            authentication and more.</para>
+
+            <remark>Internally, <command>init</command> uses the
+            <productname>PostgreSQL</productname> command
+            <command>initdb</command> to set up a database server for the
+            current user.</remark>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d
+                <replaceable>path</replaceable></option></term>
+
+                <listitem>
+                  <para>Store the database files in the directory
+                  <parameter>path</parameter></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>start</title>
+
+        <refentry id="start">
+          <refnamediv>
+            <refname>start</refname>
+
+            <refpurpose>Start a (personal) perfbase database
+            server.</refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase start</command>
+
+              <arg>-f</arg>
+
+              <arg>-p<replaceable> &lt;port&gt;</replaceable></arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command>start</command> command is used to start a
+            <productname>PostgreSQL</productname> database server on the local
+            machine. It is a more convenient way than launching the PostgreSQL
+            database server manually.</para>
+
+            <remark>If the PostgreSQL server is started by other means, this
+            command is not needed.</remark>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-f <replaceable></replaceable></option></term>
+
+                <listitem>
+                  <para>Force the startup even if the command assumes that
+                  there's already a database server running on this machine.
+                  This is required if multiple database servers should run a
+                  single host listening to different ports.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-p<replaceable>
+                port</replaceable></option></term>
+
+                <listitem>
+                  <para>Specify a port number that will be used by this
+                  instance of the database server to listen for incoming
+                  requests.</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>stop</title>
+
+        <refentry id="stop">
+          <refnamediv>
+            <refname>stop</refname>
+
+            <refpurpose>Stop a perfbase database server.</refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase stop</command>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command>stop</command> command is used to stop a
+            <productname>PostgreSQL</productname> database server that is
+            running on the local machine. It is a more convenient way than
+            stopping the PostgreSQL database server manually.</para>
+
+            <remark>If multiple PostgreSQL database servers are running on the
+            local machine, this command will stop all servers which are
+            running under the user account of this command.</remark>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>setup</title>
+
+        <refentry id="setup">
+          <refnamediv>
+            <refname>setup</refname>
+
+            <refpurpose>Create or modify a new or existing perfbase
+            experiment.</refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase setup</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+
+              <arg>-f</arg>
+
+              <arg>-u</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command>setup</command> command creates a new perfbase
+            experiment based upon an XML formatted <phrase>experiment
+            description</phrase>, modifies an existing experiment, or creates
+            an XML formatted experiment description of an existing
+            experiment.</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para>Specify the file name of an XML formatted perfbase
+                  <phrase>experiment description</phrase> or
+                  <phrase>experiment update description</phrase>.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-f </option></term>
+
+                <listitem>
+                  <para>Force the startup even if the command assumes that
+                  there's already a database server running on this machine.
+                  This is required if multiple database servers should run a
+                  single host listening to different ports.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-p<replaceable>
+                port</replaceable></option></term>
+
+                <listitem>
+                  <para>Specify a port number that will be used by this
+                  instance of the database server to listen for incoming
+                  requests.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para>Create an XML experiment description for an existing
+                  experiment. The data is written to <phrase>standard
+                  output</phrase>.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-u</option></term>
+
+                <listitem>
+                  <para>Modify an existing experiment. In this case, the XML
+                  file passed via the -d option needs to be an
+                  <phrase>experiment update description</phrase>.</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>update</title>
+
+        <refentry id="update">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase update</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>input</title>
+
+        <refentry id="input">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>query</title>
+
+        <refentry id="query">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>info</title>
+
+        <refentry id="info">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>ls</title>
+
+        <refentry id="ls">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>delete</title>
+
+        <refentry id="delete">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>find</title>
+
+        <refentry id="find">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>dump</title>
+
+        <refentry id="dump">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>restore</title>
+
+        <refentry id="restore">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>check</title>
+
+        <refentry id="check">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>version</title>
+
+        <refentry id="version">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+
+      <sect1>
+        <title>help</title>
+
+        <refentry id="help">
+          <refnamediv>
+            <refname></refname>
+
+            <refpurpose></refpurpose>
+          </refnamediv>
+
+          <refsection>
+            <title>Synopsis</title>
+
+            <cmdsynopsis>
+              <command>perfbase</command>
+
+              <arg>-d <replaceable>&lt;xml&gt;</replaceable></arg>
+
+              <arg>-g</arg>
+            </cmdsynopsis>
+          </refsection>
+
+          <refsection>
+            <title>Description</title>
+
+            <para>The <command></command> command ...</para>
+          </refsection>
+
+          <refsection>
+            <title>Parameters</title>
+
+            <variablelist>
+              <varlistentry>
+                <term><option>-d<replaceable>
+                xml</replaceable></option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term><option>-g</option></term>
+
+                <listitem>
+                  <para></para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </refsection>
+        </refentry>
+      </sect1>
+    </chapter>
+  </part>
+
+  <part>
+    <title>XML Reference</title>
+
+    <partintro>
+      <para>pb_entity is controlled via XML-formatted files. The pb_entity
+      commands <command>setup</command>, <command>input</command> and
+      <command>query</command> each process XML control files that comply to a
+      specific <acronym>Document Type Description</acronym>
+      (<abbrev>DTD</abbrev>) which are called <phrase>experiment
+      description</phrase>, <phrase>update description</phrase>, <phrase>input
+      description</phrase> and <phrase>query description</phrase>,
+      respectively.</para>
+    </partintro>
+
+    <chapter>
+      <title>Common Elements</title>
+
+      <para>Some elements are valid for each XML control file. These common
+      elements are described in this chapter.</para>
+
+      <sect1>
+        <title>Database Information</title>
+
+        <para>There are different ways to let the pb_entity commands know
+        which database server is to be accessed. The method with the lowest
+        priority is to specify the access information in the XML control file.
+        Any setting of an according environment variable or command line
+        argument will override the information provided within the XML control
+        file.</para>
+
+        <sect2>
+          <title><sgmltag>database</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>database</entry>
+                </row>
+
+                <row>
+                  <entry>occurrence</entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Specification of the database server to be
+                  accessed.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry>See default values of sub-elements.</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+
+          <para>The valid elements within a <sgmltag>database</sgmltag>
+          element are listed in the table below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>host</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>port</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>user</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>passwd</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>host</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>host</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>parsable text</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>hostname of the system running the database
+                    server</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry><literal>localhost</literal></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable></para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>port</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>port</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>parsable text</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>port number on which the database server is
+                    listening</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry><literal>5432</literal></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable></para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>user</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>user</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>parsable text</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>user name to be used to access the database
+                    server</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry><emphasis>current login name</emphasis></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable></para>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>passwd</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>passwd</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>parsable text</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>clear text password to authenticate with the
+                    database server</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry><abbrev>empty</abbrev></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable></para>
+
+          <tip>
+            <para>It is not recommended to store the password within the XML
+            control file. Instead, set the environment variable
+            <envar>PB_DBPASSWD</envar> accordingly.</para>
+          </tip>
+        </sect2>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Experiment Description</title>
+
+      <para>Each experiment requires a description that contains the name of
+      the experiment, some meta information that describes the experiment in
+      more detail, access right assignment and finally the description of the
+      parameter and result values that typically make up the most part of the
+      experiment description.</para>
+
+      <sect1>
+        <title>Experiment Name</title>
+
+        <para><informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>name</entry>
+                </row>
+
+                <row>
+                  <entry>occurrence</entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry><sgmltag>name</sgmltag> does contain text
+                  representing the experiment name. The name needs to be
+                  unique within a single database server. Upper case
+                  characters within the name are mapped to their lower case
+                  counterparts - this means, two experiments named
+                  <literal>Foo</literal> and <literal>foo</literal> cause a
+                  conflict on the database server because in both cases,
+                  pb_entity will create a database named
+                  <literal>pb_foo</literal>.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default content</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable></para>
+      </sect1>
+
+      <sect1>
+        <title>Meta Information</title>
+
+        <sect2>
+          <title><sgmltag>info</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>info</entry>
+                  </row>
+
+                  <row>
+                    <entry>occurrence</entry>
+
+                    <entry>exactly once</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>sub-elements</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>Describes by whom the experiment was created, and
+                    for which purpose it has been created.</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry><abbrev>no default content</abbrev></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable></para>
+
+          <para>The valid elements within an <sgmltag>info</sgmltag> element
+          are listed in the table below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>performed_by</sgmltag></literal></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>project</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>synopsis</sgmltag></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>description</sgmltag></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>performed_by</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>performed_by</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>sub-elements</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Real name and association of the creator of this
+                  experiment.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>name</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>name</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Real name of the user who created this
+                  experiment.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>organization</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>organization</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Association of the user who created this
+                  experiment.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>project</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>project</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Name of the project within which this experiment was
+                  conducted.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>empty</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>synopsis</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>synopsis</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>One-sentence-description of the experiment (will be
+                  shown i.e. by the <command>info</command> command when
+                  listing an experiment).</entry>
+                </row>
+
+                <row>
+                  <entry>Default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>description</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>description</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Arbitrary-length description of the experiment (will
+                  be shown by the <command>info</command> command for a
+                  verbose experiment listing).</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Multi-User Access Control</title>
+
+        <para>pb_entity allows multiple users to work on the same experiment
+        at the same time. However, by default only the creator of an
+        experiment can access an experiment (he can do so in an unlimited
+        way). To allow other users to access an experiment, it is necessary to
+        explicitly assign access rights to individual users or groups they
+        belong to. Three different levels of access rights do exist (see
+        explanations of the different elements).</para>
+
+        <note>
+          <para>The names of users and groups in this context are managed by
+          the database server, not the operating system and thus do not
+          necessarily relate to the login and group names of the respective
+          users in the operating system environment!</para>
+
+          <para>Refer to the <productname>PostgreSQL</productname>
+          administration manual for help on how to manage users and groups of
+          the database server.</para>
+        </note>
+
+        <sect2>
+          <title><sgmltag>admin_access</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>admin_access</entry>
+                  </row>
+
+                  <row>
+                    <entry>occurrence</entry>
+
+                    <entry>at most once</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>sub-elements</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>Lists all individual users or groups which have
+                    <phrase>administration access</phrase> to this experiment.
+                    This means that all users listed here, or all members of
+                    the listed groups, have full access to the experiment
+                    database. They can add or remove parameters and values,
+                    modify the existing parameters and values, clean up the
+                    database, dump and even delete the experiment. Of course,
+                    these users can also input data and perform
+                    queries.</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry>The user who created the experiment is the only
+                    administrator.</entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>The valid elements within an
+          <sgmltag>admin_access</sgmltag> element are listed in the table
+          below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>user</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>group</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>input_access</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>input_access</entry>
+                  </row>
+
+                  <row>
+                    <entry>occurrence</entry>
+
+                    <entry>at most once</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>sub-elements</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>Lists all individual users or groups which have
+                    <phrase>input access </phrase>to this experiment. This
+                    means that all users listed here, or all members of the
+                    listed groups, can import new data into the experiment
+                    using the <command>input</command> command. Otherwise,
+                    they have read-only access which allows to use the
+                    <command>query</command> commands and all other command
+                    which do not modify the database.</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry>Only the user who created the experiment has
+                    <phrase>input access </phrase>(in its role as
+                    administrator).</entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>The valid elements within an
+          <sgmltag>input_access</sgmltag> element are listed in the table
+          below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>user</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>group</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>query_access</sgmltag></title>
+
+          <para><informaltable>
+              <tgroup cols="2">
+                <colspec align="right" colname="" colwidth="80" />
+
+                <tbody>
+                  <row>
+                    <entry>element name</entry>
+
+                    <entry>query_access</entry>
+                  </row>
+
+                  <row>
+                    <entry>occurrence</entry>
+
+                    <entry>at most once</entry>
+                  </row>
+
+                  <row>
+                    <entry>content type</entry>
+
+                    <entry>sub-elements</entry>
+                  </row>
+
+                  <row>
+                    <entry>description</entry>
+
+                    <entry>Lists all individual users or groups which have
+                    <phrase>query access </phrase>to this experiment. This
+                    means that all users listed here, or all members of the
+                    listed groups, have read-only access which allows to use
+                    the <command>query</command> command and all other
+                    commands which do not modify the database.</entry>
+                  </row>
+
+                  <row>
+                    <entry>default</entry>
+
+                    <entry>Only the user who created the experiment has
+                    <phrase>query access </phrase>(in its role as
+                    administrator).</entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </informaltable>The valid elements within an
+          <sgmltag>query_access</sgmltag> element are listed in the table
+          below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>user</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>group</sgmltag></literal></entry>
+
+                  <entry>at least once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>user</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>user</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>user name to which the related access rights are
+                  granted</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>group</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>group</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parsable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>group name - the related access rights are granted to
+                  all members of this group</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+      </sect1>
+
+      <sect1>
+        <title>Parameter and Result Values</title>
+
+        <para>The core part of an experiment description are the
+        <phrase>parameter and result values</phrase> that make up the
+        effective data of an experiment. Each value needs to have a name and a
+        data type. A short synopsis, longer description, physical (or logical)
+        unit, default value or listing of valid values are optional.</para>
+
+        <sect2>
+          <title><sgmltag>parameter</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>parameter</entry>
+                </row>
+
+                <row>
+                  <entry>occurrence</entry>
+
+                  <entry>at least once</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>sub-elements</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>A <phrase>parameter value</phrase> is a value that is
+                  set to a pre-determined content before or during the
+                  execution (<phrase>run</phrase>) of an experiment. An
+                  example for this is the clock frequency of the
+                  <abbrev>CPU</abbrev> on which a software is executed (this
+                  content is only set once for each run), or the size of a
+                  dataset to be processed which is set to different values
+                  within a single run.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default content</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+
+          <para>The valid elements within a <sgmltag>parameter</sgmltag>
+          element are listed in the table below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>name</sgmltag></literal></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>synopsis</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>description</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>datatype</sgmltag></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>unit</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>valid</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>default</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>result</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>result</entry>
+                </row>
+
+                <row>
+                  <entry>occurrence</entry>
+
+                  <entry>at least once</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>sub-elements</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>A <phrase>result value</phrase> is a value for which
+                  the content depends on the individual execution
+                  (<phrase>run</phrase>) of an experiment. An example for this
+                  is the total execution time (this content is determined only
+                  once for each run), or the time for a single iteration which
+                  is determined multiple times during an experiment.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default content</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+
+          <para>The valid elements within a <sgmltag>parameter</sgmltag>
+          element are listed in the table below.</para>
+
+          <informaltable>
+            <tgroup cols="2">
+              <thead>
+                <row>
+                  <entry align="center">element name</entry>
+
+                  <entry align="center">occurrence</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><literal><sgmltag>name</sgmltag></literal></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><literal><sgmltag>synopsis</sgmltag></literal></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>description</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>datatype</sgmltag></entry>
+
+                  <entry>exactly once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>unit</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>valid</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+
+                <row>
+                  <entry><sgmltag>default</sgmltag></entry>
+
+                  <entry>at most once</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>name</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>name</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parseable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>Each parameter and result value needs to have a name
+                  which is unique within the experiment. It is recommended to
+                  limit the length of the name to a few characters. This helps
+                  to avoid that i.e. plots containing labels for multiple
+                  values are hard to read because of long label strings. Many
+                  output devices (like <productname>gnuplot</productname>)
+                  support enhanced text formatting i.e. for subscript and
+                  superscript using underscore and caret:
+                  <literal>T_min</literal> will be printed as
+                  T<subscript>min</subscript>, and <literal>N^x</literal> will
+                  be printed as N<superscript>x</superscript>.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>no default value defined</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>synopsis</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>synopsis</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parseable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>A short synopsis for this parameter or result value
+                  consisting of only a few words. The synopsis should always
+                  be supplied as it will i.e. be used to label an axis in a
+                  plot.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>empty</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+
+        <sect2>
+          <title><sgmltag>description</sgmltag></title>
+
+          <informaltable>
+            <tgroup cols="2">
+              <colspec align="right" colname="" colwidth="80" />
+
+              <tbody>
+                <row>
+                  <entry>element name</entry>
+
+                  <entry>description</entry>
+                </row>
+
+                <row>
+                  <entry>content type</entry>
+
+                  <entry>parseable text</entry>
+                </row>
+
+                <row>
+                  <entry>description</entry>
+
+                  <entry>A description of arbitrary length. Feel free to
+                  describe the value as thorough as possible! This includes
+                  explanations why it seems necessary to include this value at
+                  all. Such information can often prove very useful when
+                  looking at an experiment after a longer time, or when
+                  someone else has defined it.</entry>
+                </row>
+
+                <row>
+                  <entry>default</entry>
+
+                  <entry><abbrev>empty</abbrev></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </informaltable>
+        </sect2>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Update Description</title>
+
+      <sect1>
+        <title>Adding a Value</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>Changing a Value or Information</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>Removing a Value</title>
+
+        <para></para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Input Description</title>
+
+      <sect1>
+        <title>Meta Information</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>set_separation</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>fixed_value</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>filename_location</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>explicit_location</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>named_location</title>
+
+        <para></para>
+      </sect1>
+
+      <sect1>
+        <title>tabular_location</title>
+
+        <para>A tabular location is used to parse a tabular arrangement of
+        content consisting of an arbitrary number of columns and lines.</para>
+      </sect1>
+
+      <sect1>
+        <title>split_location</title>
+
+        <para>A split location is a special case, different to all other
+        location types. While for all other location types, the content of a
+        value is collected from a single line of the input file, a split
+        location allows to gather partial content from two separately
+        triggered lines and derive the content to be assigned to the value
+        from the two partial contents. This location type was created to
+        support the parsing of trace-like input files. A typical example is
+        the case where a timestamp is written to a file when entering and
+        leaving a function. Using the split location, it is possible to assign
+        the execution duration of the function, which is the difference of
+        leave and enter time stamp, to a value. This value is typically part
+        of a dataset which contains other values like the function name
+        etc.</para>
+      </sect1>
+
+      <sect1>
+        <title>derived_parameter</title>
+
+        <para>A derived parameter assigns content to a parameter value which
+        is not directly found from the input file, but is calculated from the
+        content of one or more other parameter values. While this does not add
+        additional information to the experiment, it might be desired to work
+        with the content this derived parameter value instead of multiple
+        other parameters. I.e., if an input file contains information on the
+        number of nodes and the number of processes per node, the total number
+        of processes can be assigned to a derived parameter.</para>
+      </sect1>
+
+      <sect1>
+        <title>attachment</title>
+
+        <para></para>
+      </sect1>
+    </chapter>
+
+    <chapter>
+      <title>Query Description</title>
+
+      <para></para>
+    </chapter>
+
+    <chapter>
+      <title>Search Description</title>
+
+      <para></para>
+    </chapter>
+  </part>
+</book>

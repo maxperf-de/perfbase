@@ -1,0 +1,86 @@
+# running on the folowing nodes:
+dino0.ccrl-nece.de
+dino1.ccrl-nece.de
+dino10.ccrl-nece.de
+dino15.ccrl-nece.de
+
+
+
+ NAS Parallel Benchmarks 2.4 -- LU Benchmark
+
+ Size: 162x162x162
+ Iterations: 250
+ Number of processes:     4
+
+ Time step    1
+ Time step   20
+ Time step   40
+ Time step   60
+ Time step   80
+ Time step  100
+ Time step  120
+ Time step  140
+ Time step  160
+ Time step  180
+ Time step  200
+ Time step  220
+ Time step  240
+ Time step  250
+
+ Verification being performed for class C
+ Accuracy setting for epsilon =  0.1000000000000E-07
+ Comparison of RMS-norms of residual
+           1   0.1037669803235E+05 0.1037669803235E+05 0.2629433849584E-14
+           2   0.8922124588010E+03 0.8922124588010E+03 0.6498484376237E-14
+           3   0.2562388145827E+04 0.2562388145827E+04 0.9938327138735E-14
+           4   0.2191943438578E+04 0.2191943438578E+04 0.3319409381705E-14
+           5   0.1780780572611E+05 0.1780780572611E+05 0.1838621207318E-14
+ Comparison of RMS-norms of solution error
+           1   0.2159863997169E+03 0.2159863997169E+03 0.5395201217177E-14
+           2   0.1557895592399E+02 0.1557895592399E+02 0.1710342639200E-14
+           3   0.5413188630772E+02 0.5413188630772E+02 0.3937842097655E-15
+           4   0.4822626431540E+02 0.4822626431540E+02 0.6482749766595E-14
+           5   0.4559029100432E+03 0.4559029100433E+03 0.3241762352955E-14
+ Comparison of surface integral
+               0.6664045535722E+02 0.6664045535722E+02 0.1066233314210E-14
+ Verification Successful
+
+
+ LU Benchmark Completed.
+ Class           =                        C
+ Size            =            162x 162x 162
+ Iterations      =                      250
+ Time in seconds =                  1526.54
+ Total processes =                        4
+ Compiled procs  =                        4
+ Mop/s total     =                  1335.69
+ Mop/s/process   =                   333.92
+ Operation type  =           floating point
+ Verification    =               SUCCESSFUL
+ Version         =                      2.4
+ Compile date    =              03 Apr 2006
+
+ Compile options:
+    MPIF77       = $(HOME)/open-mpi/bin/mpif77
+    FLINK        = ${MPIF77}
+    FMPI_LIB     = -L/home/joachim/local/lib -lfpmpi_openmpi -...
+    FMPI_INC     = (none)
+    FFLAGS       = -O3 -xW 
+    FLINKFLAGS   = (none)
+    RAND         = (none)
+
+
+ Please send the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+ 
+ If email is not available, send this to:
+
+ MS T27A-1
+ NASA Ames Research Center
+ Moffett Field, CA  94035-1000
+
+ Fax: 650-604-3957
+
+

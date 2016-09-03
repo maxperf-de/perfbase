@@ -1,0 +1,6 @@
+# The booelan state has to be determined by the data ('on') after
+# the keyword.
+2 processes
+IXS: on
+
+latency: 3.2 us

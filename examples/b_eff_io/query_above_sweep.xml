@@ -1,0 +1,106 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+ 
+<query id="listless.stddev">
+  <experiment>b_eff_io_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.op" show="filter">
+    <value>operation</value>
+    <sweep>
+      <filter>
+	<equal>write</equal>
+      </filter>
+      <filter>
+	<equal>rewrite</equal>
+      </filter>
+      <filter>
+	<equal>read</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <parameter id="p.n_proc" show="filter" unit="no">
+    <value>N_proc</value>
+    <filter>
+      <equal>4</equal>
+    </filter>
+  </parameter>    
+
+  <parameter id="p.listless" show="nothing">
+    <value>noncontig</value>
+
+    <filter>
+      <equal>listless</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.listbased" show="nothing">
+    <value>noncontig</value>
+
+    <filter>
+      <equal>listbased</equal>
+    </filter>
+  </parameter>
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.listless">
+    <result>B_scatter</result>
+    
+    <input>p.op</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased">
+    <result>B_scatter</result>
+    
+    <input>p.op</input>
+    <input>p.s_chunk</input>
+    <input>p.n_proc</input>
+    <input>p.listbased</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.max.listless" type="max">
+    <input>src.listless</input>
+  </operator>
+
+  <operator id="op.max.listbased" type="max">
+    <input>src.listbased</input>
+  </operator>
+
+  <!-- *** 'sweep="match"' makes sure that this operator does only pair inputs which use the same parameter variant. -->
+  <!-- *** If this was not specified, we would get 9 operator variants here (3 times 3) instead of the desired 3. -->
+  <operator id="op.above.listless" type="above">
+    <input sweep="match">op.max.listless</input>
+    <input sweep="match">op.max.listbased</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output - for the demo, we additionally plot to the screen -->
+  <!-- *** 'sweep="intern" plots all parameter variants into the same chart (try "extern" instead!) -->  
+  <output title="Performance Differences on Non-contigous File Access with MPI-IO" target="gnuplot" format="screen" type="bars">
+    <input sweep="intern" label="parameter">op.above.listless</input>
+
+    <option>-persist</option>
+  </output>
+
+  <output title="Performance Differences on Non-contigous File Access with MPI-IO" target="gnuplot" format="eps" type="bars">
+    <input sweep="intern" label="parameter">op.above.listless</input>
+
+    <filename>listless_vs_listbased</filename>
+  </output>
+
+</query>

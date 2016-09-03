@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -d colltest_exp.xml
+
+echo "* Importing data"
+perfbase input -u -f MPI_version=14.1 -f OS_version=14.1 -d colltest_input.xml colltest.dat
+
+echo "* Performing query"
+perfbase query -d colltest_query.xml
+
+echo "* Deleting experiment"
+perfbase delete -e colltest_DEMO --dontask
+rm -f *.gp

@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>split_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for split_location</synopsis>
+    <description>
+      Gather results across multiple, not-consecutive lines
+    </description>
+  </info>
+
+  <parameter>
+    <name>func</name>
+    <synopsis>function name</synopsis>
+
+    <datatype>string</datatype>    
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>call</name>
+    <synopsis>call name</synopsis>
+
+    <datatype>string</datatype>    
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>len</name>
+    <synopsis>data length</synopsis>
+
+    <datatype>integer</datatype>    
+    <default></default>
+  </parameter>
+
+  <result>
+    <name>t_0</name>
+    <synopsis>function start time</synopsis>
+
+    <datatype>float</datatype>
+    <default></default>
+  </result>
+  
+  <result>
+    <name>t</name>
+    <synopsis>function execution time</synopsis>
+
+    <datatype>float</datatype>
+    <default></default>
+  </result>
+
+</experiment>
+
+

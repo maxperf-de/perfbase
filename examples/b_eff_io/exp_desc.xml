@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+
+<experiment>
+  <name>b_eff_io_DEMO</name>
+
+  <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Optimization of MPI I/O Operations</project>
+    <synopsis>DEMO EXPERIMENT - Results of b_eff_io Benchmark</synopsis>
+    <description>
+      We want to track the performance changes that we achieve with
+      new algorithms and parameter optimization I/O operations.
+    </description>
+  </info>
+
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>MT</name>
+    <synopsis>total memory in the system</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Mi</scaling>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MB</name>
+    <synopsis>memory per processor</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Mi</scaling>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>T</name>
+    <synopsis>specified runtime of the test</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>Version of the MPI library</synopsis>
+
+    <datatype>string</datatype>
+    <default>current bitkeeper</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>OS_version</name>
+    <synopsis>Version of the operating system</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>platform on which the test was performed</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>path</name>
+    <synopsis>path in which the test files were created</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>fs</name>
+    <synopsis>type of file system for the used path</synopsis>
+
+    <datatype>string</datatype>
+    <valid>ufs</valid>
+    <valid>nfs</valid>
+    <valid>gfs</valid>
+    <valid>sfs</valid>
+    <valid>mff</valid>
+    <valid>unknown</valid>
+    <default>unknown</default>  
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>date_run</name>
+    <synopsis>date and time the run was performed</synopsis>
+
+    <datatype>timestamp</datatype>
+  </parameter>
+
+  <parameter>
+    <name>S_chunk</name>
+    <synopsis>amount of data that is written or read</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>N_proc</name>
+    <synopsis>number of processes involved in the operation</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>operation</name>
+    <synopsis>access methode (write/rewrite/read)</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+
+  <!-- *** -->
+  <!-- *** results -->
+  <!-- *** -->
+  <result>
+    <name>B_scatter</name>
+    <synopsis>bandwidth for access type 0 (scatter)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result>
+    <name>B_shared</name>
+    <synopsis>bandwidth for access type 1 (shared)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result>
+    <name>B_sep</name>
+    <synopsis>bandwidth for access type 2 (separated)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result>
+    <name>B_sgmt</name>
+    <synopsis>bandwidth for access type 3 (segmented)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result>
+    <name>B_sgmtcoll</name>
+    <synopsis>bandwidth for access type 4 (segmented-collective)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result occurrence="once">
+    <name>B_pat2</name>
+    <synopsis>bandwidth for pattern 2 (scatter, 1MB/2MB)</synopsis>
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+    <default>-1</default>
+  </result>
+
+  <result occurrence="once">
+    <name>B_eff</name>
+    <synopsis>effective bandwidth (derived from all other bandwidth values)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+    <default>-1</default>
+  </result>
+
+</experiment>
+
+

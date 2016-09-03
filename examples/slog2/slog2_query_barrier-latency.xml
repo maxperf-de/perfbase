@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../../perfbase/dtd/pb_query.dtd">
+
+<query name="msgcount">
+  <experiment>slog2_DEMO</experiment>  
+  
+  <fixed id="f.rank">
+    <content>0</content>
+  </fixed>
+
+  <parameter id="p.src_rank" show="filter" style="plain">
+    <value alias="rank">r_src</value>
+    <sweep>
+      <filter>
+	<equal>0</equal>
+      </filter>
+      <filter>
+	<equal>1</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.dist">
+    <value>dist</value>
+  </parameter>
+
+  <parameter id="p.op" show="all" style="content">
+    <value>op_MPI</value>
+    <filter>
+      <equal>MPI_Barrier</equal>
+    </filter>
+  </parameter>
+
+  <source id="src.t_begin">
+    <result>T_b</result>
+        
+    <input>p.src_rank</input>
+    <input>p.op</input>
+  </source>  
+  
+  <source id="src.t_end">
+    <result>T_e</result>
+        
+    <input>p.src_rank</input>
+    <input>p.op</input>
+  </source>  
+
+  <operator type="diff" id="op.latency" match="index">
+    <input>src.t_end</input>
+    <input>src.t_begin</input>
+  </operator>
+
+  <operator type="scale" id="op.latency_us" value="Mega">
+    <input>op.latency</input>
+  </operator>
+
+  <operator type="avg" id="op.avg_latency">
+    <input>op.latency_us</input>
+  </operator>
+
+  <operator type="stddev" id="op.stddev_latency">
+    <input>op.latency_us</input>
+  </operator>
+
+  <output>
+    <input>op.avg_latency</input>
+    <input>op.stddev_latency</input>
+  </output>
+
+</query>

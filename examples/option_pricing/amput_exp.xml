@@ -1,0 +1,106 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>amput_DEMO</name>
+
+  <info>
+    <performed_by> 
+      <name>Uwe Jaekel</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Option Pricing</project>
+    <synopsis>Pricing of American Put-Options</synopsis>
+    <description>
+      The mathematical proven way to get rich?
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>T</name>
+    <synopsis>run time of option</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>d</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>r</name>
+    <synopsis>risk free interest rate</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>none</base_unit>
+	</dividend>
+	<divisor>
+	  <base_unit>a</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>sigma</name>
+    <synopsis>volatility</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>none</base_unit>
+	</dividend>
+	<divisor>
+	  <base_unit>a</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>E</name>
+    <synopsis>strike price</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>$</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>algorithm</name>
+    <synopsis>type of algorithm</synopsis>
+
+    <datatype>string</datatype>
+    <!-- adjoint process correction -->
+    <valid>APC</valid>
+    <!-- direct finite differences -->
+    <valid>DFD</valid>
+  </parameter>
+
+  <parameter>
+    <name>S</name>
+    <synopsis>stock price</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>$</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>P</name>
+    <synopsis>option price</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>$</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

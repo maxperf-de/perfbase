@@ -1,0 +1,216 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../../src/perfbase/dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>NPB_auto_DEMO</name>
+  
+  <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>NAS Parallel Benchmarks</project>
+    <synopsis>
+      Results of the NAS parallel benchmark suite on different platforms.
+    </synopsis>
+    <description>
+      Gather results of the various NAS parallel benchmarks using parameter sets to
+      describe the individual testing platform. The input for the parameter sets is
+      gathered via a script.
+    </description>
+  </info>
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>B</name>
+    <synopsis>benchmark</synopsis>
+
+    <valid>IS</valid>
+    <valid>BT</valid>
+    <valid>FT</valid>
+    <valid>CG</valid>
+    <valid>MG</valid>
+    <valid>EP</valid>
+    <valid>LU</valid>
+    <valid>SP</valid>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_iter</name>
+    <synopsis>iterations</synopsis>
+    <description>number of iterations this benchmark performed</description>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>fc</name>
+    <synopsis>fortran compiler</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>fc_flags</name>
+    <synopsis>compiler flags</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>ld_flags</name>
+    <synopsis>linker flags</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MPI_vendor</name>
+    <synopsis>Vendor of the MPI library</synopsis>
+
+    <datatype>string</datatype>
+    <valid>A</valid>
+    <valid>B</valid>
+
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>NPB_version</name>
+    <synopsis>benchmark version</synopsis>
+
+    <datatype>version</datatype>
+    <default>2.4</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>date_compile</name>
+    <synopsis>date of benchmark compilation</synopsis>
+
+    <datatype>date</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_procs</name>
+    <synopsis>number of procs</synopsis>
+    
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+  
+  <parameter occurrence="once">
+    <name>N_nodes</name>
+    <synopsis>number of nodes</synopsis>
+    <description>Number of nodes on which the test was run (-1 means 'unknown')</description>
+    
+    <datatype>integer</datatype>
+    <default>-1</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_ppn</name>
+    <synopsis>procs per node</synopsis>
+    <description>number of processes per node (-1 for asymetric cases)</description>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+    <default>1</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>class</name>
+    <synopsis>class of problem size</synopsis>
+    
+    <datatype>string</datatype>
+    <valid>S</valid>
+    <valid>W</valid>
+    <valid>A</valid>
+    <valid>B</valid>
+    <valid>C</valid>
+    <valid>D</valid>
+  </parameter>
+  
+  <parameter occurrence="once">
+    <name>extent</name>
+    <synopsis>extent of dimension of problem domain</synopsis>
+    
+    <datatype size="8">integer</datatype>
+  </parameter>
+ 
+  <!-- *** -->
+  <!-- *** results -->
+  <!-- *** -->
+  <result occurrence="once">
+    <name>valid</name>
+    <synopsis>valid</synopsis>
+    <description>Was the verification of the result successful?</description>
+    
+    <datatype>boolean</datatype>
+  </result>
+
+  <result occurrence="once">
+    <name>T_total</name>
+    <synopsis>runtime</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result occurrence="once">
+    <name>P_total</name>
+    <synopsis>accumulated performance</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>flop</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result occurrence="once">
+    <name>P_proc</name>
+    <synopsis>performance per process</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <fraction>
+	    <dividend>
+	      <base_unit>flop</base_unit>
+	      <scaling>Mega</scaling>
+	    </dividend>
+	    <divisor>
+	      <base_unit>s</base_unit>
+	    </divisor>
+	  </fraction>
+	</dividend>
+	<divisor>
+	  <base_unit>process</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+</experiment>
+
+

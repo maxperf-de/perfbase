@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+
+<query id="simple latency table">
+  <experiment>set_update_TEST</experiment>
+  <description>
+     Check if data was imported correctly.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <parameter id="p.direction">
+    <value>d</value>
+  </parameter>    
+
+  <source id="src.lat">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.direction</input>
+  </source>
+
+  <source id="src.gap">
+    <result>T_gap</result>
+    
+    <input>p.msgsize</input>
+    <input>p.direction</input>
+  </source>
+
+  <source id="src.latgap">
+    <result>T_gap</result>
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.direction</input>
+  </source>
+
+  <output id="set update Test 1">
+    <input>src.lat</input>
+    <input>src.gap</input>
+    <input>src.latgap</input>
+
+    <filename>set_update</filename>
+  </output>
+</query>

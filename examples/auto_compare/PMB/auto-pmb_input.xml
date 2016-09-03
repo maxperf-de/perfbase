@@ -1,0 +1,123 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../../src/perfbase/dtd/pb_input.dtd">
+
+<input>
+  <experiment>PMB_auto_DEMO</experiment>
+
+  <filename_location>
+    <name>N_ppn</name>
+    <match match="exact">_ppn</match>
+  </filename_location>
+
+  <filename_location>
+    <name>N_node</name>
+    <match match="exact">_nn</match>
+  </filename_location>
+
+  <filename_location>
+    <name>MPI_vendor</name>
+    <map>
+      <content_in>MPI-A</content_in>
+      <content_out>A</content_out>
+    </map>
+    <map>
+      <content_in>MPI-B</content_in>
+      <content_out>B</content_out>
+    </map>
+    <map>
+      <content_in>MPI-C</content_in>
+      <content_out>C</content_out>
+    </map>
+  </filename_location>
+
+  <named_location>
+    <name>operation</name>
+    <match># Benchmarking</match>
+  </named_location>
+
+  <named_location>
+    <name>N_proc</name>
+    <match>#processes =</match>
+  </named_location>
+
+  <tabular_location columns="4">
+    <match>#bytes #repetitions      t[usec]   Mbytes/sec</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B</name>
+      <pos>3</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="6">
+    <match>#bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]   Mbytes/sec</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_min</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_max</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>4</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B</name>
+      <pos>5</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="5">
+    <match>#bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_min</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_max</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>4</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="4">
+    <match>#repetitions  t_min[usec]  t_max[usec]  t_avg[usec]</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>T_min</name>
+      <pos>1</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_max</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>3</pos>
+    </tabular_value>
+  </tabular_location>
+
+</input>

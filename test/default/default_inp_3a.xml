@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>default_TEST</experiment>
+    
+  <named_location>
+    <name>type</name>
+    <match>vehicle_type:</match>
+  </named_location>
+
+  <named_location>
+    <name>v</name>
+    <match>speed:</match>
+  </named_location>
+
+</input>

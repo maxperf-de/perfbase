@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="test_1">
+  <experiment>input_TEST</experiment>
+
+  <run id="r.synopsis"> 
+    <synopsis>stdin</synopsis>
+  </run>
+
+  <parameter id="p.interconnect" show="filter">
+    <value>IC</value>
+    <filter>
+      <equal>I'S</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.msgsize" show="all">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>r.synopsis</input>
+
+    <input>p.interconnect</input>
+    <input>p.msgsize</input>
+  </source>
+
+  <output target="xml" title="# should be empty">
+    <input>src.latency</input>
+  </output>
+</query>
+
+

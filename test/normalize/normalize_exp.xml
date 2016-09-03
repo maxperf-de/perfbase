@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>normalize_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>IAT GmbH</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for normalize operator</synopsis>
+    <description>
+          Scale data vectors relative to the first element
+    </description>
+  </info>
+
+  <parameter>
+    <name>t</name>
+    <synopsis>arrival time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>s</name>
+    <synopsis>payload</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </result>
+</experiment>
+
+

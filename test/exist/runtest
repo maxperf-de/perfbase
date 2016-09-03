@@ -1,0 +1,144 @@
+#!/bin/sh
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="exist"
+
+count()
+{
+	echo $# ;
+}
+
+N_TEST=
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# Initial import has to succeed.
+cp input_1.dat input_1.tst
+if ! $PB input -d ${TEST_NAME}_inp.xml input_1.tst >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not import input_1.tst. See test.log"
+    exit 1
+fi
+
+# The tests begin here.
+rc=0
+t=0
+
+# Test 1: Second import of the same file has to fail.
+# Test 2: Even if the file has a different name (but same content), the import has to fail.
+cp input_1.tst input_2.tst
+while [ $t -lt 2 ] ; do
+    t=`expr $t + 1`
+    echo "  test "$t
+    if $PB input -d ${TEST_NAME}_inp.xml input_$t.tst >test_$t.out 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: import input_$t.tst should have failed. See test_$t.out"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm test_$t.out
+	fi	
+    else
+	mv test_$t.out verify/test_$t.vfy
+    fi
+done
+
+# Test 3: A file with the same name, but different content must be imported
+t=`expr $t + 1`
+echo "  test "$t
+cp input_2.dat input_1.tst
+if ! $PB input -d ${TEST_NAME}_inp.xml input_1.tst >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import input_1.tst should have succeeded. See test.log"
+    rc=`expr $rc + 1`
+fi
+
+# Test 4: Verify the import via a query.
+t=`expr $t + 1`
+echo "  test "$t
+if ! $PB query -d ${TEST_NAME}_qry_1.xml >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform query (see test.log)"
+    echo "   $PB query -d ${TEST_NAME}_qry_1.xml"
+    exit 1
+fi
+if [ -n "$VERIFY" ] ; then
+    mv qry_result.dat test_$t.out
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+else
+    mv qry_result.dat verify/test_$t.vfy
+fi    
+
+# Test 5: If we force the import, it should succeed.
+t=`expr $t + 1`
+echo "  test "$t
+cp input_1.dat input_1.tst
+if ! $PB input --force -d ${TEST_NAME}_inp.xml input_1.tst >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: import input_1.tst should have succeeded. See test.log"
+    rc=`expr $rc + 1`
+fi
+
+# Test 6: Verify this last import.
+t=`expr $t + 1`
+echo "  test "$t
+if ! $PB query -d ${TEST_NAME}_qry_1.xml >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform query (see test.log)"
+    echo "   $PB query -d ${TEST_NAME}_qry_1.xml"
+    exit 1
+fi
+if [ -n "$VERIFY" ] ; then
+    mv qry_result.dat test_$t.out
+    if ! diff test_$t.out verify/test_$t.vfy ; then
+	echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	rc=`expr $rc + 1`
+    else
+	rm test_$t.out
+    fi	
+else
+    mv qry_result.dat verify/test_$t.vfy
+fi
+
+# make sure the database server will be able to delete the database
+sleep 2
+
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm test.log
+    rm *.tst
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

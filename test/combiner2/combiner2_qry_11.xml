@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="two-param_extern_merge">
+  <experiment>combiner2_TEST</experiment>
+  <description>
+    Sweep over two parameters, and resolve internally with merged output.
+    Sweep combination is "match". This is just passing through.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value alias="Bytes">S_msg</value>
+  </parameter>    
+
+  <parameter id="p.speed" show="filter">
+    <value>V_net</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.api" show="filter">
+    <value>API</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.latency_speed">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>p.speed</input>
+  </source>
+
+  <source id="src.latency_api">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>p.api</input>
+  </source>
+
+  <operator id="op.min_speed" type="min">
+    <input>src.latency_speed</input>
+  </operator>
+
+  <operator id="op.min_api" type="min">
+    <input>src.latency_api</input>
+  </operator>
+
+  <operator id="op.min_speed_sorted" type="sort">
+    <input>op.min_speed</input>
+  </operator>
+
+  <operator id="op.min_api_sorted" type="sort">
+    <input>op.min_api</input>
+  </operator>
+
+  <combiner id="comb.min" datasets="merge" sweep_combine="match">
+    <input sweep_resolve="intern">op.min_speed_sorted</input>
+    <input sweep_resolve="extern">op.min_api_sorted</input>
+  </combiner>
+
+  <output>
+    <input sweep_resolve="intern">comb.min</input>
+  </output>
+  
+</query>
+
+

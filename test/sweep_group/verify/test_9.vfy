@@ -1,0 +1,19 @@
+set terminal postscript enhanced color "Helvetica" 12
+set output 'sweep_group_9.ps'
+set title "swim"
+set xtics ("1" 1,"2" 2,"4" 4,"8" 8)
+set xlabel "number of threads"
+set ylabel "speedup"
+set yrange [0:]
+set boxwidth 0.800000
+set style fill solid 1.0
+set style line 1 lt 0
+set xzeroaxis
+set xrange[-0.5:3.500000]
+set xtics ("1" 0,"2" 1,"4" 2,"8" 3)
+plot '-' using 1:2 title '' axes x1y1 with boxes
+0.000000 1.0 
+1.000000 1.44444444444 
+2.000000 2.275 
+3.000000 2.93548387097 
+e

@@ -1,0 +1,89 @@
+
+This example shows how output data of the I/O benchmark 'iozone' can
+be processed with perfbase. 'iozone' is a very powerful open-source 
+benchmark available at http://www.iozone.org. 
+
+* Prerequisites:
+ Add the path to 'perfbase' to your PATH variable
+ If not yet done, initialize and start the perfbase database server:
+  perfbase init
+  perfbase start 
+
+* Usage:
+
+This will guide you through an example perfbase session. The .xml files contain
+additional information, esp. the query descriptions.
+
+[ Set up the experiment ]
+perfbase setup -d iozone_exp.xml
+
+[ Try to import data from an input files that were created with the "auto"
+  mode of iozone. ]
+perfbase input -d iozone_auto_inp.xml input/iozone_auto_ext3_run0.dat
+
+[ This will generate an error message concerning "missing input definitions" for
+  a number of values. These are the values for the "throughput" mode of iozone.
+  We can tell perfbase to set them to their default value (which in this case is
+  "no data") using the --use-default (-u) option: ]
+perfbase input -u -d iozone_auto_inp.xml input/iozone_auto_ext3_run0.dat
+
+[ We still get an error message about invalid content for the value "io". Why 
+  this? How is "io" defined? Let's see:]
+perfbase info -e iozone_DEMO --value=io$ -v
+
+[ O.k., we see that the strings FibreChannel, Ethernet, Memory and Local are 
+  valid content for 'io', which states the disk interface used. This information 
+  can not be found in the iozone output file; thus, we have to specify it manually.
+  Because the tests have been run with a locally attached  disk, we specify this 
+  content via the command line using the '--fixed' (-f) switch: ]
+perfbase input -u -f io=Local iozone_auto_inp.xml input/iozone_auto_ext3_run0.dat
+
+[ This worked fine. Now import all other files in one call. You'll see one
+  error message where perfbase complains that one input file was already imported.
+  This is true (see above), and perfbase will simply ignore this file. ]
+perfbase input -u -f io=Local -d iozone_auto_inp.xml input/iozone_auto_ext3_run*.dat
+
+[ After this, we can check that there are actually X active runs in the experiment:]
+perfbase info -e iozone_DEMO
+
+[ Now, we plot the write bandwidth over the file size and access record length 
+  as a 3D-plot. ]
+perfbase query -d iozone_3d_qry.xml
+
+[ This shows us that the write bandwidth is nearly constant for the tested range of
+  file and record sizes. But what about read, and re-writing/re-reading? We can
+  provide the name of the related value via the command line:]
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rd
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rerd
+perfbase query -d iozone_3d_qry.xml -f f.metric=B_rewr
+
+[ Here we see different types of cache effects bumping up the bandwidth. Nice. ]
+
+[ Now we would like to know how much we can trust these numbers. These queries 
+  all showed the maximum bandwidth ever achieved for the datapoint. We check 
+  the absolute and relative difference between minimal and maximal bandwidth;]
+perfbase query -d iozone_3d-diff_qry.xml
+
+[ The data was gathered on different machines. Is there one machien which performs
+  constantly better or worse than the others? ]
+perfbase query -d iozone_host-comparison_qry.xml
+
+[ Yes, dino3 is about 30MiB/s (10%) slower! Why that? ]
+
+[ Sometimes, we do not want a plot showing us value, and we determine the graph that
+  has i.e. the least performance (as in the example above). Instead, we would just like
+  to have a printed statement that says "value X of paramter Y give the worst performance".
+  This is also possible with perfbase, as is shown by this last query: ]
+perfbase query -d iozone_explicit-host-comparison_qry.xml
+
+
+* Cleanup:
+To delete the test database, call
+perfbase delete -e iozone_DEMO
+
+
+* Note:
+The "throughput" testing mode of iozone can also be processed with perfbase, but is not
+included in this demo. To import such output files, use 'iozone_throughput_inp.xml'.
+
+May 2006, Joachim Worringen <joachim@maxperf.de>

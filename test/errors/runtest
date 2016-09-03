@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="errors"
+test_files=("errors_lowhigh_bars.gp" "errors_lowhigh_graphs.gp" "errors_lowhigh_points.gp" "errors_lowhigh.dat")
+N_TEST=${#test_files[@]}
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+if ! $PB input -d ${TEST_NAME}_inp.xml input_?.dat >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not import input_?.dat. See test.log"
+    exit 1
+fi
+
+if ! $PB query -d ${TEST_NAME}_qry.xml ; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform query (see test.log)"
+    echo "   $PB query -d ${TEST_NAME}_qry.xml"
+    exit 1
+fi
+
+rc=0
+for (( i = 0 ; i < ${#test_files[@]} ; i++ )) ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+
+    if [ -n "$VERIFY" ] ; then
+	if ! diff ${test_files[$i]} verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+	    echo "   (file ${test_files[$i]} vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f ${test_files[$i]} *.eps
+	fi	
+    else
+	mv ${test_files[$i]} verify/test_$t.vfy
+	rm -f *.eps
+    fi
+done
+
+# make sure the database server will be able to delete the database
+sleep 2
+
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm test.log
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

@@ -1,0 +1,12 @@
+# MPI version: 1.24
+#
+# msg_size	latency [us]
+0		3.98
+1		4.01
+2		4.05
+4		4.02
+8		4.05
+16		4.11
+32		4.13
+64		4.29
+no more data

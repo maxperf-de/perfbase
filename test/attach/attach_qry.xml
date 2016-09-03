@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latency">
+  <experiment>attach_TEST</experiment>
+  <synopsis>Show minimal latency over msg size for all library versions.</synopsis>
+
+  <parameter id="p.version" show="filter">
+    <value>MPI_version</value>
+    <sweep></sweep>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <output>
+    <input>op.sort</input>
+  </output>
+
+</query>
+
+

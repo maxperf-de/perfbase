@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Add new parameter 'machine' -->
+<experiment_update>
+  <experiment>update_TEST</experiment>
+
+  <info>
+    <project>perfbase total testing</project>
+  </info>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>Machine type (SX, IA32/Myrinet, ...)</synopsis>
+
+    <datatype>string</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+    <default>SX-5</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>S_buf</name>
+    <synopsis>size of intermediate buffer</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+</experiment_update>

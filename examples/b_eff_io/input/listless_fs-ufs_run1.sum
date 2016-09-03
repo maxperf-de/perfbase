@@ -1,0 +1,86 @@
+b_eff_io.c, Revision 2.1 from Dec. 12, 2001
+
+MEMORY_PER_PROCESSOR =  256 MBytes  [1MBytes = 1024*1024 bytes, 1MB = 1e6 bytes]
+Maximum chunk size   =    2.000 MBytes
+
+-N  4 T=10, MT=1024 MBytes -i list-less_io.info, -rewrite
+PATH=/tmp, PREFIX=bio_T10_N4_listless_ufs_grisu
+       system name : Linux
+       hostname    : grisu0.ccrl-nece.de
+       OS release  : 2.6.6
+       OS version  : #1 SMP Tue Jun 22 14:37:05 CEST 2004
+       machine     : i686
+
+Date of measurement: Tue Nov 23 18:13:10 2004
+
+
+
+Summary of file I/O bandwidth accumulated on   4 processes with  256 MByte/PE
+-----------------------------------------------------------------------------
+
+ number pos chunk-   access   type=0   type=1   type=2   type=3   type=4
+ of PEs     size (l) methode scatter  shared  separate segmened seg-coll
+            [bytes]  methode  [MB/s]   [MB/s]   [MB/s]   [MB/s]   [MB/s]
+ -----------------------------------------------------------------------
+
+   4 PEs 1       32 write     50.671    0.931    2.055    7.741    1.522
+   4 PEs 2     1024 write     54.956   10.798   28.238   41.750   25.095
+   4 PEs 3     1032 write     57.788   15.010   25.962   41.288   24.798
+   4 PEs 4    32768 write     48.793   66.851   76.014   74.237   68.711
+   4 PEs 5    32776 write     59.217   66.580   80.067   74.515   69.777
+   4 PEs 6  1048576 write     78.206   68.616   86.530   84.375   79.611
+   4 PEs 7  1048584 write     75.373   79.570   84.876   83.913   79.455
+   4 PEs 8  2097152 write     75.535   78.280   81.441   85.103   80.015
+   4 PEs      total-write     63.553   68.849   76.392   78.666   69.978
+
+   4 PEs 1       32 rewrite   11.241    1.846   21.114   20.538    1.724
+   4 PEs 2     1024 rewrite   35.488   11.753   44.553   29.015   31.194
+   4 PEs 3     1032 rewrite   59.196   18.879   84.541   10.037   39.792
+   4 PEs 4    32768 rewrite   56.467   71.508   86.399   31.392   21.686
+   4 PEs 5    32776 rewrite   27.027   69.955   96.067   72.938   76.036
+   4 PEs 6  1048576 rewrite   72.857   75.392   95.137   43.691   95.108
+   4 PEs 7  1048584 rewrite   71.755   83.728   91.749   87.699   92.201
+   4 PEs 8  2097152 rewrite   71.868   83.654   87.973   90.264   88.013
+   4 PEs      total-rewrite   52.811   74.331   89.295   54.147   67.107
+
+   4 PEs 1       32 read     154.498    1.849   32.704   32.972    1.744
+   4 PEs 2     1024 read     226.050   60.146  685.680  687.670   54.803
+   4 PEs 3     1032 read     220.424   59.285  669.480  668.603   55.166
+   4 PEs 4    32768 read     232.062  963.056 1672.407 1663.564  897.904
+   4 PEs 5    32776 read     234.733  402.259 1678.959 1677.813  899.121
+   4 PEs 6  1048576 read     151.757  967.496 1161.392 1169.348 1144.677
+   4 PEs 7  1048584 read     151.097  995.041 1135.391 1145.650 1117.446
+   4 PEs 8  2097152 read     163.300 1012.534 1084.040 1156.137 1145.809
+   4 PEs      total-read     161.682  667.842 1055.647 1049.530  536.442
+
+This table shows all results, except pattern 2 (scatter, l=1MBytes, L=2MBytes): 
+  bw_pat2=   51.201 MB/s write,   52.777 MB/s rewrite,  162.683 MB/s read
+
+(For gnuplot:)
+  set xtics ( '1k' 1, '+8' 2, '32k' 4, '+8' 5, '1M' 7, '+8' 8, '2M' 10)
+  set title 'Linux grisu0.ccrl-nece.de 2.6.6 #1 SMP Tue Jun 22 14:37:05 CEST 2004 i686' -4
+  set label 1 'b_eff_io'  at 10,50000 right
+  set label 2 'rel. 2.1'  at 10,25000 right
+  set label 3 'T=0.2min' at 10,12500 right
+  set label 4 'n=4'     at 10,6250  right
+
+weighted average bandwidth for write   :   70.165 MB/s on 4 processes
+weighted average bandwidth for rewrite :   65.084 MB/s on 4 processes
+weighted average bandwidth for read    :  605.471 MB/s on 4 processes
+(type=0 is weighted double)
+
+Total amount of data written/read with each access method: 1307.399 MBytes
+  = 127.7 percent of the total memory (1024 MBytes)
+
+b_eff_io of these measurements =  203.467 MB/s on 4 processes with 256 MByte/PE and scheduled time=0.2 min
+
+NOT VALID for comparison of different systems
+  criterion 1: scheduled time 0.2 min >= 30 min -- NOT reached
+  criterion 2: shared file pointers must be used for pattern type 1 -- reached
+  criterion 3: error count (0) == 0 -- reached
+
+Maximum over all number of PEs
+------------------------------
+
+
+ b_eff_io =  203.467 MB/s on 4 processes with 256 MByte/PE, scheduled time=0.2 Min, on Linux grisu0.ccrl-nece.de 2.6.6 #1 SMP Tue Jun 22 14:37:05 CEST 2004 i686, NOT VALID (see above)

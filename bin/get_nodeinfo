@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Get configuration information from a compute node - useful to create a 
+# perfbase parameter set from.
+#
+
+if [ -z "$1" ] ; then
+    echo "usage: get_nodeinfo <system_name>"
+    exit 1
+fi
+sys_name=$1
+fname=${sys_name}_nodeinfo
+LSPCI=/sbin/lspci
+MODINFO=/sbin/modinfo
+
+if [ `id -u` != "0" ] ; then
+    echo "#* WARNING: this script should be run as root to get all information."
+fi
+
+case `uname` in
+    Linux)
+	date >$fname
+	echo "nodename: "`uname -n` >>$fname
+	echo "hostname: "`hostname` >>$fname
+	echo "os name: "`uname -s` >>$fname
+	echo "os version: "`uname -r` | cut -f 1 -d - >>$fname
+	echo "os release: "`uname -r` >>$fname
+	echo "arch: "`uname -m` >>$fname
+	cat /proc/cpuinfo >>$fname
+	cat /proc/meminfo >>$fname
+
+	# general PCI information
+	$LSPCI >>$fname
+
+	# interconnect is listed within (Infiniband, Myrinet, SCI)
+	for ic in Infiniband Myrinet Dolphin ; do
+	    $LSPCI -v | grep -A 3 $ic  >>$fname
+	done
+
+	# get more info on Ethernet drivers
+	drivers_to_probe="e1000 tg3"
+	for drv in $drivers_to_probe ; do
+            [ -n "`lsmod | grep $drv 2>/dev/null`" ] || continue
+	    if [ -n "`$MODINFO $drv 2>/dev/null`" ] ; then
+		echo "Ethernet driver info $drv" >>$fname
+		$MODINFO $drv 2>/dev/null | head -5 >>$fname
+	    fi
+	done
+
+	# more Infiniband information is available under /proc/infiniband - 
+	# driver revision is available via hca_self_test (needs to be run as root)
+	# thus, we simply check the installed rpm although this is not safe
+	rpm -qa | grep topspin >>$fname
+
+	# where to find 'gm_info' to get the driver version?
+
+	# more SCI information
+	scistatus >>$fname
+	;;
+    SUPER-UX)
+	date >$fname
+	echo "nodename: "`uname -n` >>$fname
+	echo "hostname: "`hostname` >>$fname
+	echo "os name: "`uname -s` >>$fname
+	echo "os version: "`uname -r` >>$fname
+	echo "arch: "`uname -m` >>$fname
+	echo "IXS crossbar"
+	case `uname -m` in
+	SX-6)
+	    echo "cpu MHz: 1000"
+	    echo "family: SX-6"
+	    echo "cache size: 0kB"
+	    ;;
+	SX-8)
+	    echo "cpu MHz: 2000"
+	    echo "family: SX-8"
+	    # 32kB bank cache per CPU
+	    echo "cache size: 32kB"
+	    ;;
+	esac
+	# how to retrieve the remaining infos?
+	;;
+esac
+
+echo "nodeinfo written to $fname"

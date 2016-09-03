@@ -1,0 +1,56 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="multiple_reverse">
+  <experiment>sweep_group_TEST</experiment>
+
+  <synopsis>Same as qry_3, but try to merge data with a combiner to get a cleaner plot.</synopsis>
+
+  <parameter id="p.bench" show="filter" style="content">
+    <value>bench</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.threads" show="data">
+    <value>N_threads</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.T"> 
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.threads</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.T</input>
+  </operator>
+
+  <combiner id="comb" datasets="append" sweep_group="p.bench">
+    <input sweep_resolve="extern">op.min</input>
+  </combiner>
+
+  <!-- Create a single chart with all data in it by setting 'sweep_resolve="intern"' below. -->
+  <output id="plot" target="gnuplot" format="ps" type="bars">
+    <input label="title">comb</input>
+
+    <option>yrange [0:]</option>
+    <filename>sweep_group_6</filename>
+  </output>
+  
+
+  <output id="text.comb">
+    <input>comb</input>
+  </output>
+
+<!--
+  <output id="text.min">
+    <input>op.min</input>
+  </output>
+-->
+</query>
+
+

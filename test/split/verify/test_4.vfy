@@ -1,0 +1,4 @@
+Dataset 0 in run 1
+{'t_0': '0.21', 'call': 'write', 't': '0.24', 'len': '25', 'func': 'func2'}
+Dataset 1 in run 1
+{'t_0': '0.00', 't': '0.47', 'func': 'func1'}

@@ -1,0 +1,121 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+unset PB_RUNMODE
+
+TEST_NAME="input"
+
+desc=("1" "2" "3" "4a 4b")
+syn=("standard" "\"data as separator\"" "" "multiple_descriptions")
+inp=("1" "2" "3a 3b" "4a" "4b")
+qry=("1" "2" "3" "4" "5" "6")
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running ${#qry[@]} tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# import data
+inp_idx=0
+for (( i = 0 ; i < ${#desc[@]} ; i++ )) ; do
+    INPUT_ARGS=""
+    if [ -n "${syn[$i]}" ] ; then
+	INPUT_ARGS="$INPUT_ARGS -s ${syn[$i]}"
+    fi
+    for d in ${desc[$i]} ; do
+	INPUT_ARGS="$INPUT_ARGS -d ${TEST_NAME}_inp_${d}.xml"
+	for ii in ${inp[$inp_idx]} ; do
+	    INPUT_ARGS="$INPUT_ARGS input/data_${ii}.dat"
+	done
+	inp_idx=`expr $inp_idx + 1`
+    done
+	
+    $PB input $INPUT_ARGS >>test.log 2>&1
+    test_rc=$?
+    if [ $test_rc != "0" ]; then
+	echo "#* ERROR in ${TEST_NAME}: could not perform input $inp_idx:"
+	echo "   $PB input $INPUT_ARGS"
+	echo "   (see file test.log)"
+	exit 1
+    fi
+done
+
+# import via stdin
+CMD="$PB input -s stdin -d input_inp_1.xml -"
+cat input/data_${inp_idx}.dat | $CMD
+test_rc=$?
+if [ $test_rc != "0" ]; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform input $inp_idx:"
+    echo "   cat input/data_${inp_idx}.dat | $CMD"
+    echo "   (see file test.log)"
+    exit 1
+fi
+
+# query data
+rc=0
+for (( i = 0 ; i < ${#qry[@]} ; i++ )) ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+    QUERY_ARGS="-d ${TEST_NAME}_qry_${qry[$i]}.xml"
+    QUERY_OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    if ! $PB query $QUERY_ARGS > $QUERY_OUT ; then
+        echo "#* ERROR in ${TEST_NAME}: could not perform query $t:"
+        echo "   $PB query $QUERY_ARGS"
+        echo "   (see file $QUERY_OUT)"
+        rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+        if ! diff test_$t.out verify/test_$t.vfy >>test.log 2>&1; then
+	    # fix: the actual output order depends on the version of PostgreSQL.
+	    # Therefore, diffs are possible even if both results are correct. We
+	    # do a second-level comparison with sorted files here to avoid false
+	    # alerts.
+	    cat test_${t}.out | sort > __out__.tmp
+	    cat verify/test_${t}.vfy | sort > __vfy__.tmp
+	    if ! diff __out__.tmp __vfy__.tmp ; then	    
+		echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+		echo "   $PB query $QUERY_ARGS"
+		echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+		rc=`expr $rc + 1`
+	    else
+		rm -f __???__.tmp test_${t}.out $QUERY_OUT
+	    fi
+        else
+            rm -f $QUERY_OUT
+        fi
+    fi   
+done
+
+# clean up if not in debug mode
+if [ -z "$PB_RUNMODE" ] ; then
+    sleep 2
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+	exit 1
+    fi
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log *.err
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

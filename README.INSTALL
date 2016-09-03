@@ -1,0 +1,177 @@
+
+* 
+* perfbase installation
+*
+
+This file describes the installation of perfbase. It contains
+the following sections:
+1. Requirements
+2. Basic Installation
+3. Full Installation
+4. Fixing Installation Problems as non-root User
+5. Fixing Problems Accessing the PostgreSQL database server
+
+
+1. Requirements
+
+To use perfbase, the following requirements need to be met:
+- A PostgreSQL database server has to be accessible. Version 8.4 has 
+  been tested successfully. Older version should work, too, as 
+  perfbase is using rather simple SQL and data types.
+
+  Perfbase can use any PostgreSQL database server which is already running, 
+  or initialize and start its own instance. The latter scenario requires 
+  a PostgreSQL installation accessible from the local machine.
+
+- A Python interpreter is required. Python 2.6 has been success-
+  fully tested. Most systems have this already installed.
+
+  Two separate Python packages need to be installed:
+  o 'psycopg2' (http://initd.org/psycopg) to access the PostgreSQL 
+    database server. This package is usually installable via the 
+    packet management system  of your Linux distribution.
+  o 'ooolib' (http://ooolib.sourceforge.net/) to create OpenOffice 
+    spreadsheets as query output. This package is usually not available 
+    via the packet management, but needs to be installed from source 
+   (which is trivial).
+
+- 'Gnuplot' is required for visualization of query results, and for
+  some tests of the test suite. For optimal results, version 4 of
+  Gnuplot is recommended (check with 'gnuplot --version'). The
+  executable 'gnuplot' needs to be located within the search path
+  (environment variable PATH). Gnuplot is available at
+  http://www.gnuplot.info or the packet management system of your
+  Linux distribution.
+
+We have assembled some Linux-specific hints:
+- Debian: The required packages can be installed via apt-get. You need to 
+  install 'postgresql', 'python-elementtree', 'python-psycopg2', 'gnuplot' 
+  plus all dependencies:
+
+  apt-get install python-psycopg2 postgresql gnuplot
+
+  will typically be all you need to do.
+
+- Fedora/RedHat: RedHat RPM's are widely available via the usual repositories.
+
+- Suse 9.1: The packages 'postgresql', 'postgresql-libs', 'postgresql-devel',
+  'postgresql-server' can be installed from the provided media using Yast.
+  Remaining software can either be installed via RPM's (see above) or 
+  from source.
+
+
+2. Basic Installation
+
+For installation in a non-root environment, please pay attention to the 
+hints below. 
+
+Once the requirements are fulfilled, just run the 'setup' script which will
+guide you interactively through the installation process and check for the
+listed requirements. The setup script will modify the perfbase scripts to 
+match your local setup, and install them into a directory to be specified.
+Additionally, it will create a script to run the test suite within the
+local setup.
+
+When installing a 'personal database server', run 'perfbase init' after the 
+installation to prepare the start of the database server. Then, the database 
+is started with 'perfbase start'. If you are not familiar with PostgreSQL, 
+you should read the hints below to configure the access to PostgreSQL.
+
+If you do not run your own instance of the PostgreSQL database server, 
+these two steps are not necessary.
+
+Finally, run the test suite by entering the 'test' directory within the
+distribution directory tree and calling 'make' (like 'cd test && make').
+The test should report no errors. If it does report errors, look at the
+files 'test.log' within the 'test' directory and/or the sub directories of 
+the individual tests.
+
+
+3.Full Installation
+
+perfbase can use a special datatype 'version' to handle software version 
+numbers correctly. This datatype is not provided by PostgreSQL. Instead,
+it is a custom datatype that comes with perfbase. It needs to be built and
+installed to be able to use the perfbase 'version' datatype. This is a 
+very simple thing to do: go to pgsql/version_datatype and follow the 
+instructions given in the README file.
+
+
+4. Fixing Installation Problems as non-root User
+
+In case that you install as non-root, and the setup script does complain
+about missing PostgreSQL tools or Python packages, the best solution is to 
+ask someone with root-permission to install the missing packages (see above). 
+
+If this is not feasible, some manual installation work is unavoidable:
+- The PostgreSQL database server can be downloaded as a source archive from
+  http://www.postgresql.org. Building and installing it from the sources 
+  into a directory within your home directory is straightforward. Don't 
+  forget to provide the --prefix=/path/... variable to the configure script
+  to indicate the non-default installation path.
+
+
+5. Fixing Problems Accessing the PostgreSQL database server
+
+PostgreSQL supports different ways to communicate with the database
+server (either unix-domain or tcp/ip sockets) and numerous means of
+user authentication.
+
+A newly installed database server, as given right after a 'perfbase
+init', may only allow local connections via a unix-domain socket. This
+is also the default configuration if using perfbase in a setup with
+'personal database server'. However, in some environments, it has been
+observed that this kind of connection does not work, but generates 
+an error message like:
+#* ERROR: can not connect to control database template1
+    could not connect to server: No such file or directory
+        Is the server running locally and accepting
+        connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
+
+This has been observed although connection to this database via
+other tools (like 'psql') does work. We suspect a problem with the
+psycopg package.
+
+If perfbase fails to communicate with the database server (i.e. the
+'setup' command fails with an error message like "can not connect to
+control database template1"), you need to change the connection and/or
+authentication configuration of the database server accordingly.
+
+To do so, you need to edit the file .pg_hba.conf in the directory that
+stores the database data ($HOME/.perfbase_data by default). A simple,
+but insecure way is to provide a line like
+
+host	all	all	127.0.0.1	255.255.255.255	trust
+
+in this file. Typically, this line is already there and just needs to
+be un-commented.  Afterward, simply use 'perfbase stop && perfbase
+start' to restart the database server (or send it a SIGHUP, or use
+'pg_ctl reload' to make the new configuration effective).
+
+When changed the connection configuation from 'local' to 'host' like 
+this, don't forget to set PB_DBHOST accordingly (typically, set it
+to 'localhost').
+
+WARNING: This will give FULL access to the database server to ANY user
+on this machine! Thus, only use this for testing or in a highly
+trusted environment. 
+
+A slighty better configuration would be
+
+host	all	joe	127.0.0.1	255.255.255.255	trust
+
+which gives user 'joe' access to all databases from the local machine.
+
+Once you've set a password and correct access rights ("can create 
+databases") for user joe, you could change this to:
+
+host	all	joe	192.168.1.0	255.255.255.0	password
+
+This would allow user joe to access all databases from nodes within 
+the subnet 192.168.1.* when providing the correct password. Set
+the environment variable PB_DBPASSWD accordingly to let perfbase
+get access to the database server.
+
+For more information on a secure configuration of the database
+server's authentication, refer to the PostgreSQL Administrator's
+Guide, chapter "Client Authentication".

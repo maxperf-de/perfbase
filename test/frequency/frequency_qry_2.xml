@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE experiment SYSTEM "/usr/share/perfbase/dtd/pb_query.dtd">
+
+<query name="test_2">
+  <experiment>frequency_TEST</experiment>
+  <synopsis>simple frequency query</synopsis>
+
+  <description> 
+  </description>  
+  
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+
+  
+  <!-- parameter for matching -->
+  <parameter id="p:run">
+    <value>r</value>
+
+    <filter>
+      <equal>2</equal>
+    </filter>
+  </parameter>
+
+
+  <parameter id="p:time">
+    <value>t</value>
+  </parameter> 
+  
+  
+  <!-- *** -->
+  <!-- *** sources -->
+  <!-- *** -->
+  <source id="src:t">
+    <result>v</result>
+
+    <input>p:time</input>
+
+    <input>p:run</input>
+  </source>
+    
+  <!-- operators -->
+  <operator type="sort" id="op:sort">
+    <input>src:t</input>
+  </operator>
+
+  <operator type="frequency" id="op:freq">
+    <input>op:sort</input>
+  </operator>
+
+  <!-- chart output -->
+  <output target="gnuplot" type="steps" format="ps" id="outps" title="frequency test 2">
+    <input label="title">op:freq</input>
+    
+    <option>grid ytics</option>
+    <option>key right</option>
+    <option>elements small</option>
+
+    <filename>frequency_2</filename>
+  </output>
+
+  <output>
+    <input>op:freq</input>
+
+    <filename>frequency_2</filename>
+  </output>
+
+</query>

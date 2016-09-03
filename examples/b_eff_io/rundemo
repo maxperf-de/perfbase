@@ -1,0 +1,22 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -d exp_desc.xml
+
+echo "* Update experiment"
+perfbase update -d exp_update.xml
+
+echo "* Importing data"
+perfbase input -u -d input_desc.xml input/*.sum
+
+echo "* Show experiment status"
+perfbase info -e b_eff_io_DEMO -v
+
+echo "* Performing query 1"
+perfbase query -d query_stddev.xml
+
+echo "* Performing query 2"
+perfbase query -d query_above.xml
+
+echo "* Deleting experiment"
+sleep 3
+perfbase delete -e b_eff_io_DEMO --dontask

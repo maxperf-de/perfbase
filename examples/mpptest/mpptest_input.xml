@@ -1,0 +1,84 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>mpptest_DEMO</experiment>
+  
+  <!-- *** -->
+  <!-- *** parameters and results are fixed for the run -->
+  <!-- *** -->
+  <fixed_value>
+    <name>interconnect</name>
+    <content>Myrinet</content>
+  </fixed_value>
+
+  <fixed_value>
+    <name>machine</name>
+    <content>IA-32 Cluster</content>
+  </fixed_value>
+
+  <filename_location>
+    <name>N_node</name>
+    <match match="exact">_n</match>
+  </filename_location>
+
+  <filename_location>
+    <name>N_proc</name>
+    <match match="exact">_p</match>
+  </filename_location>
+
+  <filename_location>
+    <name>MPI_type</name>
+    <map>
+      <content_in>myri</content_in>
+      <content_out>Myricom</content_out>
+    </map>
+    <map>
+      <content_in>nec</content_in>
+      <content_out>NEC</content_out>
+    </map>
+  </filename_location>
+
+  <!-- *** -->
+  <!-- *** parameters and results which change during the run -->
+  <!-- *** -->
+  <tabular_location columns="6">
+    <match>#p0	p1	dist	len</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>dist</name>
+      <pos>2</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>3</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>L_min</name>
+      <pos>4</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_msg</name>
+      <pos>5</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <derived_parameter>
+    <name>N_ppn</name>
+    <term>
+      <fraction>
+	<dividend>
+	  <parameter>N_proc</parameter>
+	</dividend>
+	<divisor>
+	  <parameter>N_node</parameter>
+	</divisor>
+      </fraction>
+    </term>
+  </derived_parameter>
+  
+</input>

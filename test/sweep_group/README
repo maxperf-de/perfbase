@@ -1,0 +1,10 @@
+This test verifies the correctness and also shows the application of the 
+"sweep_group" attribute for <combiner> elements. This allows you to specify
+which variations of a sweep, which are fed into the combiner as individual
+data streams, should be grouped (merged) back into a single data stream. 
+The content of the sweep_group-attribute is the ID of a <sweep>ed parameter
+element, and all data streams that differ by this parameter, but are identical
+by all other parameters will be grouped.
+
+To understand the effect, it is best to call "make demo" and look at the 
+different query files and the resulting .ps files.

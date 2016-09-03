@@ -1,0 +1,13 @@
+#!/bin/sh
+# minimized configure-type of script
+
+PGCONFIG=`which pg_config`
+if [ -z "$PGCONFIG" ] ; then
+	echo "*** command pg_config not found. Check PATH and retry. Exiting."
+	exit 1
+fi
+
+PGLIB=`$PGCONFIG --pkglibdir`
+PGINC=`$PGCONFIG --includedir`
+
+cat Makefile.in | sed -e "s+@PGLIB@+$PGLIB+" -e "s+@PGINC@+$PGINC+" > Makefile

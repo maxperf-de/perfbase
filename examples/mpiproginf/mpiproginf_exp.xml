@@ -1,0 +1,236 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>MPIPROGINF_DEMO</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>SX Performance Analysis</project>
+    <synopsis>Analyse application performance using the information that 'mpirun' provides.</synopsis>
+    <description>
+      'mpirun' of NEC MPI/SX does provide the option to dump per-process information
+      on consumed time, integer and floating point operation rates, vectorization rate,
+      memory access delays etc. that can be used to judge the efficiency of a (parallel)
+      vectorized application.
+    </description>
+  </info>
+  
+  <parameter occurrence="once">
+    <name>N_proc</name>
+    <synopsis>number of processes</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>rank</name>
+    <synopsis>process rank</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>app</name>
+    <synopsis>application name</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>version</name>
+    <synopsis>application version</synopsis>
+
+    <datatype>string</datatype>
+    <default></default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>flags</name>
+    <synopsis>compiler flags</synopsis>
+
+    <datatype>string</datatype>
+    <default></default>
+  </parameter>
+
+  <result>
+    <name>T_real</name>
+    <synopsis>real time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_user</name>
+    <synopsis>user time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_sys</name>
+    <synopsis>system time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_vec</name>
+    <synopsis>vector time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>N_i</name>
+    <synopsis>instruction count</synopsis>
+
+    <datatype size="8">integer</datatype>
+  </result>
+
+  <result>
+    <name>N_ivec</name>
+    <synopsis>vector instruction count</synopsis>
+
+    <datatype size="8">integer</datatype>
+  </result>
+
+  <result>
+    <name>N_vece</name>
+    <synopsis>vector element count</synopsis>
+
+    <datatype size="8">integer</datatype>
+  </result>
+
+  <result>
+    <name>N_iflop</name>
+    <synopsis>floating point instruction count</synopsis>
+
+    <datatype size="8">integer</datatype>
+  </result>
+
+  <result>
+    <name>MOPS</name>
+    <synopsis>integer instruction rate</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>op</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+  <result>
+    <name>MFLOPS</name>
+    <synopsis>floating point instruction rate</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>flop</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+  
+  <result>
+    <name>l_vec</name>
+    <synopsis>average vector length</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+
+  <result>
+    <name>r_vec</name>
+    <synopsis>vector operation ratio</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>%</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>S_mem</name>
+    <synopsis>memory used</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Mega</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>S_gmem</name>
+    <synopsis>global memory used</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+      <scaling>Mega</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_imiss</name>
+    <synopsis>instruction cache miss time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_opmiss</name>
+    <synopsis>operand cache miss time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_bank</name>
+    <synopsis>bank conflict time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+

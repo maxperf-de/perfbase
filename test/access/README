@@ -1,0 +1,9 @@
+This test performs access control verification. Therefore, database users have
+to be created and deleted which requires sufficient rights on the database 
+server for the user that performs these tests, and the server needs to be 
+configured in a way to allow connections from these new users without passwords.
+
+The simplest way to achieve this is to edit pg_hba.conf and provide a line like:
+host    all         all             127.0.0.1         255.255.255.255   trust
+
+This will allow all users from the local host to connect without password.

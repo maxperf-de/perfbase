@@ -1,0 +1,69 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="runs"
+N_TEST=`ls runs_query_*.xml | wc -l`
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    TEST_OUTPUT=test_@.out
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+
+
+rm -f *.out *.log
+
+if ! $PB setup -d ${TEST_NAME}_exp_desc.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+for d in 1 2 3 4 ; do
+	INPUT_ARGS="-d ${TEST_NAME}_inp_desc.xml -s synopsis_$d -p $d"-Dec-2004" data_$d.dat"
+	if ! $PB input $INPUT_ARGS >>test.log 2>&1; then
+	    echo "#* ERROR in ${TEST_NAME}: could not perform input $d:"
+	    echo "   $PB input $INPUT_ARGS"
+	    echo "   (see file test.log)"
+	    exit 1
+	fi
+done
+
+rc=0
+t=1
+while [ $t -le $N_TEST ] ; do
+	echo "  test "$t
+	QUERY_ARGS="-d ${TEST_NAME}_query_$t.xml"
+	QUERY_OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+	$PB query $QUERY_ARGS > $QUERY_OUT
+	if [ -n "$VERIFY" ] ; then
+	    if ! diff test_$t.out verify/test_$t.vfy ; then
+  		echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data:"
+		echo "   $PB query $QUERY_ARGS"
+    		echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+		rc=`expr $rc + 1`
+	    else
+		rm $QUERY_OUT
+	    fi
+	fi
+	
+	t=`expr $t + 1`
+done
+
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+	rm test.log
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

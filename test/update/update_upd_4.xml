@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Rename a parameter -->
+<experiment_update>
+  <experiment>update_TEST</experiment>
+
+  <info>
+    <project>perfbase mega test suite</project>
+  </info>
+
+  <parameter>
+    <name>machine</name>
+    <new_name>platform</new_name>
+
+    <default>SX-6</default>
+  </parameter>
+
+</experiment_update>

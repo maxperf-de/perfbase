@@ -1,0 +1,20 @@
+set terminal postscript eps enhanced color "Helvetica" 12
+set size 0.8
+set output 'sweep_5.eps'
+set title "Latency Difference between SCI and Competitor"
+set xtics (0,1,2,3,4)
+set xlabel "message size [byte]"
+set ylabel "halve of roundtrip latency-halve of roundtrip latency [us]"
+set yrange [-5:5]
+set boxwidth 0.800000
+set style fill solid 1.0
+set style line 1 lt 0
+set xzeroaxis
+set xrange[-0.5:3.500000]
+set xtics ("0" 0,"1" 1,"2" 2,"4" 3)
+plot '-' using 1:2 title '' axes x1y1 with boxes
+0.000000 4.0 
+1.000000 4.1 
+2.000000 4.2 
+3.000000 4.3 
+e

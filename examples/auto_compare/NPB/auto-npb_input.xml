@@ -1,0 +1,95 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>NPB_auto_DEMO</experiment>
+
+  <filename_location len="1">
+    <name>MPI_vendor</name>
+    <match>MPI-</match>
+  </filename_location>
+
+  <filename_location>
+    <name>N_nodes</name>
+    <match>_nn</match>
+  </filename_location>
+
+  <filename_location>
+    <name>N_ppn</name>
+    <match>_ppn</match>
+  </filename_location>
+
+  <named_location>
+    <name>B</name>
+    <regexp>^.NAS Parallel Benchmarks ... --</regexp>
+  </named_location>
+
+  <named_location len="0">
+    <name>fc</name>
+    <match>MPIF77       =</match>
+    <match>MPICC        =</match>
+  </named_location>
+
+  <named_location len="0">
+    <name>fc_flags</name>
+    <match>FFLAGS       =</match>
+    <match>CFLAGS       =</match>
+  </named_location>
+
+  <named_location len="0">
+    <name>ld_flags</name>
+    <match>FLINKFLAGS   =</match>
+    <match>CLINKFLAGS   =</match>
+  </named_location>
+
+  <named_location>
+    <name>NPB_version</name>
+    <match>NAS Parallel Benchmarks </match>
+  </named_location>
+
+  <named_location len="0">
+    <name>date_compile</name>
+    <match>Compile date    =</match>
+  </named_location>
+
+  <named_location>
+    <name>N_procs</name>
+    <match>Compiled procs  =</match>
+  </named_location>
+
+  <named_location>
+    <name>class</name>
+    <match>Class           =</match>
+  </named_location>
+
+  <named_location>
+    <name>extent</name>
+    <match terminator="x">Size            =</match>
+  </named_location>
+  
+  <named_location>
+    <name>N_iter</name>
+    <match>Iterations      =</match>
+  </named_location>
+
+  <named_location mode="boolean">
+    <name>valid</name>
+    <regexp> .SUCCESSFUL</regexp>
+  </named_location>
+
+  <named_location>
+    <name>T_total</name>
+    <match>Time in seconds =</match>
+  </named_location>
+
+  <named_location>
+    <name>P_total</name>
+    <match>Mop/s total     =</match>
+  </named_location>
+
+  <named_location>
+    <name>P_proc</name>
+    <match>Mop/s/process   =</match>
+  </named_location>
+
+</input>

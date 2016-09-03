@@ -1,0 +1,65 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>combiner2_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test combiner element to handle sweeps.</synopsis>
+    <description> 
+      Combine data from parameter sweeps in different ways.
+    </description>
+  </info>
+      
+  <parameter occurrence="once">
+    <name>V_net</name>
+    <synopsis>network speed</synopsis>
+    
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>bit</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </parameter>
+  
+  <parameter occurrence="once">
+    <name>API</name>
+    <synopsis>API type</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>message size</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>T_pp</name>
+    <synopsis>message latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+  
+</experiment>
+
+

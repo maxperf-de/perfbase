@@ -1,0 +1,93 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="listless_stddev">
+  <experiment>b_eff_io_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter">
+    <value>operation</value>
+    <filter>
+      <equal>write</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <parameter id="p.listless" show="nothing">
+    <value>noncontig</value>
+    <filter>
+      <equal>list-less</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.listbased" show="nothing">
+    <value>noncontig</value>
+    <filter>
+      <equal>list-based</equal>
+    </filter>
+  </parameter>
+  
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.listless">
+    <result>B_scatter</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased">
+    <result>B_scatter</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.listbased</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.maxrun.listless" type="max">
+    <input>src.listless</input>
+  </operator>
+
+  <operator id="op.max.listless" type="max">
+    <input>op.maxrun.listless</input>
+  </operator>
+
+  <operator id="op.maxrun.listbased" type="max">
+    <input>src.listbased</input>
+  </operator>
+
+  <operator id="op.max.listbased" type="max">
+    <input>op.maxrun.listbased</input>
+  </operator>
+
+  <operator id="op.max.noncontig" type="max">
+    <input>op.maxrun.listbased</input>
+    <input>op.maxrun.listless</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->  
+  <!-- *** The first two outputs are the maximum values of the runs matching the specified -->  
+  <!-- *** parameter filters (vectors). The next two outputs are scalars, each representing -->  
+  <!-- *** maximum of the previous two vectors. Finally, another vector is generated which -->  
+  <!-- *** contains the element-wise maximum of the two vectors. -->  
+  <output target="raw_text">
+    <input>op.maxrun.listbased</input>
+    <input>op.maxrun.listless</input>
+    <input>op.max.listbased</input>
+    <input>op.max.listless</input>
+    <input>op.max noncontig</input>
+  </output>
+
+</query>

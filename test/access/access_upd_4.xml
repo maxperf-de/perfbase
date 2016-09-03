@@ -1,0 +1,13 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- New default setting for an existing parameter -->
+<experiment_update>
+  <name>access_TEST</name>
+
+  <parameter>
+    <name>MPI_version</name>
+    <default>1.23</default>
+  </parameter>
+
+</experiment_update>

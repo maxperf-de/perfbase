@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>map_TEST</experiment>
+
+  <named_location>
+    <name>fs</name>
+    <map>
+      <content_in>fsx</content_in>
+      <content_out>XFS</content_out>
+    </map>
+    <map>
+      <content_in>fsu</content_in>
+      <content_out>UFS</content_out>
+    </map>
+  </named_location>
+  
+  <tabular_location>
+    <match>#</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>T</name>
+      <pos>0</pos>
+    </tabular_value>
+  </tabular_location>
+
+</input>
+
+

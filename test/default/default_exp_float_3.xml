@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>default_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct handling of default values.</synopsis>
+    <description>
+      This test checks if default values are properly set (or proper error messages are
+      generated) if no content for a value could be found.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>type</name>
+    <synopsis>vehicle type</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <result occurrence="once">
+    <name>v</name>
+    <synopsis>vehicle speed</synopsis>
+
+    <datatype>float</datatype>
+    <default>11.1</default>
+  </result>
+
+</experiment>
+
+

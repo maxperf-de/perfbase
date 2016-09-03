@@ -1,0 +1,98 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="eval_2">
+  <experiment>eval_TEST</experiment>
+
+  <fixed id="Q">
+    <content>0.01</content>
+  </fixed>
+
+  <parameter id="p.minimal.P">
+    <value>P</value>
+    <filter>
+      <greater>1</greater>
+    </filter>
+    <filter>
+      <lesser>5</lesser>
+    </filter>
+  </parameter>
+
+  <parameter id="p.P10">
+    <value>P</value>
+    <filter>
+      <equal>10</equal>
+    </filter>
+  </parameter>
+
+  <!-- 'show=data' is required for a "only-once" parameter as by default, only the filter -->
+  <!-- condition will be applied and shown, but no data added to the datasets. For the -->
+  <!-- eval-operator below, however, it is necessary that each dataset also contains the -->
+  <!-- content of the only-once parameter. -->
+  <parameter id="p.T" show="data">
+    <value>T</value>
+    <filter>
+      <greater>9</greater>
+    </filter>
+    <filter>
+      <lessequal>10</lessequal>
+    </filter>
+  </parameter>
+
+  <source id="src.data">
+    <result>R_1</result>
+    <result>R_2</result>
+    
+    <input>p.minimal.P</input>
+    <input>p.T</input>
+  </source>
+
+  <source id="src.scalar">
+    <result>R_1</result>
+    <!-- Actually, we don't need R_2 from this source, but the <input>s to the  -->
+    <!-- operator (here: op.calc) need to have consistent result values. -->
+    <result>R_2</result>
+    
+    <input>p.P10</input>
+  </source>
+  
+  <operator id="op.scalar_min" type="min">
+    <input>src.scalar</input>
+  </operator>
+
+  <operator id="op.calc" type="eval">
+    <input>src.data</input>
+    <input>op.scalar_min</input>
+
+    <!-- Here, we scale the term relatively to the minimal value -->
+    <!-- of R_1 that is available for P = 10. We need to give this -->
+    <!-- variable a "scalar" attribute as it is a single constant -->
+    <!-- value for all evaluations. -->
+    <!--  x = (P + sqrt(R_1) + R_2 + Q)/min((R_1 for P=10)) -->
+    <term id="func">
+      <fraction>
+	<dividend>
+          <sum>
+	    <summand><variable name="P">src.data</variable></summand>
+	    <summand><function type="sqrt"><argument><variable name="R_1">src.data</variable></argument></function></summand>
+	    <summand><variable name="R_2">src.data</variable></summand>
+	    <summand><constant>Q</constant></summand>
+	  </sum>
+        </dividend>
+	<divisor><variable name="R_1" type="scalar">op.scalar_min</variable></divisor>
+      </fraction>
+    </term>
+  </operator>
+
+  <combiner id="comb.data">
+    <input>op.calc</input>
+
+    <omit>T</omit>
+  </combiner>
+
+  <output target="raw_text">
+    <input>comb.data</input>
+  </output>
+</query>
+
+

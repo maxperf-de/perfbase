@@ -1,0 +1,10 @@
+Storing single value(s) in run  1
+  MPI_version	= 1.21
+Dataset 0 in run 1
+{'S_msg': '0', 'T_pp': '21.0'}
+Dataset 1 in run 1
+{'S_msg': '1', 'T_pp': '21.1'}
+Dataset 2 in run 1
+{'S_msg': '2', 'T_pp': '21.2'}
+Storing single value(s) in run  1
+  OS_version	= 1.0

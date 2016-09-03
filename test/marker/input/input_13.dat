@@ -1,0 +1,8 @@
+# test that quotes in value work
+
+RESULT_BEGIN
+--- "make all" stderr ---
+keyval_lex.c:1667: warning: 'yy_flex_realloc' defined but not used
+show_help_lex.c:1609: warning: 'yy_flex_realloc' defined but not used
+mkdir: cannot create directory `.libs': File exists
+RESULT_END

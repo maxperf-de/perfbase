@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latency">
+  <experiment>filter_TEST</experiment>
+  <synopsis>show data for message size 0 and >= 2, not SCI, version 1.2 and 1.3</synopsis>
+
+  <parameter boolean="or" show="filter" id="p.version">
+    <value>MPI_version</value>
+    <filter>
+      <equal>1.2</equal>
+    </filter>
+    <filter>
+      <equal>1.3</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.interconnect">
+    <value>I</value>
+    <filter>
+      <notequal>SCI</notequal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.msgsize" show="all">
+    <value>S_msg</value>
+    <filter boolean="or">
+      <equal>0</equal>
+      <greaterequal>2</greaterequal>
+    </filter>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version</input>
+    <input>p.interconnect</input>
+  </source>
+  
+  <output>
+    <input>src.latency</input>
+  </output>
+</query>
+
+

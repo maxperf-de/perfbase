@@ -1,0 +1,84 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>PMB_DEMO</experiment>
+
+  <named_location>
+    <name>MPI_version</name>
+    <match>MPI version:</match>
+  </named_location>
+
+  <named_location>
+    <name>operation</name>
+    <match># Benchmarking</match>
+  </named_location>
+
+  <named_location>
+    <name>N_proc</name>
+    <match># ( #processes =</match>
+  </named_location>
+
+  <tabular_location columns="4">
+    <match>#bytes #repetitions      t[usec]   Mbytes/sec</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B</name>
+      <pos>3</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="6">
+    <match>#bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]   Mbytes/sec</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_min</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_max</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>4</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B</name>
+      <pos>5</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location columns="5">
+    <match>#bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]</match>
+    <skip>1</skip>
+    <tabular_value>
+      <name>S_chunk</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_min</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_max</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>T_avg</name>
+      <pos>4</pos>
+    </tabular_value>
+  </tabular_location>
+</input>

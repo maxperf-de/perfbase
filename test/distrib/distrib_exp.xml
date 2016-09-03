@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>distrib_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for bin operator and related plotting functionality.</synopsis>
+    <description>
+      This test will show distribution information.
+    </description>
+  </info>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>message size</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>l_msg</name>
+    <synopsis>message latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

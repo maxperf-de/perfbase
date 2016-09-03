@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="bars">
+  <experiment>barchart_TEST</experiment>
+
+  <parameter id="p.version_1.24" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>1.24</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.version_1.25" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>1.25</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency_1.24">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.24</input>
+  </source>
+
+  <source id="src.latency_1.25">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.25</input>
+  </source>
+
+  <output target="gnuplot" format="eps" type="bars">
+    <input>src.latency_1.24</input>
+    <input>src.latency_1.25</input>
+
+    <option>-persist</option>
+    <option>yrange [0:5]</option>
+    <filename>barchart</filename>
+  </output>
+</query>
+
+

@@ -1,0 +1,51 @@
+OVERVIEW
+This directory contains C code to build a new scalar datatype 
+'version_nbr' for PostgreSQL. The code will be placed in a shared 
+library to be used by PostgreSQL. This SQL datatype is used by
+perfbase for the 'version' data type which allows to store "real"
+(software) version numbers and handle them correctly in queries.
+
+BUILD & INSTALL 
+1. Edit 'Makefile' and add required content in two lines:
+   PGLIB=
+   PGINCLUDE=
+   Make sure you have write permission to PGLIB, and that the 
+   "developer package" of PostgreSQL installed as it contains
+   the required header files.
+2. The Makefile is set up to use Gnu gcc/ld for compilation. On
+   Linux and other Gnu-based systems, this should work as is. 
+   Otherwise, edit the lines CC=, OPTCC=, OPTLD= accordingly.
+3. Call 'make install'.
+
+That's all that needs to be done. The integration of the new datatype
+into the PostgreSQL databases to be created is done automatically by
+the perfbase 'setup' command if necessary. However, this only works if
+the user creating the experiment has super-user privilige (within the
+database). If this is not the case, it is necessary to have another
+user (typically 'postgres') with according privileges set up the 
+experiment.
+
+TESTING
+perfbase provides a testcase to verify that the new datatype can be used.
+Go to test/version and call './runtest'. Make sure you have the required
+database admin rights; otherwise, PostgreSQL will deny the request to 
+create a new database using the custom SQL datatype. No error messages 
+should be printed.
+
+To test the new datatype outside of PostgreSQL, a small test suite is
+provided within test_vnbr.c. To run the test, call:
+
+make testlib test
+./test_vnbr
+
+'test_vnbr' should print "SUCCESS" at the end.
+
+PRECOMPILED LIBRARIES
+The lib directory contains some pre-built binary versions of the library.
+However, as the library is specific to the PostgreSQL version, to the 
+Operating system, and the hardware architecture, it is recommended to 
+build from source if in doubt.
+
+To install the libary, copy it to the library directory that's within 
+PostgreSQL's search path (typically within the installation hierarchy),
+and create a link from libvnbr.so.1.0 to libvnbr.so.

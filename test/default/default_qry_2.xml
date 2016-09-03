@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="showall">
+  <experiment>default_TEST</experiment>
+
+  <parameter id="p.type" show="data">
+    <value>type</value>
+  </parameter>
+
+  <parameter id="p.rpm" show="data">
+    <value>rpm</value>
+    <filter>
+      <greaterequal>3000</greaterequal>
+    </filter>
+  </parameter>
+
+  <source id="src.v">
+    <result>v</result>      
+
+    <input>p.type</input>
+  </source>
+
+  <operator type="avg" id="op.avg">
+    <input>src.v</input>
+  </operator>
+
+  <source id="src.co2">
+    <result>CO_2</result>      
+
+    <input>p.rpm</input>
+  </source>
+
+  <operator type="sum" id="op.sum">
+    <input>src.co2</input>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op.avg</input>
+    <input>op.sum</input>
+  </output>
+</query>

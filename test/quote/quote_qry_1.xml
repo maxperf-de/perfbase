@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="runs">
+  <experiment>quote_TEST</experiment>
+
+  <run id="r.syn_low">
+    <synopsis>low values</synopsis>
+  </run>
+
+  <run id="r.syn_high">
+    <synopsis>the high values</synopsis>
+  </run>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r_low">
+    <result>r</result>      
+
+    <input>p.p</input>
+    <input>r.syn_low</input>
+  </source>
+
+  <source id="src.r_high">
+    <result>r</result>      
+
+    <input>p.p</input>
+    <input>r.syn_high</input>
+  </source>
+
+  <operator id="op" type="sum">
+    <input>src.r_low</input>
+    <input>src.r_high</input>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op</input>
+
+    <filename>qry_result</filename>
+  </output>
+</query>

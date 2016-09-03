@@ -1,0 +1,12 @@
+
+Test for correct parsing of data-only input files (a table with no
+header). To run, setup the experiment and import the two .dat files:
+
+Test 1: perfbase input -t -d plain_table_inp.xml latency_1.dat
+Test 2: perfbase input -t -d plain_table_inp.xml latency_2.dat
+
+Both imports must print the same datasets as in "output.vfy".
+
+Automatic test is done via 'runtest'.
+
+ 

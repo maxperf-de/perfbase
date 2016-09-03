@@ -1,0 +1,130 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>PMB_auto_DEMO</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Optimization of MPI Collective Operations</project>
+    <synopsis>Results of Intel/Pallas MPI Benchmark</synopsis>
+    <description>
+         We want to track the performance changes that we achieve with
+         new algorithms and parameter optimization for collective operations.
+    </description>
+  </info>
+
+  <parameter>
+    <name>S_chunk</name>
+    <synopsis>amount of data (per process)</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>N_proc</name>
+    <synopsis>number of processes</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurence="once">
+    <name>N_ppn</name>
+    <synopsis>number of processes per node</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_node</name>
+    <synopsis>number of nodes</synopsis>
+
+    <datatype>integer</datatype>
+    <default></default>
+  </parameter>
+
+  <parameter occurence="once">
+    <name>MPI_vendor</name>
+    <synopsis>Vendor of the MPI library</synopsis>
+
+    <datatype>string</datatype>
+    <valid>A</valid>
+    <valid>B</valid>
+    <valid>C</valid>
+  </parameter>
+
+  <parameter>
+    <name>operation</name>
+    <synopsis>MPI operation</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <result>
+    <name>T_min</name>
+    <synopsis>minimal time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default></default>
+  </result>
+
+  <result>
+    <name>T_max</name>
+    <synopsis>maximum time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default></default>
+  </result>
+
+  <result>
+    <name>T_avg</name>
+    <synopsis>average time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default></default>
+  </result>
+
+  <result>
+    <name>B</name>
+    <synopsis>average bandwidth</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor><base_unit>s</base_unit></divisor>
+      </fraction>
+    </unit>
+    <default></default>
+  </result>
+
+</experiment>
+
+

@@ -1,0 +1,50 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>pset_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct usage of parameter sets</synopsis>
+    <description>
+      Create different parameter sets, then import some data files, and
+      finally run a query to see if the result is correct.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>P_1</name>
+    <synopsis>parameter one</synopsis>
+
+    <datatype>float</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>P_2</name>
+    <synopsis>parameter two</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter>
+    <name>p</name>
+    <synopsis>running parameter</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <result>
+    <name>r</name>
+    <synopsis>running result</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+
+</experiment>
+
+

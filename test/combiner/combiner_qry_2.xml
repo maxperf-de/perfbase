@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="min_max">
+  <experiment>combiner_TEST</experiment>
+  <description>
+    Put min and max of a data series into one object by use of a 
+    combiner. The output object has only one input, and prints
+    min and max in one line.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max" type="max">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max_sorted" type="sort">
+    <input>op.max</input>
+  </operator>
+
+  <operator id="op.min_sorted" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <combiner id="comb.minmax">
+    <input>op.min_sorted</input>
+    <input>op.max_sorted</input>
+  </combiner>
+
+  <output>
+    <input>comb.minmax</input>
+  </output>
+   
+</query>
+
+

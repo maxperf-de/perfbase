@@ -1,0 +1,34 @@
+
+This example shows how multiple parameters are used to filter
+data from a number of datasets.
+
+* Prerequisites:
+ Add the path to 'perfbase' to your PATH variable
+ If not yet done, initialize and start the perfbase database server
+ (if not using a shared database server):
+  perfbase init
+  perfbase start 
+
+* Usage:
+perfbase setup -d mpptest_exp.xml
+
+perfbase input -u -d mpptest_input.xml data/*.dat
+[ check the input description for some smart ways to retrieve data from 
+  the filenames ]
+
+perfbase query -d mpptest_query.xml
+[ This query shows the minimal latency for the NEC and Myricom MPI
+  for 2 processes per node. ]
+Your task: show the same chart for 2 processes per node!
+Hint: you either need to change a setting for a <fixed> value in the the 
+query description, or use the '-f' command line option for the query command.
+
+perfbase query -d mpptest_query_dual.xml
+[ This query shows the minimal latency *and* the related bandwidth for the NEC 
+  and Myricom MPI for 2 processes per node. ]
+
+* Cleanup:
+To delete the example experiment, call
+perfbase delete -e mpptest_DEMO
+
+February 2005, Joachim Worringen <joachim@ccrl-nece.de>

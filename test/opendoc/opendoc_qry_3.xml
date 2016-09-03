@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="scalar_results">
+  <experiment>opendoc_TEST</experiment>
+  <description>
+    Create result values which are not vectors, but scalars,
+    and which are gathered across two parameter sweeps. In the
+    opendoc output, they are to be arranged in a single table,
+    with the two parameter dimensions spanning rows and columns.
+  </description>
+
+  <parameter id="p.version" show="filter" style="plain">
+    <value alias="library version">MPI_version</value>
+    <sweep>
+      <filter>
+	<equal>1.0</equal>
+      </filter>
+      <filter>
+	<equal>1.1</equal>
+      </filter>
+      <filter>
+	<equal>1.2</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.interconnect" show="filter" style="content">
+    <value>I</value>
+    <sweep>
+      <!-- no <filter> means: create one "equal" <filter> of every distinct content of this value. -->
+    </sweep>
+  </parameter>
+
+  <parameter id="p.size" show="filter">
+    <value>S_msg</value>
+    <filter>
+      <lesser>10</lesser>
+    </filter>
+  </parameter>
+
+  <source id="src.latency"> 
+    <result>T_pp</result>
+    
+    <input>p.version</input>
+    <input>p.interconnect</input>
+    <input>p.size</input>
+  </source>
+
+  <operator id="op.median" type="median">
+    <input>src.latency</input>
+  </operator>
+
+  <!-- Create separate tables by setting 'sweep="extern"' below. -->
+  <output id="OpenDoc Test 3" target="opendoc">
+    <input sweep="intern">op.median</input>
+
+    <filename>opendoc_3</filename>
+  </output>
+
+</query>

@@ -1,0 +1,59 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="plot">
+  <experiment>plottype_TEST</experiment>
+
+  <!-- We can not use a <sweep> here because we want the different parameter be  -->
+  <!-- plotted with diffent styles (points and linespoints). -->
+  <parameter id="p.T1" show="filter">
+    <value>T</value>
+    <filter>
+      <equal>1</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.T10" show="filter">
+    <value>T</value>
+    <filter>
+      <equal>10</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.X">
+    <value>X</value>
+  </parameter>
+
+  <source id="src.X1">
+    <result>Y</result>
+    
+    <input>p.T1</input>
+    <input>p.X</input>
+  </source>
+
+  <source id="src.X10">
+    <result>Y</result>
+    
+    <input>p.T10</input>
+    <input>p.X</input>
+  </source>
+
+  <operator id="op.sort_X1" type="sort">
+    <input>src.X1</input>
+  </operator>
+
+  <operator id="op.sort_X10" type="sort">
+    <input>src.X10</input>
+  </operator>
+
+  <output target="gnuplot" format="eps" type="graphs">
+    <input label="parameter" style="points">op.sort_X1</input>
+    <input label="parameter">op.sort_X10</input>
+
+    <option>-persist</option>
+    <option>xrange [7:20]</option>
+    <filename>plottype</filename>
+  </output>
+</query>
+
+

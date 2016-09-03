@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>combstrip_TEST</experiment>
+
+  <tabular_location>
+    <match># sequence</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>seq</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>t_A</name>
+    </tabular_value>
+
+    <tabular_value>
+      <name>t_B</name>
+    </tabular_value>
+
+  </tabular_location>
+
+</input>

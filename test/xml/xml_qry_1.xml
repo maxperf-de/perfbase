@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="test_1">
+  <experiment>xml_TEST</experiment>
+
+  <run id="r.idx"> 
+    <index>1</index>
+  </run>
+
+  <parameter id="p.interconnect" show="filter">
+    <value>IC</value>
+  </parameter>
+
+  <parameter id="p.msgsize" show="all">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>r.idx</input>
+    <input>p.interconnect</input>
+  </source>
+
+  <output target="xml">
+    <input>src.latency</input>
+  </output>
+</query>
+
+

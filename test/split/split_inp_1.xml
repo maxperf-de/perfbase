@@ -1,0 +1,59 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>split_TEST</experiment>
+
+  <named_location sticky="no">
+    <name>call</name>
+    <match terminator="(">call</match>
+  </named_location>
+  
+  <named_location sticky="no">
+    <name>len</name>
+    <match>len=</match>
+  </named_location>
+  
+  <split_location>
+    <name>trace</name>
+
+    <enter>
+      <named_location store_set="yes">
+	<name>func</name>
+	<match>enter</match>
+      </named_location>
+
+      <named_location store_set="yes">
+	<name>t</name>
+	<regexp>enter .* \(</regexp>
+      </named_location>
+
+      <named_location store_set="yes">
+	<name>t_0</name>
+	<regexp>enter .* \(</regexp>
+      </named_location>
+
+    </enter>
+
+    <leave>
+      <named_location store_set="yes">
+	<name>func</name>
+	<match>leave</match>
+      </named_location>
+
+      <named_location store_set="yes">
+	<name>t</name>
+	<regexp>leave .* \(</regexp>
+      </named_location>
+    </leave>
+
+    <store>
+      <name>func</name>
+      <name store="enter">t_0</name>
+      <name store="diff">t</name>
+    </store>
+  </split_location>
+
+</input>
+
+

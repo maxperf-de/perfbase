@@ -1,0 +1,142 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>PMB_DEMO</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Optimization of MPI Collective Operations</project>
+    <synopsis>Results of Pallas MPI Benchmark</synopsis>
+    <description>
+         We want to track the performance changes that we achieve with
+         new algorithms and parameter optimization for collective operations.
+       </description>
+  </info>
+
+  <parameter>
+    <name>S_chunk</name>
+    <synopsis>amount of data (per process)</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>N_proc</name>
+    <synopsis>number of processes</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>Version of the MPI library</synopsis>
+
+    <default>1.3</default>
+    <!-- 'version' would be the better datatype here, but requires a custom    -->
+    <!-- SQL datatype to be installed. We don't want this to be a show-stopper.-->
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>platform on which the test was performed</synopsis>
+
+    <datatype>string</datatype>
+    <valid>SX-5</valid>
+    <valid>SX-6</valid>
+    <valid>SX-7</valid>
+    <valid>SX-8</valid>
+    <valid>TX-7</valid>
+    <valid>IA-32 Cluster</valid>
+    <valid>IA-64 Cluster</valid>
+    <default>IA-32 Cluster</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>interconnect</name>
+    <synopsis>intra-node interconnect</synopsis>
+
+    <datatype>string</datatype>
+    <valid>IXS</valid>
+    <valid>Myrinet</valid>
+    <valid>Quadrics Elan3</valid>
+    <valid>Quadrics Elan4</valid>
+    <valid>Infiniband</valid>
+    <valid>SCI</valid>
+    <valid>Gigabit Ethernet</valid>
+    <default>SCI</default>
+  </parameter>
+
+  <parameter>
+    <name>operation</name>
+    <synopsis>PMB operation that was measured</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <result>
+    <name>T_min</name>
+    <synopsis>minimal time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default>-1.0</default>
+  </result>
+
+  <result>
+    <name>T_max</name>
+    <synopsis>maximum time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default>-1.0</default>
+  </result>
+
+  <result>
+    <name>T_avg</name>
+    <synopsis>average time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+    <default>-1.0</default>
+  </result>
+
+  <result>
+    <name>B</name>
+    <synopsis>average bandwidth</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor><base_unit>s</base_unit></divisor>
+      </fraction>
+    </unit>
+    <default>-1.0</default>
+  </result>
+
+</experiment>
+
+

@@ -1,0 +1,36 @@
+set terminal postscript enhanced color "Helvetica" 12
+set output 'sweep_group_3.ps'
+set xlabel "benchmark name"
+set ylabel "execution time [s]"
+set yrange [0:]
+set boxwidth 0.066667
+set style fill solid 1.0
+set style line 1 lt 0
+set xzeroaxis
+set xrange[-0.5:2.500000]
+set xtics ("crunch" 0,"seek" 1,"swim" 2)
+plot '-' using 1:2 title 'N_{threads} = 1' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 2' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 4' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 8' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 1' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 2' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 4' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 8' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 1' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 2' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 4' axes x1y1 with boxes,'-' using 1:2 title 'N_{threads} = 8' axes x1y1 with boxes
+-0.366667 6.0 
+e
+-0.300000 3.3 
+e
+-0.233333 2.1 
+e
+-0.166667 1.7 
+e
+0.900000 12.2 
+e
+0.966667 6.3 
+e
+1.033333 3.2 
+e
+1.100000 3.1 
+e
+2.166667 9.1 
+e
+2.233333 6.3 
+e
+2.300000 4.0 
+e
+2.366667 3.1 
+e

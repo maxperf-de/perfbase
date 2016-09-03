@@ -1,0 +1,51 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>frequency_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>IAT GmbH</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for frequency operator</synopsis>
+    <description>
+          Some basic tests for the frequency operator
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>r</name>
+    <synopsis>run</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>t</name>
+    <synopsis>time</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>v</name>
+    <synopsis>value</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

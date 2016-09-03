@@ -1,0 +1,2 @@
+#* ERROR: can not process query specification
+    "parameter dummy needs to be a string type for 'regexp' <filter>"

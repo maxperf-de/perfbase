@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="limit query 1">
+  <experiment>limit_TEST</experiment>
+
+  <synopsis>only let the datasets pass where r1>4</synopsis>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r1</result>      
+    <result>r2</result>      
+    <input>p.p</input>
+  </source>
+
+  <operator id="op" type="limit" variant="greater" value="4">
+    <input>src.r</input>
+  </operator>
+
+  <output id="out">
+    <input>op</input>
+  </output>
+
+</query>

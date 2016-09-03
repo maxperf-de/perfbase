@@ -1,0 +1,33 @@
+
+This is an example of how the results of Jesper L. Träff's
+home-brewed 'colltest' benchmark for collective MPI operations
+can be processed with perfbase. It shows how multiple data sources
+can be related to each other.
+
+* Prerequisites:
+ Add the path to 'perfbase' to your PATH variable
+ If not yet done, initialize and start the perfbase database server:
+  perfbase init
+  perfbase start 
+
+* Usage:
+perfbase setup -d colltest_exp.xml
+
+perfbase input -u -f MPI_version=14.1 -f OS_version=14.1 -d colltest_input.xml colltest.dat
+[Provide content for two values via the command line - this overrides 
+ everything else! The option '-u' makes perfbase uses defaults to the 
+ content of all other values not defined in the input description. ]
+
+perfbase query -d colltest_query.xml
+
+The query will show two charts: 
+- The usual "latency for operation" style.
+- A "lateny per byte" representation of the data, which very clearly
+  shows the efficiency of the operation. But hey, what's going on there
+  for data sizes > 1MB?
+
+* Cleanup:
+To delete the example experiment, call
+perfbase delete -e colltest_DEMO
+
+December 2004, Joachim Worringen <joachim@ccrl-nece.de>

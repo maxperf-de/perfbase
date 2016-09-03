@@ -1,0 +1,8 @@
+network speed: 100
+API: B
+# msg_size	latency [us]
+0		4.0
+1		4.1
+2		4.2
+4		4.4
+8		4.8

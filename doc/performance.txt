@@ -1,0 +1,169 @@
+PERFORMANCE NOTES
+Joachim Worringen <joachim@ccrl-nece.de>, Nov 2005
+
+As perfbase is written in Pyhthon, it carries a certain overhead when
+executing.  This may be notable in certain scenarios. For some of
+these, an analysis of where the time is spent is given in this note.
+
+
+DATA IMPORT
+
+Running the input command on large input files may lead to execution
+times of several minutes. This is annoying. Here's an example: we
+import a file with 102581 lines and a size of 5355451 byte. Importing
+this file with 25 <named_location>s and one <tabular_location> took
+1349.7 seconds on a 2GHz Pentium 4, using Python 2.3.4. If we look at
+a profile gathered from this action for the perfbase release 0.7.5, we
+see the functions that consume the most time by themselfes (all
+functions using more than 1s CPU time, of 240 that have been
+profiled):
+
+     24446630 function calls (24446569 primitive calls) in 1349.720 CPU seconds
+
+  ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1  812.830  812.830  812.830  812.830 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3284(hash_datafiles)
+    75634   97.200    0.001  157.990    0.002 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2852(store_dataset)
+  2564525   88.750    0.000  116.090    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:870(check_trigger)
+   518448   68.530    0.000  121.060    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:926(parse_data)
+        1   63.060   63.060  536.450  536.450 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3033(parse_datafiles)
+  9167454   46.860    0.000   46.860    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:410(do_profiling)
+  1128391   23.620    0.000   35.280    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1965(check_trigger)
+    75634   17.340    0.000   19.090    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2812(put_dataset)
+  1647107   15.950    0.000   15.950    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1115(get_value_contents)
+   415930   13.900    0.000   13.900    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:795(str_to_number)
+  1967333   11.430    0.000   11.430    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:94(get_parse_count)
+    53764   10.850    0.000   47.970    0.001 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:553(parse_data)
+    75656   10.580    0.000   13.840    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:235(check_trigger)
+  1512876   10.480    0.000   10.480    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1111(get_value_names)
+   963441   10.180    0.000   10.180    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:110(split)
+   518456    9.580    0.000    9.580    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:111(clean_string)
+   102581    8.870    0.000   34.400    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:534(check_trigger)
+  1036896    8.470    0.000    8.470    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:77(strip)
+  1550546    7.980    0.000    7.980    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:396(do_debug)
+   102581    4.360    0.000    6.690    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1721(check_trigger)
+   151269    1.360    0.000    1.360    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:99(rstrip)
+   102591    1.340    0.000    1.340    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:168(find)
+    75643    1.310    0.000    1.310    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:650(get_value_names)
+
+The second column 'tottime" shows the amount of time the CPU spent in
+this function (none of their sub-functions!). The most time consuming
+function is hash_datafiles() which calculates the hash value of an
+input file. This hash value is used to ensure that no file is imported
+twice. The Python- function hash() is applied on a single large string
+representing the file content. This makes up 60% of the execution
+time. This needs to be optimized - the calculation takes about 150us
+per character! See below on how the performance of this function was
+increased.
+
+The next function is store_dataset() which is called when a dataset is
+to be stored in the database. It checks all "parsers" for new data and
+eventually gets it. The complete dataset is then stored in the
+database via put_dataset().  We see that this function takes 1.3ms per
+call. This does not include database access - the SQL INSERT operation
+itself is the main part of put_dataset() which only takes 223us
+(database server running on localhost).
+
+The check_trigger() calls take 45us total each; there's not much room
+for improvement.  This does not fully apply to the parse_data() calls
+with 233us, but this is not top priority.
+
+parse_datafiles() mostly consists of subroutine calls, namely
+check_trigger(), parse_data() and store_value()/store_dataset().
+
+The internal profiling does cost a lot of time, even when not in use:
+calling do_profiling() costs only 5.1us, but the large number of calls
+sums up to 46,9s. This could be replaced by a reference to a global
+variable.
+
+
+* Improving the performance of hash_datafiles()
+
+Looking more closely at hash_datafiles() by manual instrumentation, it
+showed that not the hash() function is the bottleneck, but the access
+of the (dictionary of) lists that store the lines of the input
+files. All of these lines (for a particular input file) had to be
+concatenated into one large string, which was then hashed. This
+concatenation is very slow, for whatever reason.
+
+Thus, I changed this code to perform the hash() line-by-line, and
+applied the same(?) hash function to merge the hash values of two
+lines into one.This reduced the total execution time from 1349.720s
+down to 558.640s, and the profile now looks like this:
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    75634  100.770    0.001  165.410    0.002 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2852(store_dataset)
+  2564525   91.830    0.000  119.860    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:870(check_trigger)
+        1   69.180   69.180  557.780  557.780 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3033(parse_datafiles)
+   518448   68.970    0.000  123.780    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:926(parse_data)
+  9167454   48.350    0.000   48.350    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:410(do_profiling)
+  1128391   24.400    0.000   36.030    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1965(check_trigger)
+    75634   18.750    0.000   20.760    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2812(put_dataset)
+  1647107   16.610    0.000   16.610    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1115(get_value_contents)
+   415930   13.900    0.000   13.900    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:795(str_to_number)
+  1967333   12.740    0.000   12.740    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:94(get_parse_count)
+  1512876   11.000    0.000   11.000    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1111(get_value_names)
+    53764   10.910    0.000   48.820    0.001 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:553(parse_data)
+    75656   10.670    0.000   14.110    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:235(check_trigger)
+   963441   10.330    0.000   10.330    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:110(split)
+   518456   10.030    0.000   10.030    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:111(clean_string)
+  1036896    8.940    0.000    8.940    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:77(strip)
+   102581    8.840    0.000   35.120    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:534(check_trigger)
+  1550546    8.790    0.000    8.790    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:396(do_debug)
+   102581    4.820    0.000    6.820    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1721(check_trigger)
+   151269    1.470    0.000    1.470    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:99(rstrip)
+    75643    1.300    0.000    1.300    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:650(get_value_names)
+   102591    1.010    0.000    1.010    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:168(find)
+   151312    0.820    0.000    0.820    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:90(get_trigger_count)
+    75635    0.780    0.000    0.780    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:321(get_value_contents)
+    75634    0.620    0.000    0.620    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:657(get_value_contents)
+    75642    0.500    0.000    0.500    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:318(get_value_names)
+   102512    0.500    0.000    0.500    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:647(get_parse_count)
+    75643    0.480    0.000    0.480    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1864(get_value_names)
+        1    0.470    0.470    0.470    0.470 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3284(hash_datafiles)
+
+The execution time for hash_datafiles() melted down to 0.470s (opposed to 812.830s!)
+- wow. However, it has to be verified if the remaining functions might be accelerated
+by using a different way of accessing the file data, i.e. using the "cached file
+access" methods that Python provides.
+
+
+* Further Speed-up Measures
+
+For this example, the time could further be reduced by more than 20% down to 408.2s 
+by two measures:
+- Replace the call to do_profiling() with direct access of a global variable.
+- Remove <named_location>s with certain attributes after they have found data. This 
+  reduced the number of calls to check_trigger() by about 25% from 2564525 to 1846868.
+[Note: the experiment and input file even changed slightly as new parameter values have 
+       been added. Thus, other timings did slightly increase.]
+
+  ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    75634   86.910    0.001  134.730    0.002 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2878(store_dataset)
+        1   83.100   83.100  407.370  407.370 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3065(parse_datafiles)
+   518451   56.210    0.000   99.980    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:944(parse_data)
+  1846868   42.540    0.000   43.640    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:885(check_trigger)
+    75634   16.910    0.000   18.780    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:2838(put_dataset)
+   415930   13.220    0.000   13.220    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:797(str_to_number)
+    53764   10.380    0.000   40.990    0.001 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:553(parse_data)
+  1117676   10.150    0.000   10.150    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1138(get_value_contents)
+   963441    9.820    0.000    9.820    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:110(split)
+    75658    9.590    0.000   11.850    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:235(check_trigger)
+   518459    9.560    0.000    9.560    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:111(clean_string)
+  1437901    8.740    0.000    8.740    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:94(get_parse_count)
+   102581    8.580    0.000   22.310    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:534(check_trigger)
+  1025810    8.040    0.000    8.040    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1988(check_trigger)
+  1550564    7.960    0.000    7.960    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_common.py:396(do_debug)
+  1036898    7.870    0.000    7.870    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:77(strip)
+   983472    6.600    0.000    6.600    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1134(get_value_names)
+   102581    3.030    0.000    4.380    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1744(check_trigger)
+   151269    1.480    0.000    1.480    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:99(rstrip)
+   102591    1.350    0.000    1.350    0.000 /usr/people/lnx7/joachim/local/lib/python2.3/string.py:168(find)
+    75643    1.130    0.000    1.130    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:650(get_value_names)
+   151316    0.790    0.000    0.790    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:90(get_trigger_count)
+    75635    0.770    0.000    0.770    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:321(get_value_contents)
+   102512    0.720    0.000    0.720    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:647(get_parse_count)
+    75634    0.600    0.000    0.600    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1890(get_value_contents)
+    75634    0.520    0.000    0.520    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:657(get_value_contents)
+        1    0.450    0.450    0.450    0.450 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:3328(hash_datafiles)
+    75643    0.440    0.000    0.440    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:1887(get_value_names)
+    75642    0.350    0.000    0.350    0.000 /usr/people/lnx7/joachim/src/perfbase/bin/pb_input.py:318(get_value_names)

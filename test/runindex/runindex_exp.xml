@@ -1,0 +1,53 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>runindex_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test runindex and param operator.</synopsis>
+    <description> 
+      Import a number of runs with different data for differnt "versions", and
+      let perfbase determine which version performs best/worse.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>v_prot</name>
+    <datatype>integer</datatype>
+
+    <synopsis>protocol version</synopsis>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>algo</name>
+    <datatype>string</datatype>
+
+    <synopsis>used algorithm</synopsis>
+  </parameter>
+
+  <parameter>
+    <name>S_msg</name>
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+    <synopsis>message size</synopsis>
+  </parameter>
+
+  <result>
+    <name>T_pp</name>
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+    <synopsis>message latency</synopsis>
+  </result>
+  
+</experiment>
+
+

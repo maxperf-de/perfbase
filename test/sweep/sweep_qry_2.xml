@@ -1,0 +1,68 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!-- This query uses <sweep>s to create the same plot as is created
+     by 'sweep_qry_1.xml'. However, the query is much simpler due to the
+     usage of the <sweep> construct within the paramters. -->     
+
+<query id="latency">
+  <experiment>sweep_TEST</experiment>
+
+  <parameter id="p.version" show="filter">
+    <value>MPI_version</value>
+    <sweep>
+      <filter>
+	<equal>1.0</equal>
+      </filter>
+      <filter>
+	<equal>1.1</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.interconnect" show="filter" style="content">
+    <value>I</value>
+    <sweep>
+      <filter>
+	<equal>SCI</equal>
+      </filter>
+      <filter>
+	<equal>Myrinet</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <!-- Both 'p.version' and 'p.interconnect' will be set to all available values.
+  This results in 4 different source objects. -->
+  <source id="src.latency"> 
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version</input>
+    <input>p.interconnect</input>
+  </source>
+
+  <!-- Create a single chart with all data in it by setting 'sweep_resolve="intern"' below. -->
+  <output target="gnuplot" format="eps" type="bars">
+    <input sweep_resolve="intern" label="parameter">src.latency</input>
+
+    <option>-persist</option>
+    <option>yrange [0:]</option>
+    <filename>sweep_2</filename>
+  </output>
+
+  <!-- Create 4 different charts by setting 'sweep_resolve="extern"' below. -->
+  <output target="gnuplot" type="graphs" style="linespoints" format="eps">
+    <input sweep_resolve="extern" label="parameter">src.latency</input>
+
+    <option>-persist</option>
+    <option>yrange [0:]</option>
+    <filename unify="filter">sweep_2</filename>
+  </output>
+</query>
+
+

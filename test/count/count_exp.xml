@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>count_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct parsing of counters</synopsis>
+    <description>
+      Count the number of occurrences of a string in a file.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>S</name>
+    <synopsis>only a separator</synopsis>
+
+    <datatype>string</datatype>
+    <default>empty</default>
+  </parameter>
+
+  <result occurrence="once">
+    <name>N_gaga</name>
+    <synopsis>number of gaga's</synopsis>
+
+    <datatype>integer</datatype>
+  </result>
+
+</experiment>
+
+

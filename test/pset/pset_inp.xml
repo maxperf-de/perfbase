@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>pset_TEST</experiment>
+    
+  <named_location>
+    <name>P_1</name>
+    <match>P1=</match>
+  </named_location>
+
+  <named_location>
+    <name>P_2</name>
+    <match>P2=</match>
+  </named_location>
+
+  <tabular_location>
+    <match># p   r</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>p</name>
+      <pos>0</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>r</name>
+      <pos>1</pos>
+    </tabular_value>
+  </tabular_location>
+  
+</input>

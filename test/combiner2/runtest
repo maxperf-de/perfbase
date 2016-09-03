@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="combiner2"
+expected_rc=( 0 0 0 1 0 0 0 0 0 0 0 )
+N_TEST=${#expected_rc[@]}
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# import data
+if ! $PB input -d ${TEST_NAME}_inp.xml input/*.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not import input_${j}.dat. See test.log"
+    exit 1
+fi
+
+# do the queries
+rc=0
+i=0
+while [ $i -lt $N_TEST ] ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+    QUERY_ARGS="-d ${TEST_NAME}_qry_${t}.xml"
+    $PB query  $QUERY_ARGS > test_$t.out    
+    if [ $? != ${expected_rc[$i]} ] ; then
+	echo "#* ERROR in ${TEST_NAME}: could not perform query $t:"
+	echo "   $PB query $QUERY_ARGS"
+	echo "   (see file test_$t.out)"
+	rc=`expr $rc + 1`
+    else
+	if [ -n "$VERIFY" ] ; then
+	    if ! diff test_$t.out verify/test_$t.vfy ; then
+		echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+		echo "   $PB query $QUERY_ARGS"
+		echo "   (file test_$t.out vs. verify/output_$t.vfy)"
+		rc=`expr $rc + 1`
+	    else
+		rm -f test_$t.out
+	    fi
+	else
+	    mv test_$t.out verify/test_$t.vfy
+	fi
+    fi
+    i=`expr $i + 1`
+done
+
+# make sure the database server will be able to delete the database
+sleep 2
+
+# clean up
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log *.err
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

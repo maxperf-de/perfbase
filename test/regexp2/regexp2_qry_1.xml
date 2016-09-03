@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="showall">
+  <experiment>regexp2_TEST</experiment>
+
+  <parameter id="p.desc" show="data">
+    <value>D</value>
+    <filter>
+      <regexp>.*number one.*</regexp>
+    </filter>
+  </parameter>
+
+  <source id="src.r">
+    <result>N</result>      
+
+    <input>p.desc</input>
+  </source>
+
+  <output id="out" target="raw_text">
+    <input>src.r</input>
+  </output>
+</query>

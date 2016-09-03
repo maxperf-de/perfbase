@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>regexp_TEST</experiment>
+
+  <named_location store_set="yes" content="leads">
+    <name>l</name>    
+    <trigger>
+      <regexp>[0-9].*us</regexp>
+    </trigger>
+    <match>us</match>
+  </named_location>
+
+  <named_location>
+    <name>N_proc</name>
+    <regexp>^processes</regexp>
+  </named_location>
+  
+</input>
+
+

@@ -1,0 +1,41 @@
+
+This is an example designed for "live demonstration". It shows
+how the results of the well-known 'b_eff_io' benchmark for 
+MPI-IO operations can be processed with perfbase. Also check
+'perfbase_demo.pdf' for more information.
+
+* Prerequisites:
+ Add the path to 'perfbase' to your PATH variable
+ If not yet done, initialize and start the perfbase database server:
+  perfbase init
+  perfbase start 
+
+* Usage:
+[ Set up the experiment ]
+perfbase setup -d exp_desc.xml
+
+[ Add a new parameter that was "forgotten" in the original description. ]
+perfbase setup -u -d exp_update.xml
+
+[ Read in the available data files; use -u to use default values for 
+  data not found in the input files. ]
+perfbase input -u -d input_desc.xml input/*.sum
+
+[ Check the status of the experiment. All 6 runs should be 'active'. ]
+perfbase info -e b_eff_io_DEMO -v
+
+[ This query shows the average bandwidth and the related standard
+  deviation as a measure of statistical validity of the data.
+  Try for different 'operation' types (write, rewrite, read)!]
+perfbase query -d query_stddev.xml
+
+[ This query shows the relative improvement of the I/O bandwidth
+  for write, rewrite and read for list-less vs. listbased I/O.]
+perfbase query -d query_above.xml
+
+* Cleanup:
+To delete the test database, call
+perfbase delete -e b_eff_io_DEMO
+
+
+December 2004, Joachim Worringen <joachim@ccrl-nece.de>

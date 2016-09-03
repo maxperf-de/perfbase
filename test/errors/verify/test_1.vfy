@@ -1,0 +1,40 @@
+set terminal postscript eps enhanced color "Helvetica" 12
+set size 0.8
+set output 'errors_lowhigh_bars.eps'
+set xlabel "message size [byte]"
+set ylabel "latency (halve roundtrip) [s]"
+set yrange[0:10]
+set boxwidth 0.266667
+set style fill solid 1.0
+set style line 1 lt 0
+set xzeroaxis
+set xrange[-0.5:7.500000]
+set xtics ("0" 0,"1" 1,"2" 2,"4" 3,"8" 4,"16" 5,"32" 6,"64" 7)
+plot '-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with boxes,'-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with boxes,'-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with boxes
+-0.266667 4.48 
+0.733333 4.51 
+1.733333 4.55 
+2.733333 4.52 
+3.733333 4.55 
+4.733333 4.61 
+5.733333 4.63 
+6.733333 4.79 
+e
+0.000000 2.98 
+1.000000 3.01 
+2.000000 3.05 
+3.000000 3.02 
+4.000000 3.05 
+5.000000 3.11 
+6.000000 3.13 
+7.000000 3.29 
+e
+0.266667 5.98 
+1.266667 6.01 
+2.266667 6.05 
+3.266667 6.02 
+4.266667 6.05 
+5.266667 6.11 
+6.266667 6.13 
+7.266667 6.29 
+e

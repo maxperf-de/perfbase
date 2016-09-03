@@ -1,0 +1,2 @@
+#* ERROR: can not process query specification
+    "<slice> operator 'op.slice': invalid syntax in slice definiton '1:2]'"

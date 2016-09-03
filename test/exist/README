@@ -1,0 +1,5 @@
+'exist' test if perfbase reacts correctly if the user 
+tries to import files which already do exist in the database.
+
+perfbase checks for "doublettes" via a hash on the content of
+the file, *not* via the filename!

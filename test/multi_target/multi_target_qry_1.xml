@@ -1,0 +1,44 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latency">
+  <experiment>multi_target_TEST</experiment>
+
+  <parameter id="p.version" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>f.version</equal>
+    </filter>
+  </parameter>
+  
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <parameter id="p.msgsize">
+      <value>S_msg</value>
+    </parameter>    
+  </source>
+
+  <operator type="max" id="op.max_src">
+    <input>src.latency</input>
+  </operator>
+
+  <operator type="max" id="op.max">
+    <input>op.max_src</input>
+  </operator>
+
+  <operator type="min" id="op.min_src">
+    <input>src.latency</input>
+  </operator> 
+
+  <operator type="min" id="op.min">
+    <input>op.min_src</input>
+  </operator> 
+
+  <output target="raw_text">
+    <input>op.max</input>
+    <input>op.min</input>
+  </output>
+</query>
+
+

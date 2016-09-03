@@ -1,0 +1,397 @@
+#!/bin/sh
+#
+# perfbase - (c) 2004-2005 NEC Europe C&C Research Laboratories
+#            Joachim Worringen <joachim@ccrl-nece.de>
+#
+# perfbase - This is the wrapper/control sh-script for all perfbase functions.
+#            This script should be used in Unix-environments.
+#
+#     This file is part of perfbase.
+#
+#     perfbase is free software; you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation; either version 2 of the License, or
+#     (at your option) any later version.
+#
+#     perfbase is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with perfbase; if not, write to the Free Software
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+
+# These settings will to be adapted for the individual installation by the setup script.
+PB_HOME=@INSTALL_PATH@
+PG_CMD_PATH=@PG_CMD_PATH@
+PG_DATA_PATH=@PG_DATA_PATH@
+PYTHON=@PYTHON_PATH@
+PIDOF=@PIDOF@
+
+DB_HOST=@DB_HOST@
+DB_PORT=@DB_PORT@
+DB_USER=@DB_USER@
+
+if [ -z "$PB_DBHOST" ] ; then
+    export PB_DBHOST=$DB_HOST
+fi
+if [ -z "$PB_DBPORT" ] ; then
+    export PB_DBPORT=$DB_PORT
+fi
+if [ -z "$PB_DBUSER" -a -n "$DB_USER" ] ; then
+    export PB_DBUSER=$DB_USER
+fi
+
+export PATH=$PATH:$PGSQL_HOME/bin:$PB_HOME
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PG_CMD_PATH/../lib
+PBCONF=$HOME/.pbconf
+PBLOG=$PG_DATA_PATH/postmaster.log
+INITLOG=$HOME/perfbase_init.log
+
+print_help() {
+	$PYTHON $PB_HOME/pb_version.py $*
+	echo ""
+	echo "perfbase wrapper skript. Usage: 'perfbase <command> <options>'"
+	echo "Available commands:"
+	echo " init      Initialise personal perfbase database"
+	echo " start     Start personal database server"
+	echo " stop      Shutdown personal database server"
+	echo " setup     Create a new experiment"
+	echo " update    Modify an existing experiment"
+	echo " input     Import data into an experiment"
+	echo " query     Retrieve and visualize data from an experiment via a query"
+	echo " info      Get infomation on experiments and their contents"
+	echo " ls        List all runs of an experiment"
+	echo " attach    Attach (XML) files to an experiment"
+	echo " delete    Delete experiments or data from within an expieriment"
+	echo " find      Find and list data within an experiment"
+	echo " dump      Dump an experiment to a file"
+	echo " restore   Restore an experiment (from a previous dump)"
+	echo " check     Consistency check and update of an experiment database"
+	echo " version   Print version information"
+	echo " help      This help"
+	echo ""
+	echo "Help for individual command can be retrieved via 'perfbase <command> --help'"
+	echo ""
+	echo "Supported environment variables for all commands:"
+	echo " PB_DBHOST      Hostname of the machine running the PostgreSQL database server."
+	echo "                (default: 'localhost')"
+	echo " PB_DBPORT      Portnumber on which the database server is accepting connections."
+	echo "                (default: 5432)"
+	echo " PB_DBUSER      User name for the database server"
+	echo "                (default: content of $USER)"
+	echo " PB_DBPASSWD    Password to use to access database server"
+	echo "                (no default value)"
+	echo " PB_EXPERIMENT  Name of the experiment"
+	echo "                (no default value)"
+}
+
+# for bash completion
+print_commands() {
+	echo "init"
+	echo "start"
+	echo "stop"
+	echo "setup"
+	echo "update"
+	echo "input"
+	echo "query"
+	echo "info"
+	echo "ls"
+	echo "delete"
+	echo "find"
+	echo "dump"
+	echo "restore"
+	echo "check"
+	echo "version"
+	echo "help"
+}
+
+pb_init() {
+    while [ 1 -le $# ] ; do
+	arg=$1
+	shift
+	case $arg in
+	    --help)
+		echo "perfbase init - set up a (personal) database cluster in "$PG_DATA_PATH
+		echo "Options:"
+		echo "-d P,--data=P   database server should store its data in path P"
+		exit 0
+		;;
+	    --data*)
+		PG_DATA_PATH=`echo $arg | cut -d = -f 2`
+		;;
+	    -d)
+		PG_DATA_PATH=$1
+		shift
+		;;
+	    *)
+		echo "Invalid argument '"$arg"'for init command. Use --help for help."
+		exit 1
+		;;
+	esac
+    done
+    if [ ! -r $PG_DATA_PATH/pg_hba.conf ] ; then
+	echo "*# perfbase init: creating perfbase data directory "$PG_DATA_PATH
+	PBLOG=$PG_DATA_PATH/postmaster.log
+	if [ ! -d $PG_DATA_PATH ] ; then
+	    mkdir $PG_DATA_PATH
+	    chmod 700 $PG_DATA_PATH
+	fi
+	if [ -z "$USER" ] ; then
+	    # possible problem: mismatch between content of $USER and output of 'id -un'?
+	    USER=`id -un`
+	fi
+	echo "*# perfbase init: initializing PostgreSQL database server"
+	echo "*# perfbase init: logging output in $INITLOG"
+	
+	if $PG_CMD_PATH/initdb -D $PG_DATA_PATH -U $USER >$INITLOG ; then
+	    rc=0
+	    echo "*# perfbase init: database initialization completed."
+	    echo "# perfbase configuration data" >$PBCONF
+	    echo "PG_DATA_PATH="$PG_DATA_PATH >>$PBCONF
+	else
+	    rc=1
+	    echo "*# ERROR: database initialization failed."
+	fi
+	exit $rc
+    else
+	echo "#* ERROR: perfbase database already initialized in "$PG_DATA_PATH
+	echo "          Nothing initialized. Exiting."
+	exit 1
+    fi
+}
+
+pb_start() {
+    be_verbose=""
+    while [ 1 -le $# ] ; do
+	arg=$1
+	shift
+	case $arg in
+	    -p)
+		pm_port=`echo $1 | sed 's/[^0-9]*//'`
+		pm_port="-p "$pm_port
+		shift
+		;;
+	    --port*)
+		pm_port=`echo $arg | sed 's/[^0-9]*//'`
+		pm_port="-p "$pm_port
+		;;
+	    -f | --force)
+		pm_force="True"
+		;;
+	    -v | --verbose)
+		be_verbose="True"
+		;;
+	    -h | --help)
+		echo "perfbase start - start a (personal) database server"
+		echo "Options:"
+		echo "-f, --force     start new server even if there's already one server running"
+		echo "-p P,--port=P   database server should listen on port P"
+		echo "-v, --verbose   be verbose"
+		exit 0
+		;;
+	    *)
+		echo "Invalid argument '"$arg"' for start command. Use --help for help."
+		exit 1
+		;;
+	esac		    
+    done
+    pm_pids=`$PIDOF postmaster`
+    pm_running=$?
+    if [ "(" $pm_running = "1" ")" -o "(" -n "$pm_force" ")" ] ; then
+	if [ -n "$be_verbose" ] ; then
+	    echo "*# perfbase start: starting  PostgreSQL database server"
+	fi
+	if [ -s $PBCONF ] ; then
+	    PG_DATA_PATH=`cat $PBCONF | grep PG_DATA_PATH | cut -d = -f 2`
+	    if [ -z "$PG_DATA_PATH" ] ; then
+		echo "#* ERROR: perfbase configuration file '"$PBCONF"' corrupted:"
+		echo "          database directory not specified. Looking for a line like"
+		echo "          PG_DATA_PATH=/path/to/postgresql_data"
+		exit 1
+	    fi
+	    if [ ! -d $PG_DATA_PATH ] ; then
+		echo "#* ERROR: perfbase configuration file '"$PBCONF"' corrupted:"
+		echo "          database directory '"$PG_DATA_PATH"' does not exist."
+		exit 1
+	    fi
+	fi
+
+	if [ ! -d $PG_DATA_PATH ] ; then
+	    echo "#* ERROR: perfbase database directory '"$PG_DATA_PATH"' does not exist."
+	    echo "          Run 'perfbase init' command first."
+	    exit 1
+	fi
+
+	# Try to make sure that we look at the most recent log output.
+	# This is not bullet-proof! Better idea anyone?
+	touch $PBLOG
+	n_lines=`cat $PBLOG | wc -l`
+
+	$PG_CMD_PATH/postmaster $pm_port -i -D $PG_DATA_PATH >>$PBLOG 2>&1 &
+
+	sleep 5
+	while [ `cat $PBLOG | wc -l` -le $n_lines ] ; do
+	    # No lines have yet been appended, wait some more time.
+	    sleep 5
+	done
+	# Some lines have been appended. Now, we wait until nothing has been
+	# appended for some time.
+	n_lines=`cat $PBLOG | wc -l`
+	sleep 5
+	while [ `cat $PBLOG | wc -l` -gt $n_lines ] ; do
+	    sleep 5
+	    n_lines=`cat $PBLOG | wc -l`
+	done
+	
+	pm_state=`tail -2 $PBLOG | grep "database system is ready"` 
+	if [ -n "$pm_state" ] ; then
+	    if [ -n "$be_verbose" ] ; then
+		echo "*# perfbase start: database server startup completed."
+	    fi
+	    exit 0
+	else
+	    echo "*# ERROR: database server startup failed:"
+	    echo "          Check $PBLOG for more information."
+	    exit 1
+	fi
+    else
+	echo "#* WARNING: perfbase database server already running on "`hostname`
+	echo "  (PIDs $pm_pids)"
+	echo "  Use option '--force' to start another one. Exiting."
+	exit 1
+    fi
+}
+
+pb_stop() {
+    be_verbose=""
+    while [ 1 -le $# ] ; do
+	arg=$1
+	shift
+	case $arg in
+	    -v | --verbose)
+		be_verbose="True"
+		;;
+	    -h | --help)
+		echo "perfbase stop - stop a (personal) database server"
+		echo "Options:"
+		echo "-v, --verbose   be verbose"
+		exit 0
+		;;
+	    *)
+		echo "Invalid argument '"$arg"' for start command. Use --help for help."
+		exit 1
+		;;
+	esac		    
+    done
+
+    if ! $PIDOF postmaster >/dev/null ; then
+	echo "#* WARNING: no perfbase database server running on "`hostname`
+	exit 1
+    else
+	# This will try to kill postmaster which are not ours, too - should not
+	# be a problem, though. But don't run multiple postmasters under the same id...
+	if [ -n "$be_verbose" ] ; then
+	    echo "*# perfbase stop: shutting down  PostgreSQL database server"
+	fi
+	kill `$PIDOF postmaster` 2>/dev/null
+    fi
+    exit $?
+}
+
+
+# main()
+if [ $# -lt 1 ] ; then
+	echo "Missing command."
+	echo "'perfbase help' shows the available commands."
+	exit 1 
+fi	
+
+while [ 1 -le $# ] ; do
+  arg=$1
+  shift
+  case $arg in 
+     init)
+	pb_init $*
+	;;
+    start)
+	pb_start $*
+	;;
+     stop)
+	pb_stop $*
+	;;
+    setup)
+	$PYTHON $PB_HOME/pb_setup.py $*
+	exit $?
+	;;
+    update)
+	$PYTHON $PB_HOME/pb_update.py $*
+	exit $?
+	;;
+    input)
+	$PYTHON $PB_HOME/pb_input.py $*
+	exit $?
+	;;
+    query)
+	$PYTHON $PB_HOME/pb_query.py $*
+	exit $?
+	;;
+     info)
+	$PYTHON $PB_HOME/pb_info.py $*
+	exit $?
+	;;
+       ls)
+	$PYTHON $PB_HOME/pb_ls.py $*
+	exit $?
+	;;
+   attach)
+	$PYTHON $PB_HOME/pb_attach.py $*
+	exit $?
+	;;
+   delete)
+	$PYTHON $PB_HOME/pb_delete.py $*
+	exit $?
+	;;
+ undelete)
+	$PYTHON $PB_HOME/pb_undelete.py $*
+	exit $?
+	;;
+     find)
+	$PYTHON $PB_HOME/pb_find.py $*
+	exit $?
+	;;
+     dump)
+	$PYTHON $PB_HOME/pb_dump.py $*
+	exit $?
+	;;
+  restore)
+	$PYTHON $PB_HOME/pb_restore.py $*
+	exit $?
+	;;
+    check)
+	$PYTHON $PB_HOME/pb_check.py $*
+	exit $?
+	;;
+    version)
+	$PYTHON $PB_HOME/pb_version.py $*
+	exit $?
+	;;
+     help)
+	print_help $*
+	exit 0
+	;;
+    --commands)
+	print_commands
+	exit 0
+	;;
+    *)
+	echo "Invalid command '"$arg"'"
+	echo "'perfbase help' shows the available commands."
+	exit 1 
+	;;
+   esac
+done
+
+exit 0

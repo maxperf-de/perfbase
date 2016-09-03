@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input id="marker_test_12">
+  <experiment>marker_TEST</experiment>
+
+  <named_location>
+    <name>string</name>
+    <match marker="begin">RESULT_BEGIN</match>
+    <match marker="begin">OTHER_BEGIN</match>
+    <match marker="end">RESULT_END</match>
+    <match marker="end">OTHER_END</match>
+  </named_location>
+</input>

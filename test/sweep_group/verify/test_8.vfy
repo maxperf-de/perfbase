@@ -1,0 +1,23 @@
+set terminal postscript enhanced color "Helvetica" 12
+set output 'sweep_group_8.ps'
+set xtics ("1" 1,"2" 2,"4" 4,"8" 8)
+set xlabel "number of threads"
+set logscale x 2
+set ylabel "execution time [s]"
+set yrange [0:]
+plot '-' using 1:2 title 'bench = crunch' axes x1y1 with linespoints lw 2 ps 2,'-' using 1:2 title 'bench = seek' axes x1y1 with linespoints lw 2 ps 2,'-' using 1:2 title 'bench = swim' axes x1y1 with linespoints lw 2 ps 2
+1 6.0 
+2 3.3 
+4 2.1 
+8 1.7 
+e
+1 12.2 
+2 6.3 
+4 3.2 
+8 3.1 
+e
+1 9.1 
+2 6.3 
+4 4.0 
+8 3.1 
+e

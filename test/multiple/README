@@ -1,0 +1,3 @@
+This test checks some corner cases for parsing values of type 'multiple',
+like having only a single value of this type defined, gathering them
+one-by-one, etc.

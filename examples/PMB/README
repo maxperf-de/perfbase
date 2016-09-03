@@ -1,0 +1,40 @@
+
+This is an example of how the results of the well-known
+PMB ("Pallas MPI Benchmark", now IMB) benchmark for point-to-point 
+and collective MPI operations can be processed with perfbase.
+
+* Prerequisites:
+ Add the path to 'perfbase' to your PATH variable
+ If not yet done, initialize and start the perfbase database server:
+  perfbase init
+  perfbase start 
+
+* Usage:
+perfbase setup -d pmb_exp.xml
+perfbase input -u -d pmb_input.xml pmb.dat
+perfbase query -d pmb_query.xml
+
+The first query will show four charts: 
+- The usual "latency for operation" style.
+- A "lateny per byte" representation of the data, which very clearly
+  shows the efficiency of the operation (should only increase with 
+  increasing data size). 
+- Finally, the absolute and relative difference between the minimal and 
+  maximal value for one dataset is shown. This gives you an idea on how
+  exact the measurements are: large relative differences mean that
+  the benchmark runs was disturbed, or that the interconnect/algorithm/...
+  is not "stable" (maybe due to congestion in the network)
+
+perfbase query -d pmb_query_3d.xml
+
+The second query plots the latency of an operation vs the number of processes
+and the data size, using 3D-plots. This allows to get a good impression of
+the scaling quality.
+
+* Cleanup:
+To delete the example experiment, call
+perfbase delete -e PMB_DEMO
+
+Alternatively, just call the 'rundemo' script.
+
+Feburary 2006, Joachim Worringen <joachim@ccrl-nece.de>

@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# debug runmode gives unwanted output
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="plot3d"
+N_TEST=3
+expected_rc=( 0 0 1 )
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.log *.ps *.gp
+
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+for inp_file in `ls input/*.dat` ; do
+    if ! $PB input -d ${TEST_NAME}_inp.xml $inp_file >>test.log 2>&1; then
+	echo "#* ERROR in ${TEST_NAME}: could not import $inp_file. See test.log"
+	exit 1
+    fi
+done
+
+rc=0
+i=0
+while [ $i -lt $N_TEST ] ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+    CMD="$PB query -d ${TEST_NAME}_qry_${t}.xml"
+    $CMD >test_$t.out 2>&1
+    query_rc=$?
+    if [ -r test_$t.gp ] ; then 
+	cat test_$t.gp >> test_$t.out
+    fi
+    if [ $query_rc != ${expected_rc[$i]} ] ; then
+	echo "#* ERROR in ${TEST_NAME}: unexpected return code (see test.log)"
+	echo "   $CMD"
+	rc=`expr $rc + 1`
+    else
+	if [ -n "$VERIFY" ] ; then
+	    if ! diff test_${t}.out verify/test_${t}.vfy ; then
+		echo "#* ERROR in ${TEST_NAME}, test $t: query returned wrong data"
+		echo "   (file ${TEST_NAME}_${t}.gp vs. verify/test_${t}.vfy)"
+		rc=`expr $rc + 1`
+	    else
+		rm test_${t}.out
+	    fi
+	else
+	    mv test_${t}.out verify/test_${t}.vfy
+	fi
+	rm -f test_${t}.ps test_${t}.gp
+    fi
+    i=`expr $i + 1`
+done
+
+sleep 2
+
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log 
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

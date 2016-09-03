@@ -1,0 +1,15 @@
+# S_msg[byte]	d[]	T_pp[us]	
+10 	in 	1.0 	
+11 	in 	1.1 	
+12 	out 	2.0 	
+14 	out 	2.1 	
+# S_msg[byte]	d[]	T_gap[us]	
+10 	in 	0.13 	
+11 	in 	0.23 	
+12 	out 	0.33 	
+14 	out 	0.43 	
+# S_msg[byte]	d[]	T_gap[us]	T_pp[us]	
+10 	in 	0.13 	1.0 	
+11 	in 	0.23 	1.1 	
+12 	out 	0.33 	2.0 	
+14 	out 	0.43 	2.1 	

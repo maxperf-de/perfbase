@@ -1,0 +1,12 @@
+This example shows how perfbase can be used to store the
+per-process information that NEC MPI/SX can create for every
+MPI application.
+
+To have MPI/SX create this information, you need to set the
+environment variable MPIPROGINF to ALL_DETAIL, like
+
+export MPIPROGINF=ALL_DETAIL
+
+perfbase than stores the per-process information. The accumulated
+data that MPI/SX does also print is *not* stored as it can be calculated
+using perfbase.

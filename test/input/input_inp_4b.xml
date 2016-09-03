@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>input_TEST</experiment>
+
+  <named_location>
+    <name>IC</name>
+    <match>interconnect:</match>
+  </named_location>
+
+  <named_location>
+    <name>bufmode</name>
+    <match>buffering:</match>
+  </named_location>
+
+</input>

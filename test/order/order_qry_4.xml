@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="showall">
+  <experiment>order_TEST</experiment>
+
+  <parameter id="p.p" show="data">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r</result>      
+
+    <input>p.p</input>
+  </source>
+
+  <operator id="op.sort" type="sort" value="p" variant="ascending">
+    <input>src.r</input>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op.sort</input>
+  </output>
+</query>

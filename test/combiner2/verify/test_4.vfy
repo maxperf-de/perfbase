@@ -1,0 +1,2 @@
+#* ERROR: can not process query specification
+    "<operator> 'op.diff~p.speed~0': operation 'diff' needs 2 instead of 1 data sources"

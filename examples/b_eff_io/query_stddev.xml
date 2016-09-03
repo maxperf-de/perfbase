@@ -1,0 +1,91 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="listless_stddev">
+  <experiment>b_eff_io_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter" style="content">
+    <value>operation</value>
+    <filter>
+      <equal>rewrite</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <parameter id="p.listless" show="filter">
+    <value>noncontig</value>
+    <filter>
+      <equal>listless</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.listbased" show="filter">
+    <value>noncontig</value>
+    <filter>
+      <equal>listbased</equal>
+    </filter>
+  </parameter>
+  
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.listless">
+    <result>B_scatter</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.listless</input>
+  </source>
+
+  <source id="src.listbased">
+    <result>B_scatter</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.listbased</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.stddev.listless" type="stddev">
+    <input>src.listless</input>
+  </operator>
+
+  <operator id="op.stddev.listbased" type="stddev">
+    <input>src.listbased</input>
+  </operator>
+
+  <operator id="op.avg.listless" type="avg">
+    <input>src.listless</input>
+  </operator>
+
+  <operator id="op.avg.listbased" type="avg">
+    <input>src.listbased</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output - for the demo, we additionally plot to the screen -->
+  <!-- *** -->  
+  <output target="gnuplot" format="eps" type="bars" title="b\_eff\_io (FILTER)" filterstring="FILTER">
+    <input label="fulltitle">op.avg.listless</input>
+    <input label="fulltitle">op.stddev.listless</input>
+
+    <filename>stddev_listless</filename>
+  </output>
+
+  <output target="gnuplot" format="screen" type="bars" title="b\_eff\_io (FILTER)" filterstring="FILTER">
+    <input label="fulltitle">op.avg.listless</input>
+    <input label="fulltitle">op.stddev.listless</input>
+
+    <option>key left</option>
+    <option>-persist</option>
+  </output>
+
+</query>

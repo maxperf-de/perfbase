@@ -1,0 +1,42 @@
+
+This directory contains the auto-comparison framework for the "NAS Parallel
+Benchmarks" (NPB). 
+auto-npb_exp.xml: experiment description. For clarity, it does not contain any
+                  machine/platform-describing parameter values which you normally 
+                  would include. Add them as necessary.
+
+auto-npb_input.xml: input description that parses the output of any NPB benchmark.
+
+comparison_qry.xml: compare the NPB performance of two software/hardware 
+                    platforms. Creates a plot and stores the same data in 
+                    a text file.
+analyse:      shell script that performs the analysis
+SGE:          containes a batch file for job submission on a SunGridengine-based
+              cluster.
+
+[ Set up the experiment. ]
+perfbase setup -d auto-npb_exp.xml
+
+[ Import the data. The test have been executed on a 16-node, dual-socket dual-core
+  Opteron cluster with Infiniband interconnect, using the Intel 9.1 compiler. ]
+perfbase input -d auto-npb_input.xml input/MPI-*/*.out
+
+[ Run the analysis. This example provides data for the LU and FT benchmarks. ]
+./analyse
+
+[ Look at the graphical results which are stored as postscript documents. Here,
+  we use 'gv' to display them. The documents contain two pages
+  The first page shows the performance difference between the NPB execution with MPI 
+  implemenation A and B, expressed as the decrease/increase of performance A relative 
+  to the performance of B. Only differences exceeding the chosen threshold are shown.
+  The second page displays the absolute performance number for both MPI implementations
+  and all topologies (1, 2 and 4 processes pe node). ]
+gv NPB_FT_ALL.ps
+gv NPB_LU_ALL.ps
+
+[ The same data is also available as text files (.dat suffix). The NPB_full*.dat files 
+  contain the absolute performance numbers, while the NPB_*_comparison*.dat files show
+  the relative performance of A vs. B. I.e.:]
+cat NPB_full_FT_class_C_1_processes_per_node_B_A.dat
+cat NPB_LU_comparison.dat
+

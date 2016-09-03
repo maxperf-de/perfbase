@@ -1,0 +1,6 @@
+# here, the boolean state is set based on the fact that the keyword
+# is found at all.
+2 processes
+
+latency: 32 us
+

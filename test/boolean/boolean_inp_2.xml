@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>boolean_TEST</experiment>
+
+  <named_location store_set="yes">
+    <name>l</name>
+    <match>latency:</match>
+  </named_location>
+
+  <named_location content="leads">
+    <name>N_proc</name>
+    <match>processes</match>
+  </named_location>
+  
+  <named_location mode="boolean">
+    <name>IXS</name>
+    <match>IXS</match>
+  </named_location>
+
+</input>
+
+

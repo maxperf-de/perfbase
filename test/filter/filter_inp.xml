@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>filter_TEST</experiment>
+
+  <named_location>
+    <name>MPI_version</name>
+    <match>version:</match>
+  </named_location>
+
+  <named_location>
+    <name>I</name>
+    <match>connect:</match>
+  </named_location>
+
+  <tabular_location columns="2">
+    <match># msg_size</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_pp</name>
+      <pos>1</pos>
+    </tabular_value>
+  </tabular_location>
+
+</input>

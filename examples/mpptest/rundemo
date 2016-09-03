@@ -1,0 +1,15 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -d mpptest_exp.xml
+
+echo "* Importing data"
+perfbase input -u -d mpptest_input.xml data/*.dat
+
+echo "* Performing query 1"
+perfbase query -d mpptest_query.xml
+
+echo "* Performing query 2"
+perfbase query -d mpptest_query_dual.xml
+
+echo "* Deleting experiment"
+perfbase delete -e mpptest_DEMO --dontask

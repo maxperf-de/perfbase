@@ -1,0 +1,6 @@
+# multiple end markers - should stop when first one is matched
+
+RESULT_BEGIN line1
+line2
+line3OTHER_END
+RESULT_END

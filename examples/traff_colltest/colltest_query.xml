@@ -1,0 +1,100 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="colltest_latency">
+  <experiment>colltest_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter" style="content">
+    <value>operation</value>
+    <filter>
+      <equal>Reduce</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.machine" show="filter" style="content">
+    <value>machine</value>
+    <filter>
+      <equal>SX-8</equal>
+    </filter> 
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.min.latency">
+    <result>L_min</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.machine</input>
+  </source>
+
+  <source id="src.chunksize">
+    <result>S_chunk</result>
+    
+    <input>p.operation</input>
+    <input>p.machine</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.min.latency" type="min">
+    <input>src.min.latency</input>
+  </operator>
+
+  <operator id="op.min.latency_sorted" type="sort">
+    <input>op.min.latency</input>
+  </operator>
+
+  <operator id="op.max.latency" type="max">
+    <input>src.min.latency</input>
+  </operator>
+
+  <operator id="op.min.src-latency_sorted" type="sort">
+    <input>src.min.latency</input>
+  </operator>
+
+  <operator id="op.latency.per.byte" type="div">
+    <input>op.min.src-latency_sorted</input>
+    <input>src.chunksize</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->  
+  <output target="gnuplot" format="screen">
+    <input>op.min.latency_sorted</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>logscale y 10</option>
+    <option>grid ytics</option>
+    <option>grid mytics</option>
+    <option>key below</option>
+
+    <filename unify="filter">min-latency</filename>
+  </output>
+
+  <output target="gnuplot" format="screen">
+    <input>op.latency.per.byte</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>logscale y 10</option>
+    <option>grid ytics</option>
+    <option>grid mytics</option>
+    <option>key below</option>
+
+    <filename unify="filter">min-latency</filename>
+  </output>
+
+</query>
+

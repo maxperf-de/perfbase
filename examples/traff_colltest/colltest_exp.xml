@@ -1,0 +1,150 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>colltest_DEMO</name>
+
+
+  <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Jesper L. Traff</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Optimization of MPI Collective Operations</project>
+    <synopsis>Results of JLT's Benchmark for Collective Operations</synopsis>
+    <description>
+         We want to track the performance changes of collective operations
+         that we achieve with new algorithms and parameters, and on different
+         architectures.
+     </description>
+  </info>
+
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>Version of the MPI library</synopsis>
+
+    <datatype>string</datatype>
+    <default>current bitkeeper</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>OS_version</name>
+    <synopsis>Version of the operating system</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>platform on which the test was performed</synopsis>
+
+    <datatype>string</datatype>
+    <valid>SX-5</valid>
+    <valid>SX-6</valid>
+    <valid>SX-7</valid>
+    <valid>SX-8</valid>
+    <valid>TX-7</valid>
+    <valid>IA-32 Cluster</valid>
+    <valid>IA-64 Cluster</valid>
+    <default>SX-8</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>interconnect</name>
+    <synopsis>intra-node interconnect</synopsis>
+
+    <datatype>string</datatype>
+    <valid>IXS</valid>
+    <valid>Myrinet</valid>
+    <valid>Quadrics Elan3</valid>
+    <valid>Quadrics Elan4</valid>
+    <valid>Infiniband</valid>
+    <valid>Gigabit Ethernet</valid>
+    <default>IXS</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>S_locmem</name>
+    <synopsis>size of local memory block</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>S_chunk</name>
+    <synopsis>amount of data that is communicated (per process)</synopsis>
+    <datatype>integer</datatype>
+
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_proc</name>
+    <synopsis>number of processes involved in the operation</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>operation</name>
+    <synopsis>type of collective operation</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+
+  <!-- *** -->
+  <!-- *** results -->
+  <!-- *** -->
+  <result>
+    <name>L_min</name>
+    <synopsis>minimal latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>L_avg</name>
+    <synopsis>average latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>L_max</name>
+    <synopsis>maximal latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+
+</experiment>
+
+

@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>plottype_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>
+      Test for plotting data with individual plot styles
+    </synopsis>
+    <description>
+      Two data series with different parameter T are processed. One of them 
+      has 1000 data points and should be plotted as a line. The other one has only
+      100 data points and should be plotted with points.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>T</name>
+    <synopsis>time</synopsis>
+    <datatype>integer</datatype>
+  </parameter>
+
+  <parameter>
+    <name>X</name>
+    <synopsis>parameter</synopsis>
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>Y</name>
+    <synopsis>result</synopsis>
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>$</base_unit>
+    </unit>
+  </result>
+</experiment>
+
+

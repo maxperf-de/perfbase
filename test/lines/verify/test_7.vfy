@@ -1,0 +1,2 @@
+#* ERROR: failed to initialize <named_location>. Exiting.
+"'lines' attribute only allowed for datatype 'text' or 'string' (<named_location> int)"

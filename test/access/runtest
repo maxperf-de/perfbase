@@ -1,0 +1,278 @@
+#!/bin/sh
+
+unset PB_RUNMODE
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="access"
+N_TEST=14
+
+if [ "$1" = "-c" ] ; then
+    # nothing to do!
+    echo "*** test '${TEST_NAME}' does not need verification data"
+    exit 0
+else
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# We need some additional users and a group to test with. In case that a user does
+# already exist, the test will abort. We have no automatic strategy for this case.
+for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+    if ! createuser -D -A $u >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not create test users. See test.log"
+	for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+	    psql -c "DROP USER $u;" template1 >/dev/null 2>&1
+	done
+	exit 1
+    fi
+done
+
+if ! psql -c "CREATE GROUP pb_input_grp_ WITH USER pb_input_usr_1_, pb_input_usr_2_;" template1 >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not create test group. See test.log"
+    for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+	psql -c "DROP USER $u;" template1 >/dev/null 2>&1
+    done
+    psql -c "DROP GROUP pb_input_grp_;" template1 >/dev/null 2>&1
+    exit 1
+fi
+
+# Setup experiment for first series of tests: without any initial access right 
+# settings. Those are changed lateron.
+if ! $PB setup -d ${TEST_NAME}_exp_1.xml >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment 1. See test.log"
+    for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+	psql -c "DROP USER $u;" template1 >/dev/null 2>&1
+    done
+    psql -c "DROP GROUP pb_input_grp_;" template1 >/dev/null 2>&1
+    exit 1
+fi
+
+rc=0
+t=1
+
+# First test: let an unknown user import some data. This should fail.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER must not be able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Now, add this user and give him the required access rigths.
+echo "  test "$t
+echo "  test "$t >>test.log
+CMD="$PB update -d ${TEST_NAME}_upd_1.xml"
+if ! $CMD  >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform update 1:"
+    echo "   $CMD"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi
+t=`expr $t + 1`
+
+# This time, we expect a succesful operation!
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if ! $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER is not able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Degrade the user: can only perform queries.
+echo "  test "$t
+echo "  test "$t >>test.log
+CMD="$PB update -d ${TEST_NAME}_upd_2.xml"
+if ! $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform update 2:"
+    echo "   $CMD"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi
+t=`expr $t + 1`
+
+# Inserting data should fail again for this user
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if $PB input -u -d ${TEST_NAME}_inp.xml input_2.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER must not be able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_2.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# But he should be able to perform a query.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if ! $PB query -d ${TEST_NAME}_qry_1.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER not able to perform a query:"
+    echo "   $PB query -d ${TEST_NAME}_qry_1.xml"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Remove user completely.
+echo "  test "$t
+echo "  test "$t >>test.log
+CMD="$PB update -d ${TEST_NAME}_upd_3.xml"
+if ! $CMD  >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not perform update 3:"
+    echo "   $CMD"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi
+t=`expr $t + 1`
+
+# Even the query must fail.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if $PB query -d ${TEST_NAME}_qry_1.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER must not be able to perform a query:"
+    echo "   $PB query -d ${TEST_NAME}_qry_1.xml"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Clean up: remove experiment for next test series.
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+fi
+
+# Setup experiment for second series of tests: access right settings are given
+# in the experiment description.
+if ! $PB setup -d ${TEST_NAME}_exp_2.xml >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment 2. See test.log"
+    for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+	psql -c "DROP USER $u;" template1 >/dev/null 2>&1
+    done
+    psql -c "DROP GROUP pb_input_grp_;" template1 >/dev/null 2>&1
+    exit 1
+fi
+
+# Inserting data should fail again for the query user
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_query_usr_
+if $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER must not be able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Inserting data should succeed for the input user of the input group.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_input_usr_1_
+if ! $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER has to be able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_1.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Inserting data should succeed for the second admin user, too.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_admin_usr_
+if ! $PB input -u -d ${TEST_NAME}_inp.xml input_2.dat >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER has to be able to import data:"
+    echo "   $PB input -u -d ${TEST_NAME}_inp.xml input_2.dat"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# The query of the query user must succeed.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_query_usr_
+if ! $PB query -d ${TEST_NAME}_qry_1.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER must be able to perform a query:"
+    echo "   $PB query -d ${TEST_NAME}_qry_1.xml"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# The new admin is allowed to change the experiment meta data, but not all operations
+# can be successful: altering a table is only allowed to the owner.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_admin_usr_
+CMD="$PB update -d ${TEST_NAME}_upd_4.xml"
+if $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER shouldn not be able to alter the experiment:"
+    echo "   $CMD"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Adding a new parameter should succeed.
+echo "  test "$t
+echo "  test "$t >>test.log
+export PB_DBUSER=pb_admin_usr_
+CMD="$PB update -d ${TEST_NAME}_upd_5.xml"
+if $CMD >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: user $PB_DBUSER has to be able to add a parameter:"
+    echo "   $CMD"
+    echo "   (see file test.log)"
+    rc=`expr $rc + 1`
+fi	
+unset PB_DBUSER
+t=`expr $t + 1`
+
+# Clean up: remove experiment, users and group
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+fi
+
+for u in pb_admin_usr_ pb_input_usr_1_ pb_input_usr_2_ pb_query_usr_ ; do
+    if ! psql -c "DROP USER $u;" template1 >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not drop user $u. See test.log"
+    fi
+done
+
+if ! psql -c "DROP GROUP pb_input_grp_;" template1 >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not drop test group. See test.log"
+fi
+
+if [ $rc = "0" ] ; then
+    rm -f test.log
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

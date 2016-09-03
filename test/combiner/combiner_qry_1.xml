@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="min_max">
+  <experiment>combiner_TEST</experiment>
+  <description>
+    Get min and max of a result value. Here, both operators are
+    separate input streams for the output object, and thus it will
+    print them separately.
+    Next to this, the alias attribute is tested.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value alias="Bytes">S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max" type="max">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max_sorted" type="sort">
+    <input>op.max</input>
+  </operator>
+
+  <operator id="op.min_sorted" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <output>
+    <input>op.min_sorted</input>
+    <input>op.max_sorted</input>
+  </output>
+  
+</query>
+
+

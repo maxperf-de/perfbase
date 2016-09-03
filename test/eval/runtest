@@ -1,0 +1,73 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="eval"
+
+query_files=("eval_qry_1.xml" "eval_qry_1.xml" "eval_qry_2.xml" "eval_qry_3.xml")
+query_args=("" "-f Q=0.02" "" "")
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running ${#query_args[@]} tests in '${TEST_NAME}'"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >>test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# import data
+for inp_fname in `ls *.dat` ; do
+    if ! $PB input -d ${TEST_NAME}_inp.xml $inp_fname >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not import $inp_fname. See test.log"
+	exit 1
+    fi
+done
+
+# do the queries
+rc=0
+for (( i = 0 ; i < ${#query_args[@]} ; i++ )) ; do
+    t=`expr $i + 1`
+    echo "  test "$t
+    QUERY_ARGS="-d ${query_files[$i]} ${query_args[$i]}"
+    QUERY_OUTPUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    if ! $PB query $QUERY_ARGS > $QUERY_OUTPUT ; then
+	echo "#* ERROR in ${TEST_NAME}: could not perform query $t:"
+	echo "   $PB query $QUERY_ARGS"
+	echo "   (see file $QUERY_OUTPUT)"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+	    echo "   $PB query $QUERY_ARGS"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f $QUERY_OUTPUT
+	fi
+    fi
+done
+
+# clean up
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log *.err
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

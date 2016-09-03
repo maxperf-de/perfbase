@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>filename_TEST</experiment>
+
+  <filename_location>
+    <name>N_proc</name>
+    <match>N_proc</match>
+    <match>Nproc</match>
+  </filename_location>
+
+  <filename_location>
+    <!-- recognize the content by looking for any of the valid value of 'fs' -->
+    <name>fs</name>
+  </filename_location>
+
+  <tabular_location columns="2">
+    <match># msg_size</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_pp</name>
+      <pos>1</pos>
+    </tabular_value>
+  </tabular_location>
+
+</input>

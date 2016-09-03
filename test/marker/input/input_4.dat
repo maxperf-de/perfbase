@@ -1,0 +1,9 @@
+# too much data for a string
+
+RESULT_BEGIN
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+RESULT_END

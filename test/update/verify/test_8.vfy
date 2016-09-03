@@ -1,0 +1,37 @@
+Experiment update_TEST (db_version 5)
+ Creator     : Joachim Worringen
+ Organization: Computer and Communications Research Lab, NEC Europe Ltd.
+ Project     : perfbase mega test suite
+ Synopsis    : Message latency for ping-pong style communication between two processes
+ Description : 
+      This is a very basic experiment as it only defines a message size and a related latency.
+      It could become useful by adding parameters like interconnect, API, software version etc.
+    
+ Users   :
+No parameter sets defined. 
+No input descriptions attached.
+
+No query descriptions attached.
+
+
+ Active runs : 4
+ Indices of active runs:
+[1, 2, 3, 4]
+
+ Deleted runs : 0
+ Indices of deleted runs:
+[]
+ 'MPI_version': string []
+    parameter value, single occurence
+    Synopsis: MPI library version
+    Default: 1.24
+ 'platform': string []
+    parameter value, single occurence
+    Synopsis: Machine type (SX, IA32/Myrinet, ...)
+    Default: SX-6
+ 'S_msg': integer(4) [byte]
+    parameter value, multiple occurence
+    Synopsis: message size
+ 'T_pp': float(4) [us]
+    result value, multiple occurence
+    Synopsis: message latency (halve roundtrip time)

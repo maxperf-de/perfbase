@@ -1,0 +1,51 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>multi_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase</project>
+    <synopsis>Regression test for multiple input files.</synopsis>
+    <description>
+          Test case for processing multiple input files: data for a single run
+          can be gathered from an arbitrary number of files.
+       </description>
+  </info>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>Size of message in bytes</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>CPU_load</name>
+    <synopsis>Load of the CPU when processing this message transmission</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>%</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>T_pp</name>
+    <synopsis>Ping-pong message latency (halve of roundtrip time)</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

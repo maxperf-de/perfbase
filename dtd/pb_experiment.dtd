@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+
+<!-- ============================================================= -->
+<!--                    perfbase experiment specification          -->
+<!-- ============================================================= -->
+
+
+<!--                    Root element                               -->
+<!ELEMENT  experiment
+                         (name,info,database?,owner?,admin_access?,input_access?,query_access?,parameter+,result+,import?,attachment?)
+                                                                     >
+<!--                    Experiment meta information                -->
+<!ELEMENT  info         (performed_by,project?,synopsis,description) >
+<!ELEMENT performed_by (name,organization?)>
+<!ELEMENT name         (#PCDATA)>
+<!ELEMENT organization (#PCDATA)>
+<!ELEMENT project      (#PCDATA)>
+
+
+<!--                    Perfbase database server                   -->
+<!--                    Specify where the PostgreSQL database
+                        server which will store this experiment is
+                        located. This information can also be
+                        passed via the commandline or envrironment
+                        variables. If nohting is specified
+                        anwhere, default settings do apply (server
+                        runnning on 'localhost' with default port
+                        numbers and no passwords or other access
+                        right limitations.                         -->
+<!ELEMENT  database     (host?,port?,user?,passwd?)                  >
+<!--                    Access rigths to experiment database       -->
+<!--                    The access rights to an experiment
+                        database can be controled on three levels,
+                        which are the right to query data from the
+                        database, to insert data into the database
+                        and to administrate the database. All
+                        these level can be assigned to an arbitrary
+                        list of users and groups. All admin's have input
+                        and query rights, and all input users also have 
+                        query rights. 
+                        Please note that these are PostgreSQL users and 
+                        groups, not system users and groups! Also, these
+                        users and groups need to exist and need to have the
+                        basic general rights for the database.      -->
+<!ELEMENT  admin_access   (group|user)+                                >
+<!ELEMENT  input_access   (group|user)+                                >
+<!ELEMENT  query_access   (group|user)+                                >
+<!--                    Each database has exactly one owner. By default,
+                        it is the user who creates the database. To chose
+                        a different owner, enter his database user id here.
+                        Note that the owner is the only one who can delete
+                        a database, and that the owner can not be changed
+                        afterwards.                                  -->
+<!ELEMENT  owner       (#PCDATA)                                       >
+
+<!ELEMENT host         (#PCDATA)>
+<!ELEMENT port         (#PCDATA)>
+<!ELEMENT passwd       (#PCDATA)>
+<!ELEMENT group        (#PCDATA)>
+<!ELEMENT user         (#PCDATA)>
+
+<!ELEMENT parameter    (name,synopsis?,description?,datatype,unit?,valid*,default?)>
+<!ATTLIST parameter     is_numeric  (yes|no) "no"
+                        occurrence  (once|multiple) "multiple">
+<!ELEMENT result       (name,synopsis?,description?,datatype,unit?,default?)>
+<!ATTLIST result        is_numeric  (yes|no) "no"
+                        occurrence  (once|multiple) "multiple">
+
+<!ELEMENT unit         (fraction|product|(base_unit,scaling?))>
+<!ELEMENT fraction     (dividend,divisor)>
+<!ELEMENT dividend     (fraction|product|(base_unit,scaling?))>
+<!ELEMENT divisor      (fraction|product|(base_unit,scaling?))>
+<!ELEMENT product      (factor+)>
+<!ELEMENT factor       (fraction|product|(base_unit,scaling?))>
+
+<!-- Valid 'datatype's are integer,float,string,text,date,timeofday,duration,timestamp,binary,boolean,version -->
+<!ELEMENT datatype     (#PCDATA)>
+<!-- size attribute for integer and float datatype -->
+<!ATTLIST datatype     size  (2|4|8)  "4">
+<!-- Valid 'base_unit's are are: none,%,byte,bit,flop,op,process,event,s,Hz,m,g,A,K,mol,cd,Y,$,EUR -->
+<!ELEMENT base_unit    (#PCDATA)>
+<!-- Valid 'scaling' factors are Kilo,Mega,Giga,Tera,Peta,milli,micro,nano,pico,femto,Ki,Mi,Gi,Ti,Pi -->
+<!ELEMENT scaling      (#PCDATA)>
+
+<!ELEMENT valid        (#PCDATA)>
+<!-- Default content for a parameter or result value can be specified. This content will 
+     be retrieved from a run of an experiment in which no content was set from the input files
+     (for this value). If no <default> element is specified for a value, then an empty ('NULL')
+     content is *not* allowed for this value! To allow 'NULL' content, provide an empty <default>
+     element. If a query checks a value in a run for a specific content, than this check will
+     always return "does not match" for NULL content! -->
+<!ELEMENT default      (#PCDATA)>
+
+<!ELEMENT synopsis     (#PCDATA)>
+<!ELEMENT description  (#PCDATA)>
+
+<!ELEMENT import       (#PCDATA)>
+<!ELEMENT attachment   (#PCDATA)>
+

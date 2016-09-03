@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>order_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct handling of non-sorted input data.</synopsis>
+    <description>
+      This test imports data which is not sorted by it's parameter value. This data
+      is then processed differently (no sorting, ascending, descending)
+    </description>
+  </info>
+
+  <parameter>
+    <name>p</name>
+    <synopsis>the running parameter</synopsis>
+
+    <datatype>float</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>T</name>
+    <synopsis>the constant parameter</synopsis>
+
+    <datatype>integer</datatype>    
+  </parameter>
+
+  <result>
+    <name>r</name>
+    <synopsis>the result value</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+
+</experiment>
+
+

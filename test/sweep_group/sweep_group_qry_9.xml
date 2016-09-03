@@ -1,0 +1,95 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="multiple_reverse">
+  <experiment>sweep_group_TEST</experiment>
+
+  <synopsis>Speedup plot.</synopsis>
+
+  <parameter id="p.bench" show="filter" style="content">
+    <value>bench</value>
+    
+    <filter>
+      <equal>swim</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.sequential" show="data">
+    <value>N_threads</value>
+
+    <filter>
+      <equal>1</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.parallel" show="data">
+    <value>N_threads</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.T_seq"> 
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.sequential</input>
+  </source>
+
+  <source id="src.T_par"> 
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.parallel</input>
+  </source>
+
+  <operator id="op.min_seq" type="min">
+    <input>src.T_seq</input>
+  </operator>
+
+  <operator id="op.min_par" type="min">
+    <input>src.T_par</input>
+  </operator>
+
+  <operator id="op.speedup" type="eval" match="index">
+    <input>op.min_seq</input>
+    <input>op.min_par</input>
+
+    <term id="speedup">
+      <fraction>
+	<dividend>
+          <variable name="T">op.min_seq</variable>
+        </dividend>
+	<divisor>
+          <variable name="T">op.min_par</variable>
+        </divisor>
+      </fraction>
+    </term>
+  </operator>
+
+  <!-- In this case, a simple combiner with internal sweep resolving does the
+  job of combining the different data streams from the sweeps into one. We don't need
+  a sweep_group here - and a sweep_group can only be applied on a sweeped parameter which
+  has the 'show="filter"' attribute. But here, the "p.parallel" parameter is 'show="data"'. -->
+  <combiner id="comb" datasets="append">
+    <input sweep_resolve="intern">op.speedup</input>
+  </combiner>
+
+  <output id="plot" target="gnuplot" format="ps" type="bars">
+    <input label="title">comb</input>
+
+    <option>yrange [0:]</option>
+    <filename>sweep_group_9</filename>
+  </output>
+
+  <output id="text.comb">
+    <input>comb</input>
+  </output>
+
+<!--
+  <output id="text.min">
+    <input>op.min_par</input>
+  </output>
+-->
+</query>
+
+

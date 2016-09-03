@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<experiment_update>
+  <name>multi_TEST</name>
+
+  <result>
+    <name>CPU_load</name>
+    <synopsis>Load of the CPU when processing this message transmission</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>%</base_unit>
+    </unit>
+  </result>
+
+</experiment_update>
+
+

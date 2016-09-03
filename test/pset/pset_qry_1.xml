@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="pset_test">
+  <experiment>pset_TEST</experiment>
+
+  <fixed id="f.size">
+    <content>tiny</content>
+  </fixed>
+
+  <parameter id="p.p2" show="filter">
+    <value>P_2</value>
+    <filter>
+      <equal>f.size</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r</result>      
+
+    <input>p.p2</input>
+    <input>p.p</input>
+  </source>
+
+  <operator id="op.sum" type="sum">
+    <input>src.r</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.sum</input>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op.sort</input>
+    <input>src.r</input>
+  </output>
+  
+</query>

@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="test_2">
+  <experiment>xml_TEST</experiment>
+
+  <parameter id="p.interconnect" show="filter">
+    <value>IC</value>
+  </parameter>
+
+  <parameter id="p.bufmode" show="filter">
+    <value>bufmode</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.msgsize" show="all">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.interconnect</input>
+    <input>p.bufmode</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <output target="xml">
+    <input>op.sort</input>
+  </output>
+</query>
+
+

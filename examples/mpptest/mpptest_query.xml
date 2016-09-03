@@ -1,0 +1,72 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query name="latency">
+  <experiment>mpptest_DEMO</experiment>  
+
+  <fixed id="f:ppn">
+    <content>2</content>
+  </fixed>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+
+  <parameter id="p:mpi" style="content" show="filter">
+     <value>MPI_type</value>
+    <sweep>
+      <filter>
+        <equal>NEC</equal>
+      </filter>
+      <filter>
+        <equal>Myricom</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <!-- show="auto" could be omitted here -->
+  <parameter id="p:procs_per_node" show="filter" style="reverse" unit="no">
+     <value alias="processes per node">N_ppn</value>
+     <filter>
+        <equal>f:ppn</equal>
+     </filter>
+  </parameter>
+
+  <parameter id="p:msgsize">
+     <value>S_msg</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src:latency">
+      <result>L_min</result>
+      
+      <input>p:mpi</input>
+      <input>p:msgsize</input>
+      <input>p:procs_per_node</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op:min_latency" type="min">
+    <input>src:latency</input>
+  </operator>
+
+  <operator id="op:sorted_latency" type="sort">
+    <input>op:min_latency</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->  
+  <output target="gnuplot" title="Minimal MPI Ping-pong Latency">
+    <input label="title">op:sorted_latency</input>
+    
+    <option>yrange [0:]</option>
+    <option>key left</option>
+    <option>-persist</option>
+  </output>
+</query>
+

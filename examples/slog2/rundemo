@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -d slog2_exp.xml
+
+echo "* Importing data"
+perfbase input -d slog2_input.xml -f N_ppn=1,N_node=2 sendmany_trace.slog2.txt
+
+echo "* Performing query"
+perfbase query -d slog2_query_barrier-latency.xml
+
+echo "* Deleting experiment"
+sleep 3
+perfbase delete -e slog2_DEMO --dontask

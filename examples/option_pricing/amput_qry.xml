@@ -1,0 +1,361 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="stock_option_price">
+  <experiment>amput_DEMO</experiment>
+
+  <!--   Fixed values that are used in the parameters and in the terms for calculations on the data.  -->
+  <!--   They are set here, but can also be set from the command line. -->
+  <fixed id="f.sigma">
+    <content>0.4</content>
+  </fixed>
+
+  <fixed id="f.T">
+    <content>2</content>
+  </fixed>
+
+  <fixed id="f.r">
+    <content>0.1</content>
+  </fixed>
+
+  <fixed id="f.E">
+    <content>10</content>
+  </fixed>
+
+  <!-- ***  -->
+  <!-- Parameters to select the runs from which datasets are taken.   -->
+  <!-- ***  -->
+
+  <!-- constant parameters (per run) -->
+  <parameter show="filter" id="p.sigma">
+    <value>sigma</value>
+    <filter>
+      <equal>f.sigma</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.T">
+    <value>T</value>
+    <filter>
+      <equal>f.T</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.r">
+    <value>r</value>
+    <filter>
+      <equal>f.r</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.E">
+    <value>E</value>
+    <filter>
+      <equal>f.E</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.algo_apc">
+    <value>algorithm</value>
+    <filter>
+      <equal>APC</equal>
+    </filter>
+  </parameter>
+  
+  <parameter show="filter" id="p.algo_dfd">
+    <value>algorithm</value>
+    <filter>
+      <equal>DFD</equal>
+    </filter>
+  </parameter>
+  
+  <!-- parameter for the data sets   -->
+  <parameter id="p.S">
+    <value>S</value>
+  </parameter>
+
+  <!-- This is the result variable P, chosen in dependance  of the above parameters. -->
+  <source id="src.P_dfd">
+    <result>P</result>
+
+    <input>p.S</input>
+
+    <input>p.sigma</input>
+    <input>p.T</input>
+    <input>p.r</input>
+    <input>p.E</input>
+    <input>p.algo_dfd</input>
+  </source>
+
+  <source id="src.P_apc">
+    <result>P</result>
+
+    <input>p.S</input>
+
+    <input>p.sigma</input>
+    <input>p.T</input>
+    <input>p.r</input>
+    <input>p.E</input>
+    <input>p.algo_apc</input>
+  </source>
+
+  <!-- Use the average P if multiple runs match the parameters.   -->
+  <operator type="avg" id="op.avg_dfd">
+    <input>src.P_dfd</input>
+  </operator>
+
+  <operator type="avg" id="op.avg_apc">
+    <input>src.P_apc</input>
+  </operator>
+
+  <!-- Do the blackscholes calculation on the correction data.   -->
+  <operator type="eval" id="European.Put">
+    <input>op.avg_apc</input>
+
+    <term id="term.blackscholes">
+      <!-- BEGIN: blackscholes(X) -->
+      <difference>
+	<minuend>
+	  <product>
+	    <factor>
+	      <constant>f.E</constant>
+	    </factor>
+	    <factor>
+	      <function type="exp">
+		<argument>
+		  <product>
+		    <factor>
+		      <constant>-1</constant>
+		    </factor>
+		    <factor>
+		      <constant>f.r</constant>
+		    </factor>
+		    <factor>
+		      <constant>f.T</constant>
+		    </factor>
+		  </product>
+		</argument>
+	      </function>
+	    </factor>
+	    <factor>
+	      <!-- BEGIN: N(x) -->
+	      <difference>
+		<minuend>
+		  <constant>1</constant>
+		</minuend>
+		<subtrahend>
+		  <product>
+		    <factor>
+		      <constant>0.5</constant>
+		    </factor>
+		    <factor>
+		      <function type="erfc">
+			<argument>
+			  <fraction>
+			    <dividend>
+			      <!-- BEGIN: -d2(x) -->
+			      <product>
+				<factor>
+				  <constant>-1</constant>
+				</factor>
+				<factor>
+				  <!-- BEGIN: d2(x) -->
+				  <fraction>
+				    <dividend>
+				      <sum>
+					<summand>
+					  <function type="log">
+					    <argument>
+					      <fraction>
+						<dividend><variable name="S">op.avg_apc</variable></dividend>
+						<divisor><constant>f.E</constant></divisor>
+					      </fraction>
+					    </argument>
+					  </function>
+					</summand>
+					
+					<summand>
+					  <product>
+					    <factor>
+					      <difference>
+						<minuend><constant>f.r</constant></minuend>
+						<subtrahend>
+						  <fraction>
+						    <!-- sig2half -->
+						    <dividend>
+						      <product>
+							<factor><constant>f.sigma</constant></factor>
+							<factor><constant>f.sigma</constant></factor>
+						      </product>
+						    </dividend>
+						    <divisor><constant>2.0</constant></divisor>
+						  </fraction>
+						</subtrahend>
+					      </difference>
+					    </factor>
+					    <factor>
+					      <constant>f.T</constant>
+					    </factor>
+					  </product>
+					</summand>
+				      </sum>
+				    </dividend>
+				    <divisor>
+				      <product>
+					<factor>
+					  <constant>f.sigma</constant>
+					</factor>
+					<factor>
+					  <function type="sqrt">
+					    <argument>
+					      <constant>f.T</constant>
+					    </argument>
+					  </function>
+					</factor>
+				      </product>
+				    </divisor>
+				  </fraction>
+				  <!-- END: d2(x) -->
+				</factor>
+			      </product>
+			      <!-- END: -d2(x) -->
+			    </dividend>
+			    <divisor>
+			      <function type="sqrt">
+				<argument><constant>2</constant></argument>
+			      </function>
+			    </divisor>
+			  </fraction>
+			</argument>
+		      </function>
+		    </factor>
+		  </product>
+		</subtrahend>
+	      </difference>
+	    </factor>
+	  </product>
+	</minuend>
+
+	<subtrahend>
+	  <product>
+	    <factor>
+	      <variable name="S">op.avg_apc</variable>
+	    </factor>
+	    <factor>
+	      <!-- BEGIN: N(x) -->
+	      <difference>
+		<minuend>
+		  <constant>1</constant>
+		</minuend>
+		<subtrahend>
+		  <product>
+		    <factor>
+		      <constant>0.5</constant>
+		    </factor>
+		    <factor>
+		      <function type="erfc">
+			<argument>
+			  <fraction>
+			    <dividend>
+			      <!-- BEGIN: -d1(x) -->
+			      <product>
+				<factor>
+				  <constant>-1</constant>
+				</factor>
+				<factor>
+				  <!-- BEGIN: d1(x) -->
+				  <fraction>
+				    <dividend>
+				      <sum>
+					<summand>
+					  <function type="log">
+					    <argument>
+					      <fraction>
+						<dividend><variable name="S">op.avg_apc</variable></dividend>
+						<divisor><constant>f.E</constant></divisor>
+					      </fraction>
+					    </argument>
+					  </function>
+					</summand>
+					
+					<summand>
+					  <product>
+					    <factor>
+					      <sum>
+						<summand><constant>f.r</constant></summand>
+						<summand>
+						  <fraction>
+						    <!-- sig2half -->
+						    <dividend>
+						      <product>
+							<factor><constant>f.sigma</constant></factor>
+							<factor><constant>f.sigma</constant></factor>
+						      </product>
+						    </dividend>
+						    <divisor><constant>2.0</constant></divisor>
+						  </fraction>
+						</summand>
+					      </sum>
+					    </factor>
+					    <factor>
+					      <constant>f.T</constant>
+					    </factor>
+					  </product>
+					</summand>
+				      </sum>
+				    </dividend>
+				    
+				    <divisor>
+				      <product>
+					<factor>
+					  <constant>f.sigma</constant>
+					</factor>
+					<factor>
+					  <function type="sqrt">
+					    <argument>
+					      <constant>f.T</constant>
+					    </argument>
+					  </function>
+					</factor>
+				      </product>
+				    </divisor>
+				  </fraction>
+				  <!-- END: d1(x) -->
+				</factor>
+			      </product>
+			      <!-- END: -d1(x) -->
+			    </dividend>
+			    <divisor>
+			      <function type="sqrt">
+				<argument><constant>2</constant></argument>
+			      </function>
+			    </divisor>
+			  </fraction>
+			</argument>
+		      </function>
+		    </factor>
+		  </product>
+		</subtrahend>
+	      </difference>
+	    </factor>
+	  </product>
+	</subtrahend>
+      </difference>
+    </term>
+  </operator>
+
+  <operator type="sum" id="single.realisation.APC">
+    <input>op.avg_apc</input>
+    <input>European.Put</input>
+  </operator>
+
+  <output target="gnuplot" format="eps" title="PERFBASE: American Put Option Pricing">
+    <input label="parameter">src.P_dfd</input>
+    <input label="input_id">European.Put</input>
+    <input label="input_id" style="points">single.realisation.APC</input>
+
+    <option>-persist</option>
+    <option>xrange[7:20]</option>
+    <filename>amput_plot</filename>
+  </output>
+</query>

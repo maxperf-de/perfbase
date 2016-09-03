@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="min_max merged">
+  <experiment>combiner2_TEST</experiment>
+  <description>
+    Sweep over a single parameter, and get the minimal latency for each variant.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value alias="Bytes">S_msg</value>
+  </parameter>    
+
+  <parameter id="p.speed">
+    <value>V_net</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.latency">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>p.speed</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <combiner id="comb.min">
+    <input sweep_resolve="extern">op.sort</input>
+  </combiner>
+
+  <output>
+    <input>comb.min</input>
+  </output>
+  
+</query>
+
+

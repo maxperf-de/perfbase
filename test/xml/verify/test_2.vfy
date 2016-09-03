@@ -1,0 +1,42 @@
+<output>
+  <data>
+    <filter>bufmode = 'full'</filter>
+    <filter>IC = IXS</filter>
+    <dataset>
+      <value name="S_msg" unit="byte">0</value>
+      <value name="min(T_pp)" unit="us">2.0</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">1</value>
+      <value name="min(T_pp)" unit="us">2.1</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">2</value>
+      <value name="min(T_pp)" unit="us">2.2</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">4</value>
+      <value name="min(T_pp)" unit="us">2.3</value>
+    </dataset>
+  </data>
+  <data>
+    <filter>bufmode = 'none'</filter>
+    <filter>IC = IXS</filter>
+    <dataset>
+      <value name="S_msg" unit="byte">0</value>
+      <value name="min(T_pp)" unit="us">1.0</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">1</value>
+      <value name="min(T_pp)" unit="us">1.1</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">2</value>
+      <value name="min(T_pp)" unit="us">1.2</value>
+    </dataset>
+    <dataset>
+      <value name="S_msg" unit="byte">4</value>
+      <value name="min(T_pp)" unit="us">1.3</value>
+    </dataset>
+  </data>
+</output>

@@ -1,0 +1,150 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="PMB_latency">
+  <experiment>PMB_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter" style="content">
+    <value>operation</value>
+
+    <sweep>
+      <filter>
+	<equal>Bcast</equal>
+      </filter>
+      <filter>
+	<equal>Reduce</equal>
+      </filter>
+      <filter>
+	<equal>Alltoall</equal>
+      </filter>
+      <filter>
+	<equal>Allgather</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.machine" show="filter" unit="no" style="content">
+    <value>machine</value>
+  </parameter>
+
+  <parameter id="p.np" show="filter" style="content">
+    <value>N_proc</value>
+    <filter>
+      <equal>4</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.min.latency">
+    <result>T_min</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.machine</input>
+    <input>p.np</input>
+  </source>
+
+  <source id="src.max.latency">
+    <result>T_max</result>
+    
+    <input>p.operation</input>
+    <input>p.s_chunk</input>
+    <input>p.machine</input>
+    <input>p.np</input>
+  </source>
+
+  <source id="src.chunksize">
+    <result>S_chunk</result>
+    
+    <input>p.operation</input>
+    <input>p.machine</input>
+    <input>p.np</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.min.latency" type="min">
+    <input>src.min.latency</input>
+  </operator>
+
+  <operator id="op.minsort.latency" type="sort">
+    <input>op.min.latency</input>
+  </operator>
+
+  <operator id="op.max.latency" type="max">
+    <input>src.max.latency</input>
+  </operator>
+
+  <operator id="op.maxsort.latency" type="sort">
+    <input>op.max.latency</input>
+  </operator>
+
+  <operator id="op.diff.latency" type="diff">
+    <input>op.maxsort.latency</input>
+    <input>op.minsort.latency</input>
+  </operator>
+
+  <operator id="op.reldiff.latency" type="percentof">
+    <input>op.diff.latency</input>
+    <input>op.minsort.latency</input>
+  </operator>
+
+  <operator id="op.latency.per.byte" type="div">
+    <input>src.min.latency</input>
+    <input>src.chunksize</input>
+  </operator>
+
+  <operator id="op.latency.per.byte_sorted" type="sort">
+    <input>op.latency.per.byte</input>
+  </operator>
+
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->
+  <output target="gnuplot" title="Max. Latency for Operation">
+    <input label="title">op.maxsort.latency</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>logscale y 10</option>
+    <option>grid ytics</option>
+  </output>
+
+  <output target="gnuplot" title="Latency per Byte">
+    <input label="title">op.latency.per.byte_sorted</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>logscale y 10</option>
+    <option>grid ytics</option>
+  </output>
+
+  <output target="gnuplot" title="Absolute Difference between Min. and Max. Latency">
+    <input label="title">op.diff.latency</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>key left Left</option>
+    <option>grid ytics</option>
+  </output>
+
+  <output target="gnuplot" title="Relative Difference between Min. and Max. Latency">
+    <input label="title">op.reldiff.latency</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>grid ytics</option>
+  </output>
+</query>
+

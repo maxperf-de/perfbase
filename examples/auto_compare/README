@@ -1,0 +1,11 @@
+
+'auto_compare' is a small "framework" for (semi-)automatic performance
+comparison based on perfbase. After you have performed a number of tests
+that cover your test parameter space, this framework will help you to 
+quickly determine for which parameter set the performance is best, or worse.
+
+Getting this information manually from a large set of result file, or even
+from perfbase query results, is not necessarily a trivial task, depending 
+on how much results a test creates. In this example, we process results of
+PMB, a MPI benchmark now known as IMB (Intel MPI Benchmark).
+

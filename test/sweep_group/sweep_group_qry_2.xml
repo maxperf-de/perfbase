@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="single_reverse">
+  <experiment>sweep_group_TEST</experiment>
+
+  <synopsis>Same as qry_1, but with reversed data/filter assignment.</synopsis>
+
+  <parameter id="p.bench" show="data">
+    <value>bench</value>
+    <filter>
+      <equal>swim</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.threads" show="filter">
+    <value>N_threads</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.T"> 
+    <result>T</result>
+    
+    <input>p.bench</input>
+    <input>p.threads</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.T</input>
+  </operator>
+
+  <!-- Create a single chart with all data in it by setting 'sweep_resolve="intern"' below. -->
+  <output target="gnuplot" format="ps" type="bars">
+    <input sweep_resolve="intern" label="parameter">op.min</input>
+
+    <option>yrange [0:]</option>
+    <filename>sweep_group_2</filename>
+  </output>
+
+  <output>
+    <input>op.min</input>
+  </output>
+
+</query>
+
+

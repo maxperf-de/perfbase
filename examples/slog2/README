@@ -1,0 +1,28 @@
+
+This example illustrates how perfbase can be used to process data from
+trace files. In this case, we have traced an MPI application with MPE2
+(from MPICH2) which gives us a clog file. This can be converted into
+an slog2 file. We can generate an text-based representation of this 
+binary slog2 file (which is included as sendmany_trace.slog2) using 
+the 'slog2print' tool. This gives us sendmany_trace.slog2.txt, which
+we can process with perfbase.
+
+To run the DEMO, do:
+
+perfbase setup -d slog2_exp.xml
+
+perfbase input -d slog2_input.xml -f N_ppn=1,N_node=2 sendmany_trace.slog2.txt
+
+perfbase query -d slog2_query_barrier-latency.xml
+
+This gives the average and standard deviation of all calls to MPI_Barrier()
+for process 0 and 1.
+
+Finally, delete the experiment via
+
+perfbase delete -e slog2_DEMO
+
+
+NOTE: This capability was added to perfbase just recently and thus may 
+      need more testing and improvement.
+

@@ -1,0 +1,14 @@
+# API = 'A'  V_net = 100.0Mbit/s  V_net = 1000.0Mbit/s  
+# Bytes|op.min_api_sorted~p.api~0[byte]	min(Time)|op.min_api_sorted~p.api~0[s]	min(Time)|op.min_speed_sorted~p.speed~0[s]	min(Time)|op.min_speed_sorted~p.speed~1[s]	
+0 	1.0 	2.0 	1.0 	
+1 	1.1 	2.1 	1.1 	
+2 	1.2 	2.2 	1.2 	
+4 	1.4 	2.4 	1.4 	
+8 	1.8 	2.8 	1.8 	
+# API = 'B'  V_net = 100.0Mbit/s  V_net = 1000.0Mbit/s  
+# Bytes|op.min_api_sorted~p.api~1[byte]	min(Time)|op.min_api_sorted~p.api~1[s]	min(Time)|op.min_speed_sorted~p.speed~0[s]	min(Time)|op.min_speed_sorted~p.speed~1[s]	
+0 	3.0 	2.0 	1.0 	
+1 	3.1 	2.1 	1.1 	
+2 	3.2 	2.2 	1.2 	
+4 	3.4 	2.4 	1.4 	
+8 	3.8 	2.8 	1.8 	

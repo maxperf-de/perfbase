@@ -1,0 +1,60 @@
+#!/bin/bash
+# run all NPB via Sun GridEngine
+
+MPIRUN=~/bin/mpirun_nec
+MACHINE=dino
+SLEEP=30
+MAXNODES=16
+QUEUE=short
+
+# parameters: benchmark, class, nprocs
+submit()
+{
+    b=$1
+    c=$2
+    np=$3
+
+    for ppn in 1 2 4 ; do
+         nn=`expr $np / $ppn`
+	 if [ $nn = 0 ] ; then
+            continue
+         fi
+         if [ $nn -gt $MAXNODES ] ; then
+            continue
+         fi
+
+         bench=$b.$c.$np
+	 sleep 2
+         jid=`date +%s`
+         output=${bench}_nn${nn}_ppn${ppn}_dino_j${jid}
+         echo "# starting $bench at "`date`
+         rc=1
+         while [ $rc != 0 ] ; do
+            qsub -q $QUEUE -pe mpi $nn -N $bench -o ${output}.out -e ${output}.err -cwd $MPIRUN $ppn $PWD/$bench 
+            # qsub -q $QUEUE -t 1 -N $bench -o ${output}.out -j y -cwd $MPIRUN $ppn $PWD/$bench 
+            rc=$?
+            if [ $rc != 0 ] ; then
+               echo "# delaying retry"
+               sleep $SLEEP
+            fi
+         done
+    done
+}
+
+# power-of-2 process counts
+for b in is cg ep ft lu mg ; do
+    for c in C ; do
+	for np in 1 4 8 16 32 64 ; do
+	    submit $b $c $np
+	done
+    done
+done
+
+# square-number process counts
+for b in bt sp ; do
+    for c in C ; do
+	for np in 1 4 9 16 36 49 64; do
+	    submit $b $c $np
+	done
+    done
+done

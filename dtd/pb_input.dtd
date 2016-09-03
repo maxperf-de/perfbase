@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+
+<!ELEMENT input (experiment?,synopsis?,description?,database?,set_separation?,fixed_value*,(filename_location|named_location|explicit_location|tabular_location|split_location)+,derived_parameter*,attachment?)>
+<!--         id         Name of this input description (used when storing 
+                        it in the database)                              -->
+<!ATTLIST input  id      CDATA   #IMPLIED>
+
+<!ELEMENT set_separation    (match|regexp)>
+
+<!ELEMENT named_location    (name,((match|regexp)*|trigger*)+,filter?,map*,ignore?,ws?)>
+<!--         len        length of the data field to cut from the line
+                        for parsing. If < 0, relevant data is parsed
+                        automatically by looking at whitespaces
+                        [default]; if > 0, cut exactly this length
+                        after the trigger; if = 0, use the rest of
+                        the line.
+             lines      number of lines to be considered as content
+                        for the value. This attribute does only apply
+                        for values of type "string" or "text". By default, 
+                        only the current line is parsed (lines="1").
+                        For 'lines="N"', the current line plus the following
+                        N-1 lines are stored. For 'lines="0"', all
+                        lines up to an empty line will be stored.
+             is_separator
+                        If set to yes, any occurrence of this value
+                        will start a new run (also inside a single input
+                        file). The content of this occurrence of the value 
+                        will be stored in the new run.
+             store_set  If set to yes, the parsing of an instance of this
+                        value will trigger the storage of the current set of values
+                        (which are all "multiple" parameters and results).
+             mode       If set to 'assign' [default], the parsed
+                        content will be assigned to the given
+                        variable and stored as part of a data set the
+                        next time a data set is complete.
+                        If set to 'set', the value itself is a data set
+                        and will be stored as such on each occasion 
+                        (application of this mode is rare).
+                        If set to 'count', the actual
+                        content is ignored, but instead the variable
+                        is assigned the number of time the specified
+                        match (or regexp) shows up in the input
+                        set. Multiple occurrences of the match on a
+                        single line will be considered multiply. 
+                        If set to 'boolean', the related boolean variable
+                        will be set to 'true' if the string is matched at
+                        least once.
+                        If set to 'accumulate', the numerical(!) content
+                        of the variable is added each time the string is
+                        matched; and the accumulated value will be stored
+                        for this run.                                     
+                        If set to 'abort', the data import will be aborted
+                        on the first match. This is to simplify automatic 
+                        import of potentially different/corrupted files.
+             content    Location of the content relative to the matched string
+             sticky     If set to 'no', content belonging to a dataset will be 
+                        stored only once. Otherwise, it will be stored with each
+                        new dataset, no matter if it changed in the meantime. 
+             retrigger  How often should this location be triggered? "no" means
+                        after the first trigger for data, subseqeunt triggers
+                        are ignored. "yes" means that the data will be updated
+                        with each new trigger. "auto" means that the "no" mode
+                        will be used for 'only-once' values, and that the "yes"
+                        mode for 'multiple' values. 
+             update     When a set of the multiple values is to be stored, will
+                        it be appended ('update="no"'), will it update an 
+                        existing set of value ('update="yes"') or will it do 
+                        an update if the value set exists, and otherwise append
+                        the set of values ('update="auto"')? This attribute
+                        needs to used (with the same content!) with all input
+                        definitions which should be part of the update condition. -->
+<!ATTLIST  named_location
+             len        CDATA                                   #IMPLIED
+             lines      CDATA                                   #IMPLIED
+             scale      CDATA                                   #IMPLIED
+             is_separator 
+                        (yes|no)                                "no"
+             store_set 
+                        (yes|no)                                "no"
+             mode       (assign|count|set|boolean|accumulate|abort)   "assign"
+             content    (leads|follows)                         "follows"
+             sticky     (yes|no)                                "yes"
+             retrigger  (yes|no|auto)                           "auto"
+             update     (yes|no|auto)                           "no">
+
+<!ELEMENT explicit_location (name,(match|regexp|row),filter?,map*,skip?,pos?,ws?,rep?)>
+<!ATTLIST explicit_location  is_separator (yes|no) "no">
+
+<!-- A 'split_location' gathers data from two different locations
+     'enter' and 'leave' (typically two different lines in the input file) and stores 
+     data either from the 'enter' location, from the 'leave' location, from anywhere 
+     between these to locations, or data calculated from a value found at both locations 
+     (i.e. the difference of two time stamps). To actually retrieve the data from the
+     input file, any other location type can be used.
+     A split_location is mostly used to process trace files.                          -->          
+<!ELEMENT split_location (name,enter,leave,store)>
+<!ATTLIST split_location update     (yes|no|auto)    "no">
+<!ELEMENT enter          (((named_location|explicit_location|tabular_location)*)+)>
+<!ELEMENT leave          (((named_location|explicit_location|tabular_location)*)+)>
+<!ELEMENT store          (name+)>
+
+<!ELEMENT fixed_value       (name,content)>
+<!ELEMENT content           (#PCDATA)>
+
+<!ELEMENT tabular_location  (((match|regexp)*|row)?,skip?,ws?,rep?,tabular_value+)>
+<!ATTLIST tabular_location   is_separator (yes|no) "no"
+                             columns      CDATA #IMPLIED
+                             rows         CDATA #IMPLIED>
+<!ELEMENT tabular_value     (name,(pos|match)?,filter?,map*)>
+<!ATTLIST tabular_value      scale      CDATA            #IMPLIED
+                             update     (yes|no|auto)    "no">
+
+<!ELEMENT filename_location (name,(match|regexp)*,filter?,map*,ws?)>
+<!ATTLIST filename_location  len          CDATA                    #IMPLIED
+                             mode         (assign|boolean)         "assign"
+                             match        (exact|fuzzy)            "fuzzy">
+
+<!ELEMENT derived_parameter (name,(term|map))>
+<!-- 'retrigger' decides if only the first derivation of the parameter is stored, ("no") -->
+<!-- or if the parameter is derived again once one of its trigger parameters has         -->
+<!-- changed ("yes"). By default ("auto"), retriggering is used for parameters which do  -->
+<!-- have multiple occurrence. "sticky" means that a derived parameter that belongs to a  -->
+<!-- dataset is stored with each dataset if it was triggered at least once.              -->
+<!ATTLIST derived_parameter    
+                       store_set          (yes|no)               "no"
+                       retrigger          (yes|no|sticky|auto)   "auto"
+                       update             (yes|no|auto)          "no">
+
+<!-- <term> describes an arbitrary calculation on the input data. The input data     -->
+<!-- is linked into the term via the <variable> element: the 'name' attribute of the -->
+<!-- variable element specifies the variable from the <input> which is specified     -->
+<!-- via the content of the <variable> element.                                      -->
+<!ELEMENT term         (fraction|product|sum|difference|function|parameter|constant)>
+<!ATTLIST term          id          ID   #IMPLIED>
+<!ELEMENT fraction     (dividend,divisor)>
+<!ELEMENT dividend     (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT divisor      (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT product      (factor+)>
+<!ELEMENT factor       (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT sum          (summand+)>
+<!ELEMENT summand      (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT difference   (minuend,subtrahend)>
+<!ELEMENT minuend      (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT subtrahend   (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT function     (argument+)>
+<!ATTLIST function     type (acos|acosh|asin|asinh|atan|atanh|atan2|ceil|cos|cosh|exp|fabs|abs|floor|fmod|hypot|ldexp|log|log10|pow|sin|sinh|sqrt|tan|tanh|max|min)       #REQUIRED>
+<!ELEMENT argument     (fraction|product|sum|difference|function|parameter|constant)>
+<!ELEMENT parameter    (#PCDATA)>
+<!ELEMENT constant     (#PCDATA)>
+
+<!ELEMENT trigger      ((match|regexp),skip)>
+
+<!ELEMENT map          (mapping+)>
+<!ATTLIST map          value             CDATA #IMPLIED>
+
+<!ELEMENT mapping      ((content_in,content_out)+)>
+
+<!ELEMENT content_in   (#PCDATA)>
+<!ATTLIST content_in   match             (regexp|literal) "literal">
+
+<!ELEMENT content_out  (#PCDATA)>
+
+<!ELEMENT filter       (#PCDATA)>
+<!ATTLIST filename_location  case        (ignore|respect) "respect">
+
+<!ELEMENT database     (host?,port?,user?,passwd?)>
+<!ELEMENT host         (#PCDATA)>
+<!ELEMENT port         (#PCDATA)>
+<!ELEMENT user         (#PCDATA)>
+<!ELEMENT passwd       (#PCDATA)>
+
+<!ELEMENT synopsis     (#PCDATA)>
+<!ELEMENT description  (#PCDATA)>
+<!ELEMENT match        (#PCDATA)>
+<!ATTLIST match        match        (exact|fuzzy)   "fuzzy"
+                       marker       (begin|end)     "begin"
+                       content      (leads|follows) "follows"
+                       terminator   CDATA           #IMPLIED>
+<!ELEMENT attachment   (#PCDATA)>
+
+<!ELEMENT experiment   (#PCDATA)>
+<!ELEMENT name         (#PCDATA)>
+<!-- The 'store' attribute is only relevant when used within a 'split_location'.     --> 
+<!ATTLIST name         store        (current|enter|leave|max|min|diff|sum)    "current">
+<!ELEMENT regexp       (#PCDATA)>
+<!ELEMENT ignore       (#PCDATA)>
+<!ELEMENT ws           (#PCDATA)>
+<!ELEMENT row          (#PCDATA)>
+<!ELEMENT pos          (#PCDATA)>
+<!ELEMENT rep          (#PCDATA)>
+<!ELEMENT skip         (#PCDATA)>

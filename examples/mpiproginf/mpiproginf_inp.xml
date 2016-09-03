@@ -1,0 +1,104 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>MPIPROGINF_DEMO</experiment>
+
+  <named_location>
+    <name>N_proc</name>
+    <match>Global Data of </match>
+  </named_location>
+
+  <named_location>
+    <name>rank</name>    
+    <regexp>Data of Process \[[0-9].*,</regexp>
+  </named_location>
+
+  <named_location>
+    <name>T_real</name>
+    <match>  Real   Time (sec)           :</match>
+  </named_location>
+
+  <named_location>
+    <name>T_user</name>
+    <match>  User   Time (sec)           :</match>
+  </named_location>
+
+  <named_location>
+    <name>T_sys</name>
+    <match>  System Time (sec)           :</match>
+  </named_location>
+
+  <named_location>
+    <name>T_vec</name>
+    <match>  Vector Time (sec)           :</match>
+  </named_location>
+  
+  <named_location>
+    <name>N_i</name>
+    <match>  Instruction Count           :</match>
+  </named_location>
+
+  <named_location>
+    <name>N_ivec</name>
+    <match>  Vector Instruction Count    :</match>
+  </named_location>
+
+  <named_location>
+    <name>N_vece</name>
+    <match>  Vector Element Count        :</match>
+  </named_location>
+
+  <named_location>
+    <name>N_iflop</name>
+    <match>  FLOP Count                  :</match>
+  </named_location>
+
+  <named_location>
+    <name>MOPS</name>
+    <match>  MOPS                        :</match>
+  </named_location>
+
+  <named_location>
+    <name>MFLOPS</name>
+    <match>  MFLOPS                      :</match>
+  </named_location>
+
+  <named_location>
+    <name>l_vec</name>
+    <match>  Average Vector Length       :</match>
+  </named_location>
+
+  <named_location>
+    <name>r_vec</name>
+    <match>  Vector Operation Ratio (%)  :</match>
+  </named_location>
+
+  <named_location>
+    <name>S_mem</name>
+    <match>  Memory size used (MB)       :</match>
+  </named_location>
+
+  <named_location>
+    <name>S_gmem</name>
+    <match>  Global Memory size used (MB):</match>
+  </named_location>
+
+  <named_location>
+    <name>T_imiss</name>
+    <match>  Instruction Cache miss (sec):</match>
+  </named_location>
+
+  <named_location>
+    <name>T_opmiss</name>
+    <match>  Operand     Cache miss (sec):</match>
+  </named_location>
+
+  <named_location mode="set">
+    <name>T_bank</name>
+    <match>  Bank     Conflict Time (sec):</match>
+  </named_location>
+
+</input>
+
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="between_versions">
+  <experiment>version_TEST</experiment>
+  <description>
+    Show all results of version betwenn 1.0.1 and 1.0.3.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <parameter id="p.version">
+    <value>v_prot</value>
+    <filter>
+      <greaterequal>1.0.1</greaterequal>
+      <lesser>1.0.3</lesser>
+    </filter>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version</input>
+  </source>
+
+  <output>
+    <input>src.latency</input>
+  </output>
+  
+</query>
+
+

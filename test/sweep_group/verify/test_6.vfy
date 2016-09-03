@@ -1,0 +1,28 @@
+set terminal postscript enhanced color "Helvetica" 12
+set output 'sweep_group_6.ps'
+set xtics ("1" 1,"2" 2,"4" 4,"8" 8)
+set xlabel "number of threads"
+set ylabel "execution time [s]"
+set yrange [0:]
+set boxwidth 0.266667
+set style fill solid 1.0
+set style line 1 lt 0
+set xzeroaxis
+set xrange[-0.5:3.500000]
+set xtics ("1" 0,"2" 1,"4" 2,"8" 3)
+plot '-' using 1:2 title 'crunch' axes x1y1 with boxes,'-' using 1:2 title 'seek' axes x1y1 with boxes,'-' using 1:2 title 'swim' axes x1y1 with boxes
+-0.266667 6.0 
+0.733333 3.3 
+1.733333 2.1 
+2.733333 1.7 
+e
+0.000000 12.2 
+1.000000 6.3 
+2.000000 3.2 
+3.000000 3.1 
+e
+0.266667 9.1 
+1.266667 6.3 
+2.266667 4.0 
+3.266667 3.1 
+e

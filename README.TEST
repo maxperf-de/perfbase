@@ -1,0 +1,167 @@
+
+* 
+* perfbase test suite
+*
+
+The directory 'test' contains a (more or less) complete and automated
+test suite for perfbase. It is strongly recommended that before making
+changes to the source, a new test is created for this change to be
+verified. Also, before any changes are committed, make sure that the
+complete test suite passes without errors.
+
+The tests also are a valuable source of information for how input,
+query and other operations are expected to work with perfbase.
+Therefore, here's a short synopsis of all tests which should help
+to find an example or solution for the problem you are facing. 
+Additionally, the experiment description of each test (see *_exp.xml 
+files) also describe the individual test.
+- barchart: creation of barcharts (not in testsuite)
+- errors: create plots with error/minmax bars
+- filter: boolean expressions of multiple filters within queries
+- missing: handling of missing input data
+- oponesrc: operators with a single data vector from a single source
+- optwosrc: operators with two datavectors from two sources
+- pset: application of parameter sets
+- runindex: application of runindex operator
+- update: update an experiment (add/rename values etc.)
+- boolean: parsing of boolean values
+- default: assignment of default content on data input
+- eval: application of eval operator
+- fixed: application of <fixed> elements
+- multi: processing of multiple input files for a single run
+- multi_target: processing of query object which have multiple targets
+- order: processing of unordered input data
+- quote: handling of quoted strings on the command line
+- runs: handling of <run> element in queries (not in testsuite)
+- slice: application of slice operator
+- version: application of "version" datatype (extended testsuite)
+- access: multiple users with different access levels (extended testsuite)
+- combiner: application of <combiner> in queries
+- combiner2: more advanced application of <combiner> in queries
+- combstrip: combine multiple data vectors, and strip dimensions from a data vector
+- derived: application of derived_parameter in input operations
+- exist: correct handling of import from identical files
+- input: multiple data files and input descriptions in a single input operation 
+- op_cascade: cascaded operators (incomplete, and tested by other tests)
+- plain_table: parsing of tabular input files w/o any header
+- regexp: handling of regular expressions
+- regexp2: more regular expressions 
+- split: application of split_location on input
+- attach: handling of attachments (input and query descriptions)
+- count: named_location in count-mode (mode="count" attribute)
+- distrib: creation of statistical info (distrib operator)
+- filename: retrieve data from the filename of an input file
+- map: application of <map> elements
+- map2: advanced application of <map> elements
+- plottype: create different types of plots in a single chart
+- plot3d: creating 3D plots
+- resolve: application of resolve operator
+- sweep: application of <sweep>s within queries
+- sweep_group: meaningful plotting of sweeps over multiple parameters
+- lines: application of 'lines' attribute with <named_location>
+- frequeny: application of the frequency operator (get frequency of events)
+- limit: application of the limit operator (cut off values)
+- marker: test 'marker' attribute of match in named_location
+- normalize: application of the normalize operator (scale/offset data vectors 
+  relative to their first element)
+- opendoc: creating OpenDoc spreadsheet files as query output
+- scope: compare results of queries with different scopes on the same data
+- set_update: update data sets that have alreay been stored within this import
+- xml: creating XML files as query output
+
+
+*
+* How to run the test suite
+*
+- Make sure that a perfbase database server is running, and that you 
+  have rights to create new experiments on this server. If necessary,
+  set the environment variables PB_DBHOST, PB_DBPORT, PB_DBUSER,
+  PB_DBPASSWD accordingly.
+- The test suite will not touch existing experiments. All test suite 
+  experiment names have the suffix '_TEST'. As long as no experiments with
+  this suffix to exist, no problems will show up. However, a test will
+  fail if an experiment of the same name does already exist, and the
+  existing experiment will remain untouched.
+- Enter the 'test' directory and call 'make'. The testing will take a
+  couple of minutes. Finally, the result will printed.
+- Output of all tests in the test suite is logged in 'test.log'. The 
+  individual tests log their output in 'test.log' in the respective test 
+  directory.
+
+NOTE: 
+  The test 'access' may fail if the access to your perfbase database
+  server is limited in a way that unknown users may not create new 
+  experiments (such a limitation is not uncommon). As long as you do not
+  modify the code concerning the access management in pb_setup.py, this 
+  is probably o.k.. However, for a fully correct testing, you should setup
+  a separate perfbase server for testing which has no access limitations.
+  To achieve this, the PostgreSQL configuration file pg_hba.conf should 
+  contain a line like
+host    all         all             127.0.0.1         255.255.255.255   trust
+  which will allow all users to access the database running on the local host.
+
+NOTE:
+  The order of output for some of the tests depends on the version of the
+  PostgreSQL database server. This means, rows in the output tables may 
+  have a different order i.e. for PostgreSQL 7.4 and 8.1. While this does not
+  affect the correctness of the results, it will make the test suite generate 
+  an error message. The current comparison results of the testsuite have been 
+  created using PostgreSQL 8.4, thus no such errors should show up if you use
+  this version. 
+
+  We also added 'sort' operators in the queries that rely on the order
+  for verification, so the order should be no issue at all any more. 
+
+  You can verify errors of the testsuite by manually comparing *_N.out with the
+  corresponding verify/*_N.vfy in the subdirectory of the respective test.
+
+*
+* What to do if a test fails
+*
+- A failing test will be reported via a message like this one: 
+#* ERROR in update, test 3: info returned wrong data
+- This means that sub-test #3 of the 'update' test failed. The log of this 
+  test is found in update/test.log, and the output of the sub-test 
+  is stored in update/test_3.out. The expected output for
+  this test is stored in update/verify/test_3.vfy. The same naming
+  scheme is applied to all tests.
+- A 'diff' between these two file shows what went wrong.
+- Now, analyse the output, and fix the problem! If necessary, refresh
+  the test results (see below).
+
+
+*
+* How to run an individual test
+*
+- To run an individual test, just enter the test directory and 
+  invoke the 'runtest' script.
+- It may happen that this script fails because it can not set up the
+  experiment for this test because it already exists. Check with 
+  'perfbase info --all' if for test 'gaga', an experiment named
+  'gaga_TEST' does exist. If yes, delete it via 'perfbase delete -e gaga_TEST'.
+
+
+*
+* How to add a new test, or to refresh an existing test
+*
+To add a new test, study the design of an existing test. Then perform the 
+following steps:
+- Create a subdirectory with the name of the new test (i.e. 'gaga').
+- Inside this directory, create a subdirectory 'verify'. If necessary
+  (many input files), create another subdirectory 'input'.
+- It's a good idea to copy some files over from another test.
+- The XML files need to be called gaga_...xml because that often allows
+  to just change the TEST_NAME in the runtest script, and it will run the
+  new test. However, depending on the nature of the test, different runtest
+  flavours are available. Choose the one that fits.
+- Add the input files and all XML files as necessary, and integrate with the
+  runtest script.
+
+After a test has been designed or changed, the verification data needs to be generated
+(the expected results of the sub-tests). 
+- Call the 'runtest' script with the -c option (for "create") which will create
+  the files verify/test_N.vfy (N being the sub-test number).
+- Double-check that these files really contain what is expected from the logic of
+  the test!
+- Make sure that these files do not contain output that depends on the current 
+  environment (like a username etc.).

@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>exist_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct handling of multiple imports of files.</synopsis>
+    <description>
+      This test tries to import identical files (conc. content and/or name) and tests
+      if perfbase reacts correctly.
+    </description>
+  </info>
+
+  <parameter>
+    <name>p</name>
+    <synopsis>the parameter</synopsis>
+
+    <datatype>float</datatype>
+  </parameter>
+
+  <result>
+    <name>r</name>
+    <synopsis>the result</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+
+</experiment>
+
+

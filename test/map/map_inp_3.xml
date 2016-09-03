@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>map_TEST</experiment>
+
+  <filename_location>
+    <name>fs</name>
+    <match terminator=".">fs-</match>
+    <map>
+      <content_in>network</content_in>
+      <content_out>NFS</content_out>
+    </map>
+  </filename_location>
+
+  <named_location store_set="yes">
+    <name>T</name>
+    <match>T=</match>
+  </named_location>
+
+</input>
+
+

@@ -1,0 +1,6 @@
+# MPI version: 1.21
+#
+# msg_size	latency [us]
+0		21.0
+1		21.1
+2		21.2

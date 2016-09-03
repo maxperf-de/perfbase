@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="global">
+  <experiment>scope_TEST</experiment>
+
+  <parameter id="p.p" show="data">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.p">
+    <result>r</result>
+    
+    <input>p.p</input>
+  </source>
+  
+  <!-- first get the minimum from each run, than the maximium of those mins -->
+  <operator type="min" id="op.min" scope="run">
+    <input>src.p</input>
+  </operator>
+
+  <operator type="max" id="op.max">
+    <input>op.min</input>
+  </operator>
+
+  <output>
+    <input>op.max</input>
+
+    <filename>scope_2</filename>
+  </output>
+</query>
+
+

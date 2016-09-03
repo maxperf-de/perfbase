@@ -1,0 +1,8 @@
+# a fixed number of lines after the keyword
+
+RESULT_BEGIN
+line 1
+line 2
+line 3
+line 4
+RESULT_END

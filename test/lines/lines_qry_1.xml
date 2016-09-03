@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="show_string">
+  <experiment>lines_TEST</experiment>
+  <description>
+    Print the imported data to verify it is correct
+  </description>
+
+  <fixed id="f.runid">
+    <content>0</content>
+  </fixed>
+
+  <run id="r.runid">
+    <index>f.runid</index>
+  </run>
+
+  <source id="src.string">
+    <result>string</result>
+    
+    <input>r.runid</input>
+  </source>
+
+  <source id="src.text">
+    <result>text</result>
+    
+    <input>r.runid</input>
+  </source>
+
+  <output>
+    <input>src.string</input>
+    <input>src.text</input>
+  </output>
+  
+</query>
+
+

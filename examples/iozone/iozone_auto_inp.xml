@@ -1,0 +1,194 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../../perfbase/dtd/pb_input.dtd">
+
+
+<input>
+  <experiment>iozone_DEMO</experiment>
+  <description>import output files that have been generated with the "-a" option.</description>
+
+  <fixed_value>
+    <name>mode</name>
+    <content>auto</content>
+  </fixed_value>
+
+  <!-- avoid parsing of the wrong input file type -->
+  <named_location mode="abort">
+    <name>fs</name> <!-- dummy value -->
+    <match>Children see throughput</match>
+  </named_location>
+
+  <!-- *** -->
+  <!-- *** parameters which occur once per experiment -->
+  <!-- *** -->
+  <fixed_value>
+    <name>N_nodes</name>
+    <content>1</content>
+  </fixed_value>
+
+  <!-- parse uname output -->
+  <tabular_location rows="1">
+    <match>Machine =</match>
+
+    <tabular_value>
+      <name>OS</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>host</name>
+      <pos>3</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>OS_version</name>
+      <pos>4</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <!-- It's a good idea to encode the file system into the result file name. Alternatively,
+  for a known set of test paths, it is possible to derive it from the path name as shown
+  below. -->
+  <filename_location>
+    <name>fs</name>
+  </filename_location>
+
+  <!--
+  <named_location>
+    <name>fs</name>
+    <match>-f</match>
+    <map>
+      <content_in match="regexp">/nfs/acceptance.*</content_in>
+      <content_out>GFS</content_out>
+    </map>
+    <map>
+      <content_in match="regexp">/nfs/scr.*</content_in>
+      <content_out>GFS</content_out>
+    </map>
+    <map>
+      <content_in match="regexp">/tmp/*</content_in>
+      <content_out>SFS</content_out>
+    </map>
+    <map>
+      <content_in match="regexp">/xmu.*</content_in>
+      <content_out>MFF</content_out>
+    </map>
+  </named_location>
+  -->
+
+  <named_location>
+    <name>iozone_version</name>
+    <match>$Revision:</match>
+  </named_location>
+
+  <named_location len="0">
+    <name>iozone_args</name>
+    <match>Command line used:</match>
+  </named_location>
+
+  <named_location len="0">
+    <name>date_run</name>
+    <match>Run began:</match>
+  </named_location>
+
+  <named_location>
+    <name>path</name>
+    <match>-f</match>
+  </named_location>
+
+  <named_location>
+    <name>S_stride</name>
+    <match>stride size set to</match>
+  </named_location>
+
+  <named_location mode="boolean">
+    <name>lock_file</name>
+    <match>Lock file when reading/writing.</match>
+  </named_location>
+
+  <named_location mode="boolean">
+    <name>lock_record</name>
+    <match>Record locking mode enabled</match>
+  </named_location>
+
+  <named_location mode="boolean">
+    <name>inc_close</name>
+    <match>-c</match>
+  </named_location>
+
+  <!-- *** -->
+  <!-- *** parameters & results from the table -->
+  <!-- *** -->
+  <tabular_location columns="15">
+    <match>KB  reclen   write rewrite    read</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>S_file</name>
+      <pos>0</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>S_record</name>
+      <pos>1</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_wr</name>
+      <pos>2</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_rewr</name>
+      <pos>3</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_rd</name>
+      <pos>4</pos>
+    </tabular_value>   
+    <tabular_value>
+      <name>B_rerd</name>
+      <pos>5</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_rndrd</name>
+      <pos>6</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_rndwr</name>
+      <pos>7</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_bkwrd</name>
+      <pos>8</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_rrewr</name>
+      <pos>9</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_strdrd</name>
+      <pos>10</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>B_fwr</name>
+      <pos>11</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_frewr</name>
+      <pos>12</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_frd</name>
+      <pos>13</pos>
+    </tabular_value>
+    <tabular_value>
+      <name>B_frerd</name>
+      <pos>14</pos>
+    </tabular_value>
+
+  </tabular_location>
+
+</input>
+

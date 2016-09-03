@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>distrib_TEST</experiment>
+  
+  <tabular_location>
+    <match># msg_size</match>
+    <skip>1</skip>
+    
+    <tabular_value>
+      <name>l_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <named_location>
+    <name>S_msg</name>
+    <match># msg_size</match>
+  </named_location>
+
+</input>

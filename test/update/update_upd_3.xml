@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- delete a parameter -->
+<experiment_update>
+  <experiment>update_TEST</experiment>
+
+  <info>
+    <project>perfbase test suite</project>
+  </info>
+
+  <parameter action="drop">
+    <name>S_buf</name>
+  </parameter>
+
+</experiment_update>

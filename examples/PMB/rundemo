@@ -1,0 +1,15 @@
+#!/bin/sh
+echo "* Setting up experiment"
+perfbase setup -f -d pmb_exp.xml
+
+echo "* Importing data"
+perfbase input -u -d pmb_input.xml pmb.dat
+
+echo "* Performing 2D query"
+perfbase query -d pmb_query.xml
+
+echo "* Performing 3D query"
+perfbase query -d pmb_query_3d.xml
+
+echo "* Deleting experiment"
+perfbase delete -e PMB_DEMO --dontask

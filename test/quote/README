@@ -1,0 +1,3 @@
+Test the correct processing of quoted multi-word strings on 
+the commandline. Also tests if incorrect quoting is handled 
+by proper exit with error message.

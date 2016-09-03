@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Add a new parameter -->
+<experiment_update>
+  <name>access_TEST</name>
+
+  <parameter occurrence="once">
+    <name>interconnect</name>
+    <synopsis>Type of interconect</synopsis>
+
+    <datatype>string</datatype>
+    <unit>
+      <base_unit>none</base_unit>
+    </unit>
+    <default>IXS</default>
+  </parameter>
+
+</experiment_update>

@@ -1,0 +1,16 @@
+This test lets operators work on a single data vector from a single source
+which contains 10 datasets with 5 of them matching each other.
+
+1: min
+2: max
+3: sum
+4: null
+5: prod
+6: scale
+7: offset
+8: avg
+9: stddev
+10: variance
+11: eval
+12: count
+

@@ -1,0 +1,6 @@
+# S_msg|op.min_sorted[byte]	min(T_pp)|op.min_sorted[s]	max(T_pp)|op.max_sorted[s]	
+0 	14.0 	20.0 	
+1 	14.1 	20.1 	
+2 	14.2 	20.2 	
+4 	14.4 	20.4 	
+8 	14.8 	20.8 	

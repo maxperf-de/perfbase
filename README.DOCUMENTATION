@@ -1,0 +1,41 @@
+
+The official, user-friendly documentation is not yet finished - you
+find it as a Docbook XML document in the doc folder
+(doc/perfbase_docbook.xml). Suitable formats like PDF, HTML and
+man-pages will be derived from it once it has a suffiently mature
+status.
+
+So, how should a potential user of perfbase learn about this toolkit?
+The following strategy is recommended:
+1. Read the conference paper preprint doc/preprint_ieee-cluster2005.pdf
+   to learn about the idea and concept of perfbase, and see how it was
+   used in a real-world example.
+2. Look at the examples in the examples directory. They cover many 
+   typical scenarios, and you can probably start your own first 
+   perfbase project by taking over one of the examples.
+3. All perfbase commands understand "--help" and will print a complete
+   listing of all options they understand. Also, the error messages of
+   the commands are designed to really help you find locate the problem.
+4. As you need to do modification to the XML files, it is safe to refer
+   to the "Document Type Definition" (DTD) files in the dtd directory. They
+   are in sync with the current perfbase code. For a quick introduction
+   into DTDs (and XML in general), see http://www.xmlfiles.com/dtd/.
+5. For specific XML constructs, please also look at the many test cases
+   in the test directory - they cover (and verify) many constructs in the most 
+   simple way (also see README.TEST)
+
+When trying out things with your perfbase experiments, remember the following:
+- You can never break anything (or change data) when doing queries.
+- For 'input' operations, the option '--test' which perform a dry run 
+  which shows the data that would be stored. Even when doing a real
+  data import, the 'delete' command can easily undo this by deleting
+  the run with the highest run-id.
+- The 'dump' and 'restore' commands can be used very easily to create 
+  a backup of your experiment (or restore it).
+
+If you encounter a problem with perfbase that you can not solve, don't 
+hesitate to ask other perfbase users for help via the "perfbase-users"
+mailing list (subscribe via http://perfbase.tigris.org).
+
+Enjoy!
+

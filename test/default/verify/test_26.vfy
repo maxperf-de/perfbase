@@ -1,0 +1,6 @@
+#* ERROR: No content was found, and no default content provided for at least one value.
+   Input file(s): ['input_2a.dat', 'input_2b.dat']
+   Value names:
+    v
+   No data written to database.
+#* ERROR: 'no data could be stored'

@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>eval_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test for function evaluation inside a query</synopsis>
+    <description>
+          Do some calculations with two result values and a parameter from a table and one
+          constant parameter.
+       </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>T</name>
+    <synopsis>constant parameter</synopsis>
+
+    <datatype>float</datatype>
+  </parameter>
+
+  <parameter>
+    <name>P</name>
+    <synopsis>tabular parameter</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <result>
+    <name>R_1</name>
+    <synopsis>first result value</synopsis>
+
+    <datatype>integer</datatype>
+  </result>
+
+  <result>
+    <name>R_2</name>
+    <synopsis>second result value</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+</experiment>
+
+

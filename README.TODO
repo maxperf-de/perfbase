@@ -1,0 +1,87 @@
+
+This file lists the ideas that are in store to further improve
+perfbase. There's no promise that any of those will ever be
+implemented, but if you are interested to give a hand, let me know!
+
+ Joachim Worringen <joachim@maxperf.de>
+
+Extenstions to perfbase:
+* XML OUTPUT
+An output object that creates XML-formatted output data (tables) would 
+allow  simple import of this output into Excel or other tools.
+Sometimes, a table is better than a chart!
+[ This is now available, although not for direct Excel processing. Also,
+  the "opendoc" output format creates complete OpenDoc spreadsheets. ]
+
+* LATEX OUPTUT
+Technically, this is very similar to XML output, just different tags. 
+Such a table could then be included directly into LaTeX documents.
+
+* 3D PLOTS
+Plotting results vs. two parameters should be supported. High priority!
+[ This is now available. ]
+
+* PL OUTPUT
+pl (ploticus) makes very nice charts and is more "modern" than gnuplot. 
+It has many features, like "real" barcharts, that gnuplot is missing.
+
+* JOB GENERATOR
+perfbase could not only be used to process and analyse the results of
+your experiments, but also to prepare their execution. I.e., perfbase
+could generate and execute job scripts from a template by filling 
+placeholders with content based on a defined parameter sweep. 
+
+* LIMIT OPERATOR
+An operator that cuts off (filters) data sets that do not match a certain
+criteria, i.e. where the result value is larger than a given margin. This
+would allow to strip of non-interesting data from the results. I.e., when
+comparing the performance of two systems for the same test suite, only the
+cases with performance differences larger than a "noise" margin would be 
+shown.
+[ This is now available. ]
+
+* QUERY CACHE
+The last N queries should be cached within the database so that you
+can easily recall results you had a few hours or days ago.
+
+* QUERY FREEZE
+It would be useful to have a "freeze" technique for queries: if results
+have been obtained with a specific query at one point in time, it would
+be useful (i.e. for verification) to be able to re-execute this query at 
+a later point in time and get the exact same results, even if the data 
+of the experiment has changed (runs added). 
+[ Queries alone can already be stored; this feature would require that the 
+  list of runs used by this queries would be stored alongside. ]
+
+* PARALLEL QUERIES
+To improve query performance, queries should be executed in a parallelized
+manner. This would not speed up simple queries, but more complex queries
+with many operators on the same data etc. have a significant potential 
+for parallelization - very useful on today's multi-core machines!
+
+* PARALLEL IMPORT
+Importing large data files (like tables with hundreds of thousands of lines)
+can take a long time. Dependending on where the bottleneck in your setup
+is, the parallelization of the import (effectively, executing multiple
+SQL INSERT statements concurrently) could speed up the import.
+
+* GRIDENGINE SUPPORT
+When importing a large amount of data files, or when running a large 
+number of queries, it would make sense to process this work on a cluster
+in paralel. Because this is a simple job-based parallelization strategy,
+it can be performed with an envrionment like Sun's GridEngine. Some ready-
+to-use support scripts would be nice.
+
+More ambitious/complex ideas, not to be realized by myself:
+* GUI
+Naturally, a graphical user interface, especially for creating queries,
+would be very helpful for many users. This would be much easier than 
+"coding" XML.
+
+* PERFBASE AS A GRID/WEB/CLOUD-SERVICE
+Also the initial concept of perfbase is to make it a simple-to-setup-and-use
+tool, some people might feel the need for a grid-style solution. Technically,
+perfbase fits well into this scheme: a client could submit it's requests and
+data to a perfbase server via grid-methods. The server then executes the 
+request on a "perfbase cluster", and returns the result back to the client.
+

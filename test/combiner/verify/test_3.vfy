@@ -1,0 +1,6 @@
+# S_msg|op.min_sorted[byte]	min(T_pp)|op.min_sorted[s]	max(T_pp)|op.max_sorted[s]	avg(T_pp)|op.avg_sorted[s]	
+0 	14.0 	20.0 	16.6666666667 	
+1 	14.1 	20.1 	16.7666666667 	
+2 	14.2 	20.2 	16.8666666667 	
+4 	14.4 	20.4 	17.0666666667 	
+8 	14.8 	20.8 	17.4666666667 	

@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="showall">
+  <experiment>order_TEST</experiment>
+
+  <parameter id="p.p" show="data">
+    <value>p</value>
+  </parameter>
+
+  <parameter id="p.T0" show="filter">
+    <value>T</value>
+    <filter>
+      <equal>0</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.T1" show="filter">
+    <value>T</value>
+    <filter>
+      <equal>1</equal>
+    </filter>
+  </parameter>
+
+  <source id="src.r0" order="ascending">
+    <result>r</result>      
+
+    <input>p.p</input>
+    <input>p.T0</input>
+  </source>
+
+  <source id="src.r1" order="descending">
+    <result>r</result>      
+
+    <input>p.p</input>
+    <input>p.T1</input>
+  </source>
+
+  <output id="out" target="raw_text">
+    <input>src.r0</input>
+    <input>src.r1</input>
+  </output>
+</query>

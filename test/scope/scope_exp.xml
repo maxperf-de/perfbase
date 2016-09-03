@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>scope_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Dolphin ICS</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for correct handling of scope attribute</synopsis>
+    <description>
+          Compare results of queries with different scopes on the same data.
+    </description>
+  </info>
+
+  <parameter>
+    <name>p</name>
+    <synopsis>parameter</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <result>
+    <name>r</name>
+    <synopsis>result</synopsis>
+
+    <datatype>float</datatype>
+  </result>
+</experiment>
+
+

@@ -1,0 +1,19 @@
+This test verifies that the 'input' command parses the arguments
+correctly. The focus is on the processing of multiple input files
+and multiple input descriptions. But this test does also check 
+the input parsing for a command-line provided synopsis.
+
+Test 1: data from a single input file, single input description
+        => single run will be created
+
+Test 2: data for two runs from a single input file, single input
+        description 
+        => two runs to be created
+ 
+Test 3: two input files and a single input description
+        => two runs will be created
+
+Test 4: two input files and two input descriptions
+        => a single run will be created
+
+

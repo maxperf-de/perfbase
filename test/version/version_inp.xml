@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>version_TEST</experiment>
+
+  <tabular_location>
+    <match># msg_size</match>
+    <skip>1</skip>
+    
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+    
+    <tabular_value>
+      <name>T_pp</name>
+      <pos>1</pos>
+    </tabular_value>
+  </tabular_location>
+  
+  <named_location len="0">
+    <name>v_prot</name>
+    <match>Version:</match>
+  </named_location>
+
+</input>

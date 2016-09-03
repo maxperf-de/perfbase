@@ -1,0 +1,5 @@
+# data on the same lines 
+
+RESULT_BEGIN line1
+line2
+line3RESULT_END

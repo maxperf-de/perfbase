@@ -1,0 +1,10 @@
+# automatically determine number of lines after the keyword
+# be sure to stop at the end marker
+
+RESULT_BEGIN
+line 1
+line 2
+line 3
+RESULT_END
+line 4
+line 5

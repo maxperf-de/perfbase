@@ -1,0 +1,6 @@
+# simple, but corrupt trace file with time stamps
+enter func1 (0.00)
+enter func2 (0.21)
+leave func2 ()
+leave func1 (0.47)
+

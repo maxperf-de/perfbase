@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>map2_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for mapping of data</synopsis>
+    <description>
+      Assign content to parameter A based on the content of parameter B.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>fs</name>
+    <synopsis>filesystem</synopsis>
+
+    <datatype>string</datatype>
+    <valid>UFS</valid>
+    <valid>ZFS</valid>
+    <valid>ext2</valid>
+    <valid>ext3</valid>
+    <valid>NTFS</valid>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>os</name>
+    <synopsis>operating system</synopsis>
+
+    <datatype>string</datatype>
+    <valid>Windows</valid>
+    <valid>Linux</valid>
+    <valid>Solaris</valid>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>os_version</name>
+    <synopsis>version of operating system</synopsis>
+
+    <datatype>integer</datatype>
+    <default></default>
+  </parameter>
+
+  <result occurrence="once">
+    <name>B</name>
+    <synopsis>bandwidth</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+</experiment>
+
+

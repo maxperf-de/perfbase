@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>slice_TEST</experiment>
+  <description>
+    Just show all the data that is in the runs. It will be printed in 
+    the order of creation timestamps (same as order of run ids).
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <output>
+    <input>src.latency</input>
+  </output>
+  
+</query>
+
+

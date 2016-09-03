@@ -1,0 +1,91 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!-- Queries easily become long, complex and cumbersome when we want 
+     to create a range of plots for different parameter settings. 
+     Here, we want to vary across two different library versions for
+     two different interconnects, which results in 4 sets of data. Each
+     set of data requires its own filters and sources (and operators, 
+     if they are used). -->
+
+<query id="latency">
+  <experiment>sweep_TEST</experiment>
+
+  <parameter id="p.version_1.0" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>1.0</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.version_1.1" show="filter">
+    <value>MPI_version</value>
+    <filter>
+      <equal>1.1</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.sci" show="filter">
+    <value>I</value>
+    <filter>
+      <equal>SCI</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.myrinet" show="filter">
+    <value>I</value>
+    <filter>
+      <equal>Myrinet</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency_1.0_sci">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.0</input>
+    <input>p.sci</input>
+  </source>
+
+  <source id="src.latency_1.1_sci">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.1</input>
+    <input>p.sci</input>
+  </source>
+
+  <source id="src.latency_1.0_myri">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.0</input>
+    <input>p.myrinet</input>
+  </source>
+
+  <source id="src.latency_1.1_myri">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.version_1.1</input>
+    <input>p.myrinet</input>
+  </source>
+
+
+  <output target="gnuplot" format="eps" type="graphs" style="points">
+    <input label="parameter">src.latency_1.0_sci</input>
+    <input label="parameter">src.latency_1.1_sci</input>
+    <input label="parameter">src.latency_1.0_myri</input>
+    <input label="parameter">src.latency_1.1_myri</input>
+
+    <option>-persist</option>
+    <option>yrange [0:]</option>
+    <filename>sweep_1</filename>
+  </output>
+</query>
+
+

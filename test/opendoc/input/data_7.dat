@@ -1,0 +1,8 @@
+# library version: 1.1
+# interconnect: Myrinet
+#
+# msg_size	latency [us]    gap [us]
+0		7.0             1.11
+1		7.1             1.21
+2		7.2             1.31
+4		7.3             1.41

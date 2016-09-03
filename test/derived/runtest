@@ -1,0 +1,87 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="derived"
+N_TEST=3
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+
+unset PB_RUNMODE
+if [ "$1" = "-d" ] ; then
+    export PB_RUNMODE="debug"
+fi
+
+rm -f *.out *.log
+
+# Because the experiment descriptions are different for the tests, we need
+# to setup a new experiement for each test.
+t=1
+rc=0
+while [ $t -le $N_TEST ] ; do
+    echo "  test "$t
+    # setup 
+    if ! $PB setup -d ${TEST_NAME}_exp_${t}.xml >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+	exit 1
+    fi
+
+    # import data
+    if ! $PB input -d ${TEST_NAME}_inp_${t}.xml input_${t}.dat >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not import input_${t}.dat. See test.log"
+	exit 1
+    fi
+
+    # do the query
+    QUERY_ARGS="-d ${TEST_NAME}_qry_${t}.xml"
+    QUERY_OUTPUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    if ! $PB query $QUERY_ARGS > $QUERY_OUTPUT ; then
+	echo "#* ERROR in ${TEST_NAME}: could not perform query $t:"
+	echo "   $PB query -d ${TEST_NAME}_qry_${t}.xml"
+	echo "   (see file $QUERY_OUTPUT)"
+	rc=`expr $rc + 1`
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_${t}.out verify/test_${t}.vfy >> test.log 2>&1 ; then
+	    # fix: the actual output order depends on the version of PostgreSQL.
+	    # Therefore, diffs are possible even if both results are correct. We
+	    # do a second-level comparison with sorted files here to avoid false
+	    # alerts.
+	    cat test_${t}.out | sort > __out__.tmp
+	    cat verify/test_${t}.vfy | sort > __vfy__.tmp
+	    if ! diff __out__.tmp __vfy__.tmp ; then	    
+		echo "#* ERROR in ${TEST_NAME}: query $t returned wrong data "
+		echo "   $PB query -d ${TEST_NAME}_qry_${t}.xml"
+		echo "   (file test_${t}.out vs. verify/test_${t}.vfy)"
+		rc=`expr $rc + 1`
+	    fi
+	    rm -f __???__.tmp
+	else
+	    rm -f $QUERY_OUTPUT
+	fi
+    fi
+
+    # clean up
+    if ! $PB delete -e ${TEST_NAME}_TEST --dontask >>test.log 2>&1 ; then
+	echo "#* ERROR in ${TEST_NAME}: could not delete experiment"
+	exit 1
+    fi
+
+    t=`expr $t + 1`
+done
+
+if [ $rc = 0 ] ; then
+    rm -f test.log *.err
+fi
+
+echo "*** done with tests in '$TEST_NAME' ($rc failed)"
+
+exit $rc

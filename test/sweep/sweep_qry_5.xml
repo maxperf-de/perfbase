@@ -1,0 +1,53 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!-- Advanced sweeping: determine the absolute difference between the minimal 
+latency of the (two) available interconnects without naming them.  -->     
+
+<query id="latency">
+  <experiment>sweep_TEST</experiment>
+
+  <parameter id="p.interconnect" show="filter">
+    <value>I</value>
+    <sweep>
+      <!-- no <filter> means: create one "equal" <filter> of every distinct content of this value. -->
+    </sweep>
+  </parameter>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <!-- Both 'p.version' and 'p.interconnect' will be set to all available values.
+  This results in 4 different source objects. -->
+  <source id="src.latency"> 
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>p.interconnect</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <!-- Each sweep variation of the input element will be converted into a
+       new input element. -->
+  <operator id="op.diff" type="diff">
+    <input sweep_resolve="intern">op.sort</input>
+  </operator>
+
+  <output target="gnuplot" format="eps" type="bars" title="Latency Difference between SCI and Competitor">
+    <input label="parameter">op.diff</input>
+
+    <option>-persist</option>
+    <option>yrange [-5:5]</option>
+    <filename>sweep_5</filename>
+  </output>
+</query>
+
+

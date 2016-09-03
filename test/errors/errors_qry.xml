@@ -1,0 +1,79 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="errors_lowhigh">
+  <experiment>errors_TEST</experiment>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.latency">
+    <result>T_pp</result>      
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.avg" type="avg">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.avgsort" type="sort">
+    <input>op.avg</input>
+  </operator>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.minsort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <operator id="op.max" type="max">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.maxsort" type="sort">
+    <input>op.max</input>
+  </operator>
+
+  <combiner id="comb.avgminmax">
+    <input>op.avgsort</input>
+    <input>op.minsort</input>
+    <input>op.maxsort</input>
+  </combiner>
+
+  <output id="text" target="raw_text">
+    <input>comb.avgminmax</input>
+    <filename>errors_lowhigh</filename>
+  </output>
+
+  <output id="points" target="gnuplot" format="eps" type="graphs">
+    <input style="points">comb.avgminmax</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>yrange[0:10]</option>
+    <filename>errors_lowhigh_points</filename>
+  </output>
+
+  <output id="graphs" target="gnuplot" format="eps" type="graphs">
+    <input errors="ylowhigh" label="input_id">comb.avgminmax</input>
+
+    <option>-persist</option>
+    <option>logscale x 2</option>
+    <option>yrange[0:10]</option>
+    <filename>errors_lowhigh_graphs</filename>
+  </output>
+
+  <output id="bars" target="gnuplot" format="eps" type="bars">
+    <input label="value">comb.avgminmax</input>
+
+    <option>-persist</option>
+    <option>yrange[0:10]</option>
+    <filename>errors_lowhigh_bars</filename>
+  </output>
+
+</query>
+
+

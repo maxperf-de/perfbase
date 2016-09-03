@@ -1,0 +1,87 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query name="latency and bandwidth">
+  <experiment>mpptest_DEMO</experiment>  
+
+  <fixed id="f:ppn">
+    <content>2</content>
+  </fixed>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+
+  <parameter id="p:mpi" show="filter" style="content">
+    <value>MPI_type</value>
+    <sweep>
+      <filter>
+        <equal>NEC</equal>
+      </filter>
+      <filter>
+        <equal>Myricom</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p:procs_per_node" show="filter" style="reverse" unit="no">
+     <value alias="processes per node">N_ppn</value>
+     <filter>
+        <equal>f:ppn</equal>
+     </filter>
+  </parameter>
+
+  <parameter id="p:msgsize">
+     <value>S_msg</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src:latency">
+      <result>L_min</result>
+      
+      <input>p:mpi</input>
+      <input>p:msgsize</input>
+      <input>p:procs_per_node</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op:latency" type="min">
+    <input>src:latency</input>
+  </operator>
+
+  <operator id="op:sorted_latency" type="sort">
+    <input>op:latency</input>
+  </operator>
+
+  <operator id="op:bandwidth" type="eval">
+    <input label="parameter">op:sorted_latency</input>
+
+    <term id="bandwidth" unit="MB/s">
+      <fraction>
+	<dividend>
+	  <variable name="S_msg">op:sorted_latency</variable>
+	</dividend>
+	<divisor>
+	  <variable name="L_min">op:sorted_latency</variable>
+	</divisor>
+      </fraction>
+    </term>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->  
+  <output target="gnuplot" title="MPI Ping-pong Performance for @NP@" filterstring="@NP@">
+    <input labelprefix="latency " label="title">op:sorted_latency</input>
+    <input labelprefix="bandwidth " label="title">op:bandwidth</input>
+    
+    <option>yrange [0:]</option>
+    <option>key left</option>
+    <option>-persist</option>
+  </output>
+</query>
+

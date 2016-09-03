@@ -1,0 +1,120 @@
+DROP TYPE version_nbr CASCADE;
+DROP FUNCTION version_nbr_in(opaque);
+DROP FUNCTION version_nbr_out(opaque);
+DROP FUNCTION version_nbr_eq(version_nbr, version_nbr);
+DROP FUNCTION version_nbr_ne(version_nbr, version_nbr);
+DROP FUNCTION version_nbr_lt(version_nbr, version_nbr);
+DROP FUNCTION version_nbr_gt(version_nbr, version_nbr);
+
+CREATE FUNCTION version_nbr_in(opaque)
+	RETURNS version_nbr AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_out(opaque)
+	RETURNS opaque AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE TYPE version_nbr (
+	internallength=24,
+	input=version_nbr_in,
+	output=version_nbr_out
+);
+
+CREATE FUNCTION version_nbr_eq(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_ne(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_lt(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_lt_int(version_nbr, version_nbr)
+	RETURNS integer AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_le(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_gt(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE FUNCTION version_nbr_ge(version_nbr, version_nbr)
+	RETURNS bool AS 'libvnbr.so'
+	LANGUAGE 'c';
+
+CREATE OPERATOR <> (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_ne,
+	restrict = neqsel,
+	join = neqjoinsel,
+	commutator = <>,
+	negator = =
+);
+
+CREATE OPERATOR < (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_lt,
+	restrict = scalarltsel,
+	join = scalarltjoinsel,
+	commutator = >,
+	negator = >=
+);
+
+CREATE OPERATOR <= (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_le,
+	restrict = scalarltsel,
+	join = scalarltjoinsel,
+	commutator = >=,
+	negator = >
+);
+
+CREATE OPERATOR > (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_gt,
+	restrict = scalargtsel,
+	join = scalargtjoinsel,
+	commutator = <,
+	negator = <=
+);
+
+CREATE OPERATOR >= (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_ge,
+	restrict = scalargtsel,
+	join = scalargtjoinsel,
+	commutator = <=,
+	negator = <
+);
+
+CREATE OPERATOR = (
+	leftarg = version_nbr,
+	rightarg = version_nbr,
+	procedure = version_nbr_eq,
+	restrict = eqsel,
+	join = eqjoinsel,
+	commutator = =,
+	negator = <>,
+        sort1 = <,
+        sort2 = <
+);
+
+CREATE OPERATOR CLASS version_nbr_ops
+    DEFAULT FOR TYPE version_nbr USING btree AS
+        OPERATOR        1       < ,
+        OPERATOR        2       <= ,
+        OPERATOR        3       = ,
+        OPERATOR        4       >= ,
+        OPERATOR        5       > ,
+        FUNCTION        1       version_nbr_lt_int(version_nbr, version_nbr);

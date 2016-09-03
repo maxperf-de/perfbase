@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>plot3d_TEST</experiment>
+  
+  <tabular_location>
+    <match># size</match>
+    <skip>1</skip>
+    
+    <tabular_value>
+      <name>S_msg</name>
+      <pos>0</pos>
+    </tabular_value>
+    
+    <tabular_value>
+      <name>l_msg</name>
+      <pos>1</pos>
+    </tabular_value>
+    
+  </tabular_location>
+
+  <named_location>
+    <name>N_proc</name>
+    <match>nproc =</match>
+  </named_location>
+  
+</input>

@@ -1,0 +1,286 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE experiment SYSTEM "../../../../../src/perfbase/dtd/pb_query.dtd">
+
+<query id="PMB_latency_reduction">
+  <experiment>PMB_auto_DEMO</experiment>
+
+  <fixed id="f.op">
+    <content>Sendrecv</content>
+  </fixed>
+
+  <fixed id="f.nn">
+    <content>16</content>
+  </fixed>
+
+  <fixed id="f.np">
+    <content>64</content>
+  </fixed>
+
+  <fixed id="f.ppn">
+    <content>4</content>
+  </fixed>
+
+  <fixed id="f.mpi_a">
+    <content>A</content>
+  </fixed>
+  
+  <fixed id="f.mpi_b">
+    <content>B</content>
+  </fixed>  
+
+  <fixed id="f.lb">
+    <content>90</content>
+  </fixed>
+
+  <fixed id="f.ub">
+    <content>110</content>
+  </fixed>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter" style="content">
+    <value>operation</value>
+  
+    <filter>
+      <equal>f.op</equal>
+    </filter>
+  </parameter>
+  
+  <parameter id="p.mpi_a" show="filter" style="content">
+    <value>MPI_vendor</value>
+    <filter>
+      <equal>f.mpi_a</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.mpi_b" show="filter" style="content">
+    <value>MPI_vendor</value>
+    <filter>
+      <equal>f.mpi_b</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.np" show="filter" unit="no">
+    <value>N_proc</value>
+    <filter>
+      <equal>f.np</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.nn" show="filter" unit="no">
+    <value>N_node</value>
+    <filter>
+      <equal>f.nn</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.ppn" show="filter" unit="no">
+    <value>N_ppn</value>
+    <filter>
+      <equal>f.ppn</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value>S_chunk</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.a">
+    <result>B</result>
+    
+    <input>p.s_chunk</input>
+
+    <input>p.mpi_a</input>
+
+    <input>p.operation</input>
+    <input>p.np</input>
+    <input>p.ppn</input>
+    <input>p.nn</input>
+  </source>
+
+  <source id="src.b">
+    <result>B</result>
+    
+    <input>p.s_chunk</input>
+
+    <input>p.mpi_b</input>
+
+    <input>p.operation</input>
+    <input>p.np</input>
+    <input>p.ppn</input>
+    <input>p.nn</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.max_a" type="max">
+    <input>src.a</input>
+  </operator>
+
+  <operator id="op.max_b" type="max">
+    <input>src.b</input>
+  </operator>
+
+  <operator id="op.reldiff" type="percentof">
+    <input>op.max_a</input>
+    <input>op.max_b</input>
+  </operator>
+
+  <operator id="op.above" type="above">
+    <input>op.max_a</input>
+    <input>op.max_b</input>
+  </operator>
+
+  <operator id="op.lb" type="limit" variant="lessequal" value="(f.lb)">
+    <input>op.reldiff</input>
+  </operator>
+
+  <operator id="op.ub" type="limit" variant="greaterequal" value="(f.ub)">
+    <input>op.reldiff</input>
+  </operator>
+
+  <operator id="op.below100" type="eval">
+    <input>op.lb</input>
+    
+    <term id="below100">
+      <difference>
+	<minuend>
+	  <variable name="B">op.lb</variable>
+	</minuend>
+	<subtrahend>
+	  <constant>100</constant>
+	</subtrahend>
+      </difference>
+    </term>
+  </operator>
+  
+  <operator id="op.above100" type="eval">
+    <input>op.ub</input>
+    
+    <term id="above100">
+      <difference>
+	<minuend>
+	  <variable name="B">op.ub</variable>
+	</minuend>
+	<subtrahend>	  
+	  <constant>100</constant>
+	</subtrahend>
+      </difference>
+    </term>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** some processing of the deviations: -->
+  <!-- *** -->
+  
+  <!-- count the number of data points -->
+  <operator id="op.cnt_lb" type="count">
+    <input>op.lb</input>
+  </operator>
+
+  <operator id="op.cnt_ub" type="count">
+    <input>op.ub</input>
+  </operator>
+
+  <!-- average and stddev of advantage/fallback -->
+  <operator id="op.avg_lb" type="avg">
+    <input>op.lb</input>
+  </operator>
+ 
+  <operator id="op.stddev_lb" type="stddev">
+    <input>op.lb</input>
+  </operator>
+
+  <operator id="op.avg_ub" type="avg">
+    <input>op.ub</input>
+  </operator>
+ 
+  <operator id="op.stddev_ub" type="stddev">
+    <input>op.ub</input>
+  </operator>
+  
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** -->
+
+  <combiner id="comb.full">
+    <input>op.max_a</input>
+    <input>op.max_b</input>
+  </combiner>
+
+  <!-- statistics & raw data -->
+  <output id="stats_better">
+    <input label="empty">op.cnt_ub</input>
+    <input label="empty">op.avg_ub</input>
+    <input label="empty">op.stddev_ub</input>
+
+    <filename>pt2pt_better</filename>
+  </output>
+
+  <output id="stats_worse">
+    <input label="empty">op.cnt_lb</input>
+    <input label="empty">op.avg_lb</input>
+    <input label="empty">op.stddev_lb</input>
+
+    <filename>pt2pt_worse</filename>
+  </output>
+
+  
+  <output id="plain_data">
+    <input>comb.full</input>
+<!--
+    <input label="empty">op.max_b</input>
+-->
+    <filename>pt2pt_full</filename>
+  </output>
+
+
+  <!-- charts -->
+  <output target="gnuplot" type="bars" format="ps" title="Performance Lead of MPI (f.mpi_a) vs. (f.mpi_b)">
+    <input label="title">op.ub</input>
+
+    <option>grid y</option>
+    <option>yrange [100:]</option>
+
+    <filename>pt2pt_better</filename>
+  </output>
+
+  <output target="gnuplot" type="bars" format="ps" title="Performance Shortfall of MPI (f.mpi_a) vs. (f.mpi_b)">
+    <input label="title">op.lb</input>
+
+    <option>grid y</option>
+    <option>yrange [0:100]</option>
+
+    <filename>pt2pt_worse</filename>
+  </output>
+
+  <output target="gnuplot" type="bars" format="ps" title="Relative Performance of MPI (f.mpi_a) vs. (f.mpi_b)">
+    <input label="title">op.below100</input>
+    <input label="title">op.above100</input>
+
+    <option>grid y</option>
+    <option>yrange [-100:200]</option>
+    <option>ylabel 'bandwidth difference [%]'</option>
+
+    <filename>pt2pt_comparison</filename>
+  </output>
+
+  <output target="gnuplot" format="ps" title="Bandwidth">
+    <input label="title">op.max_a</input>
+    <input label="title">op.max_b</input>
+
+    <option>logscale x 2</option>
+    <option>logscale y 10</option>
+    <option>key bottom right</option>
+    <option>grid y</option>
+
+    <filename>pt2pt_full</filename>
+  </output>
+</query>
+

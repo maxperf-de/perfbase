@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Add new user which is allowed to perform input operations -->
+<experiment_update>
+  <name>access_TEST</name>
+
+  <access_add>    
+    <input_access>
+      <user>pb_input_usr_1_</user>
+    </input_access>
+  </access_add>
+
+</experiment_update>

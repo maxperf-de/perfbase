@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<experiment_update>
+  <experiment>b_eff_io_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** add the parameter 'noncontig' to the existing experiment -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>noncontig</name>
+    <synopsis>method for non-contig I/O</synopsis>
+    <description>
+      Two different techniques for non-contiguos I/O are available in NEC's MPI-IO:
+      'list-based' (traditonal technique) or the NEC-optimized technique 'list-less'.
+    </description>
+
+    <datatype>string</datatype>
+    <valid>listless</valid>
+    <valid>listbased</valid>
+    <default>listless</default>  
+  </parameter>
+
+</experiment_update>
+

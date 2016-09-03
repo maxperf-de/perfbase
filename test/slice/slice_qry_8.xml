@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>slice_TEST</experiment>
+  <description>
+    Use an invalid slice description (2)
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.slice" type="slice" value="1:2]">
+    <input>src.latency</input>
+  </operator>
+
+  <output>
+    <input>op.slice</input>
+  </output>
+  
+</query>
+
+

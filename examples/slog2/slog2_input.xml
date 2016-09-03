@@ -1,0 +1,118 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../../perfbase/dtd/pb_input.dtd">
+
+<input>
+  <experiment>slog2_DEMO</experiment>
+  
+  <tabular_location>
+    <match>Column Labels: LineID -> LineID</match>
+    <skip>1</skip>
+
+    <tabular_value>
+      <name>N_proc</name>
+      <pos>0</pos>
+    </tabular_value>
+  </tabular_location>
+  
+  <named_location>
+    <name>op_MPI</name>
+    <match terminator=",">name=</match>
+  </named_location>
+
+  <named_location>
+    <name>topo</name>
+    <match terminator=",">topo=</match>
+  </named_location>  
+
+  <tabular_location rows="1">
+    <regexp>.*Primitive.*topo=State</regexp>
+
+    <tabular_value>
+      <name>T_b</name>
+      <pos>17</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_e</name>
+      <pos>19</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>r_src</name>
+      <pos>18</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>r_dest</name>
+      <pos>20</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <tabular_location rows="1">
+    <regexp>.*Primitive.*topo=Arrow</regexp>
+
+    <tabular_value>
+      <name>S</name>
+      <pos>21</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_b</name>
+      <pos>22</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>T_e</name>
+      <pos>24</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>r_src</name>
+      <pos>23</pos>
+    </tabular_value>
+
+    <tabular_value>
+      <name>r_dest</name>
+      <pos>25</pos>
+    </tabular_value>
+  </tabular_location>
+
+  <filename_location len="0">
+    <name>app</name>
+    <regexp>(.*)_.*</regexp>
+  </filename_location>
+
+  <derived_parameter retrigger="yes">
+    <name>N_node</name>
+    
+    <term>
+      <fraction>
+	<dividend>
+	  <parameter>N_proc</parameter>
+	</dividend>
+	<divisor>
+	  <parameter>N_ppn</parameter>
+	</divisor>
+      </fraction>
+    </term>
+  </derived_parameter>
+
+  <derived_parameter>
+    <name>dist</name>
+    <term>
+      <function type="abs">
+	<argument>
+	  <difference>
+	    <minuend>
+	      <parameter>r_dest</parameter>
+	    </minuend>
+	    <subtrahend>
+	      <parameter>r_src</parameter>
+	    </subtrahend>
+	  </difference>
+	</argument>
+      </function>
+    </term>
+  </derived_parameter>
+
+</input>

@@ -1,0 +1,9 @@
+# automatically determine number of lines after the keyword
+# and include the line with the keyword, too (excluding the keyword)
+
+result: line 1
+line 2
+line 3
+
+line 4
+line 5

@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="twosrc_eval">
+  <experiment>optwosrc_TEST</experiment>
+
+  <parameter id="p.p">
+    <value>p</value>
+  </parameter>
+
+  <parameter id="p.m0" show="nothing">
+    <value>m</value>
+    <filter>
+      <equal>0</equal>
+    </filter>
+  </parameter>
+
+  <parameter id="p.m1" show="nothing">
+    <value>m</value>
+    <filter>
+      <greater>0</greater>
+    </filter>
+  </parameter>
+
+  <source id="src.r0">
+    <result>r</result>      
+
+    <input>p.m0</input>
+    <input>p.p</input>
+  </source>
+
+  <source id="src.r1">
+    <result>r</result>      
+
+    <input>p.m1</input>
+    <input>p.p</input>
+  </source>
+
+  <operator id="op" type="eval">
+    <input>src.r0</input>
+    <input>src.r1</input>
+    
+    <term id="func">
+      <function type="ceil">
+	<argument>
+	  <fraction>
+	    <dividend>
+	      <variable name="r">src.r1</variable>
+	    </dividend>
+	    <divisor>
+	      <product>
+		<factor>
+		  <variable name="r">src.r0</variable>
+		</factor>
+		<factor>
+		  <variable name="r">src.r0</variable>
+		</factor>
+	      </product>
+	    </divisor>
+	  </fraction>
+	</argument>
+      </function>
+    </term>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op</input>
+    <filename>qry_result</filename>
+  </output>
+</query>

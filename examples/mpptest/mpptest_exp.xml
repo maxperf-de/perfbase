@@ -1,0 +1,171 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>mpptest_DEMO</name>
+
+  <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>Optimization of MPI Point-to-point Operations</project>
+    <synopsis>Results of mpptest benchmark</synopsis>
+    <description>
+         We want to track the performance changes of point-to-point operations
+         that we achieve with new algorithms and parameters, and on different
+         architectures and software releases.
+     </description>
+  </info>
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>Version of the MPI library</synopsis>
+
+    <datatype>string</datatype>
+    <default>current bitkeeper</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>MPI_type</name>
+    <synopsis>Type of the MPI library (vendor)</synopsis>
+
+    <datatype>string</datatype>
+    <valid>NEC</valid>
+    <valid>Myricom</valid>
+    <valid>Topspin</valid>
+    <valid>Quadrics</valid>
+    <default>NEC</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>API_version</name>
+    <synopsis>Version of the network API (GM, Verbs, ...)</synopsis>
+
+    <datatype>string</datatype>
+    <default>unknown</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>OS_version</name>
+    <synopsis>Version of the operating system</synopsis>
+
+    <datatype>string</datatype>
+    <default>unknown</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>machine</name>
+    <synopsis>platform on which the test was performed</synopsis>
+
+    <datatype>string</datatype>
+    <valid>SX-5</valid>
+    <valid>SX-6</valid>
+    <valid>SX-7</valid>
+    <valid>SX-8</valid>
+    <valid>TX-7</valid>
+    <valid>IA-32 Cluster</valid>
+    <valid>IA-64 Cluster</valid>
+    <default>SX-8</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>interconnect</name>
+    <synopsis>intra-node interconnect</synopsis>
+
+    <datatype>string</datatype>
+    <valid>IXS</valid>
+    <valid>Myrinet</valid>
+    <valid>Quadrics Elan3</valid>
+    <valid>Quadrics Elan4</valid>
+    <valid>Infiniband</valid>
+    <valid>Gigabit Ethernet</valid>
+    <default>IXS</default>
+  </parameter>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>message size</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_proc</name>
+    <synopsis>number of processes involved in the operation</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+    <default>2</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_ppn</name>
+    <synopsis>number of processes per node (-1 for asymetric cases)</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+    <default>1</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_node</name>
+    <synopsis>number of nodes</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <parameter>
+    <name>dist</name>
+    <synopsis>distance between processes</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <!-- *** -->
+  <!-- *** results -->
+  <!-- *** -->
+  <result>
+    <name>L_min</name>
+    <synopsis>minimal latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>B_msg</name>
+    <synopsis>average latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <fraction>
+	<dividend>
+	  <base_unit>byte</base_unit>
+	  <scaling>Mega</scaling>
+	</dividend>
+	<divisor>
+	  <base_unit>s</base_unit>
+	</divisor>
+      </fraction>
+    </unit>
+  </result>
+
+</experiment>
+

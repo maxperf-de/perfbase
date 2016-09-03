@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="plot3d query 3">
+  <experiment>plot3d_TEST</experiment>
+
+  <synopsis>
+    This query should fail due to unsorted primary parameter data!
+  </synopsis>
+
+  <parameter id="p.np" show="data">
+    <value>N_proc</value>
+  </parameter>
+
+  <parameter id="p.s_msg" show="data">
+    <value>S_msg</value>
+  </parameter>
+
+  <source id="src.l">
+    <result>l_msg</result>      
+
+    <input>p.s_msg</input>
+    <input>p.np</input>
+  </source>
+
+  <output id="out" target="gnuplot" format="ps" dimensions="3">
+    <input>src.l</input>
+
+    <option>pm3d</option>
+    <option>grid</option>
+
+    <filename>test_3</filename>
+  </output>
+
+</query>

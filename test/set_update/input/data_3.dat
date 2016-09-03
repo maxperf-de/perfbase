@@ -1,0 +1,6 @@
+#
+# msg_size	direction       latency [us]
+10		in              1.0
+11		in              1.1
+12		out             2.0
+14		out             2.1

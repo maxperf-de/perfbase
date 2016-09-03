@@ -1,0 +1,56 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>slice_TEST</experiment>
+  <description>
+    Just show all the data that is in the runs, but sort it by
+    the date the run was performed.
+  </description>
+
+  <run id="r.1">
+    <index>1</index>
+  </run>
+
+  <run id="r.2">
+    <index>4</index>
+  </run>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency1" chronology="performed">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>r.1</input>
+  </source>
+
+  <source id="src.latency2" chronology="performed">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>r.2</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency1</input>
+    <input>src.latency2</input>
+  </operator>
+
+  <operator id="op.scale" type="scale" value="2">
+    <input>op.min</input>
+  </operator>
+
+  <output>
+    <input>op.min</input>
+  </output>
+  
+  <output>
+    <input>op.scale</input>
+  </output>
+  
+</query>
+
+

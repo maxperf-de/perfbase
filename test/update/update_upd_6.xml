@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- try to add an invalid parameter -->
+<experiment_update>
+  <experiment>update_TEST</experiment>
+
+  <parameter occurrence="once">
+    <name>S_gaga</name>
+    <synopsis>size of gaga buffer</synopsis>
+
+    <datatype>gaga</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+</experiment_update>

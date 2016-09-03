@@ -1,0 +1,36 @@
+set terminal postscript eps enhanced color "Helvetica" 12
+set size 0.8
+set output 'errors_lowhigh_points.eps'
+set xtics ("1" 1,"2" 2,"4" 4,"8" 8,"16" 16,"32" 32,"64" 64)
+set xlabel "message size [byte]"
+set logscale x 2
+set ylabel "latency (halve roundtrip) [s]"
+set yrange[0:10]
+plot '-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with points lw 2 ps 2,'-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with points lw 2 ps 2,'-' using 1:2 title 'avg(T_{pp})|op.avgsort' axes x1y1 with points lw 2 ps 2
+0 4.48 
+1 4.51 
+2 4.55 
+4 4.52 
+8 4.55 
+16 4.61 
+32 4.63 
+64 4.79 
+e
+0 2.98 
+1 3.01 
+2 3.05 
+4 3.02 
+8 3.05 
+16 3.11 
+32 3.13 
+64 3.29 
+e
+0 5.98 
+1 6.01 
+2 6.05 
+4 6.02 
+8 6.05 
+16 6.11 
+32 6.13 
+64 6.29 
+e

@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>sweep_group_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for "good" plotting of sweeps over multiple parameters</synopsis>
+    <description>
+      Output is sometimes of "undesired" format using multiple sweeps. This test is used to 
+      improve on this. Inspired by a SPEC-experiment of James Cownie, Intel.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>bench</name>
+    <synopsis>benchmark name</synopsis>
+
+    <datatype>string</datatype>
+    <valid>crunch</valid>
+    <valid>seek</valid>
+    <valid>swim</valid>
+  </parameter>
+
+  <parameter>
+    <name>N_threads</name>
+    <synopsis>number of threads</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <result>
+    <name>T</name>
+    <synopsis>execution time</synopsis>
+    <description>Execution time measured as wall clock time.</description>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+</experiment>
+
+

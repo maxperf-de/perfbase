@@ -1,0 +1,170 @@
+#!/bin/sh
+# This script uses a perfbase query to generate plots *only* for cases in which 
+# the performance of two MPI implemenations differs more than a certain threshold.
+
+#
+# user-adjustable parameters
+#
+
+# The reference MPI implementation ("your" MPI)
+MPI_1=A
+# The MPI implementation to be compared with MPI_1
+MPI_2=C
+# This is the threshold (in percent) for the filter: only absolute differences above or 
+# equal N% will be shown. To show all data, set this threshold to 0.
+THRESHOLD=10
+# Speficy ranges (like "1 4 8") or single values (like "4") for the number of nodes (NNODES)
+# and the processes per node (PROCS_PER_NODE, for the total benchmark) here. The number of 
+# processes for whichthe queries will be performed are the powers of 2 between 2 and 
+# NNODES*PROCS_PER_NODE.
+NNODES="16"
+PROCS_PER_NODE="4"
+
+
+#
+# don't change anything below this line
+#
+LB=`expr 100 - $THRESHOLD`
+UB=`expr 100 + $THRESHOLD`
+
+coll_ops="Allgather Allgatherv Allreduce Alltoall Bcast Gather Reduce ReduceScatter Scan Scatterv"
+pt2pt_ops="Exchange PingPong PingPing Sendrecv"
+barrier_ops="Barrier"
+LOG="analyse.log"
+
+process_ps()
+{
+    op=$1
+
+    for variant in better worse comparison full ; do
+	files=`ls ${op}_*_${variant}.ps 2>/dev/null`
+	if [ -n "$files" ] ; then
+	    psjoin ${op}_*_${variant}.ps >${op}_${variant}_ALL.ps 2>/dev/null
+	    # some versions of psnup accept -nup 4, some only -n 4
+	    psnup -l -m2cm -pa4 -Pa4 -n 4 ${op}_${variant}_ALL.ps >${op}_${variant}_ALL_4on1.ps 2>/dev/null
+	fi
+    done
+}
+
+rename_output()
+{
+    prefix=$1
+    op=$2
+    np=$3
+    nn=$4
+    ppn=$5
+
+    if [ $np -lt 10 ] ; then
+	np_aligned="00"$np
+    elif [ $np -lt 100 ] ; then
+	np_aligned="0"$np
+    else
+	np_aligned=$np
+    fi
+
+    if [ $ppn -lt 10 ] ; then
+	ppn_aligned="00"$ppn
+    elif [ $ppn -lt 100 ] ; then
+	ppn_aligned="0"$ppn
+    else
+	ppn_aligned=$ppn
+    fi
+
+    for variant in better worse comparison full ; do
+	for suffix in ps dat ; do
+	    if [ -r ${PREFIX}_${variant}.${suffix} ] ; then
+		mv ${PREFIX}_${variant}.${suffix} ${op}_np${np_aligned}_nn${nn}_ppn${ppn_aligned}_${variant}.${suffix}
+	    fi
+	done
+    done
+}
+
+print_summary()
+{
+    prefix=$1
+    op=$2
+    np=$3
+    nn=$4
+    ppn=$5
+
+    n_datapts=`cat ${PREFIX}_full.dat | wc -l`
+    n_datapts=`expr $n_datapts / 2`
+
+    for variant in better worse ; do
+	read -d x cnt avg stddev <${prefix}_${variant}.dat
+	# cut of fractional part
+	if [ $n_datapts -gt 0 ] ; then
+	    if [ $cnt -gt 0 ] ; then
+		frac=`expr $cnt \* 100 / $n_datapts`
+		# strip of decimal places to avoid incorrect "precision"
+		avg=`echo $avg | cut -d . -f 1`
+		stddev=`echo $stddev | cut -d . -f 1`
+		frac=`echo $frac | cut -d . -f 1`
+
+		stats=": avg $avg%, stddev $stddev"
+	    else
+		frac=0
+		stats=""
+	    fi
+	    echo "  [$op:np$np:nn$nn:ppn$ppn] $MPI_1 $variant than $MPI_2 for $frac% ($cnt of $n_datapts)${stats}."
+	    echo "  [$op:np$np:nn$nn:ppn$ppn] $MPI_1 $variant than $MPI_2 for $frac% ($cnt of $n_datapts)${stats}." >>$LOG
+	fi
+    done
+}
+
+# main()
+for cmd in psnup psjoin ; do
+    if [ -z "`which $cmd`" ] ; then
+	echo "#* ERROR: command $cmd not found."
+	exit 1
+    fi
+done
+
+echo "#* Comparison of PMB/IMB results of two MPI implementations:"
+echo "   MPI 1: $MPI_1"
+echo "   MPI 2: $MPI_2"
+echo "   threshold: $THRESHOLD%"
+echo ""
+
+rm -f $LOG
+
+for PREFIX in pt2pt coll barrier ; do
+    rm -f ${PREFIX}*.ps ${PREFIX}*.dat ${PREFIX}*.gp
+
+    eval PMB_OPS=\$"${PREFIX}_ops"
+    for op in $PMB_OPS; do
+	for nn in $NNODES; do
+	    for ppn in $PROCS_PER_NODE; do
+		max_np=`expr $nn \* $ppn`
+		np=2
+		if [ $op = "Barrier" ] ; then
+		    np=$max_np
+		fi
+		while [ $np -le $max_np ] ; do
+		    echo "#* performing query for $op with $np procs (running on $nn nodes with $ppn procs per node)"
+		    fixed_args="f.op=$op,f.nn=$nn,f.np=$np,f.ppn=$ppn,f.lb=$LB,f.ub=$UB,f.mpi_a=$MPI_1,f.mpi_b=$MPI_2"
+		    if perfbase query -f $fixed_args -d comparison-${PREFIX}_qry.xml ; then
+			print_summary $PREFIX $op $np $nn $ppn
+			rename_output $PREFIX $op $np $nn $ppn
+		    else
+			echo "ERROR IN QUERY!"
+		    fi
+		    np=`expr $np \* 2`
+		done
+	    done 
+	done 
+	process_ps $op
+    done
+
+done
+
+# create summaries for better and worse, ranked by number of data points and avg 
+# performance difference.
+cat $LOG | grep 'better than' | grep -v ' 0% ' | sort -k 7 -r -n > better_by_datapoints.log
+cat $LOG | grep 'better than' | grep -v ' 0% ' | sort -k 12 -r -n > better_by_performance.log
+cat $LOG | grep 'worse than' | grep -v ' 0% ' | sort -k 7 -n -r > worse_by_datapoints.log
+# no -r for this case!
+cat $LOG | grep 'worse than' | grep -v ' 0% ' | sort -k 12 -n > worse_by_performance.log
+
+# Done.
+exit 0

@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="showall">
+  <experiment>order_TEST</experiment>
+
+  <parameter id="p.p" show="data">
+    <value>p</value>
+  </parameter>
+
+  <source id="src.r">
+    <result>r</result>      
+
+    <input>p.p</input>
+  </source>
+
+  <!-- This operator may store data sets in a different order then delivered
+       by the source. Needs to be folowed by a sort operator if order is relevant. -->
+  <operator type="avg" id="op.avg">
+    <input>src.r</input>
+  </operator>
+
+  <operator type="sort" id="op.sort">
+    <input>op.avg</input>
+  </operator>
+
+  <output id="out" target="raw_text">
+    <input>op.sort</input>
+  </output>
+</query>

@@ -1,0 +1,67 @@
+#!/bin/sh
+
+if [ -z "$PB" ] ; then
+    PB=../../bin/perfbase
+fi
+TEST_NAME="count"
+N_TEST=8
+
+if [ "$1" = "-c" ] ; then
+    VERIFY=""    
+    TEST_OUTPUT=verify/test_@.vfy
+    echo "*** re-creating verification data for '${TEST_NAME}'"
+else
+    VERIFY="yes"
+    TEST_OUTPUT=test_@.out
+    echo "*** running $N_TEST tests in '${TEST_NAME}'"
+fi
+
+rm -f *.out *.log
+
+# setup 
+if ! $PB setup -d ${TEST_NAME}_exp.xml >test.log 2>&1 ; then
+    echo "#* ERROR in ${TEST_NAME}: could not setup experiment. See test.log"
+    exit 1
+fi
+
+# import data - this is the test!
+t=0
+rc=0
+for inp_fname in `ls input/*.dat` ; do
+    t=`expr $t + 1`
+    echo "  test "$t
+
+    ARGS="-t -a ignore -d ${TEST_NAME}_inp.xml $inp_fname"
+    OUT=`echo $TEST_OUTPUT | sed s/@/$t/`
+    if ! $PB input $ARGS > $OUT ; then
+	echo "#* ERROR in ${TEST_NAME}: could not import $inp_fname. See test.log"
+	exit 1
+    elif [ -n "$VERIFY" ] ; then
+	if ! diff test_$t.out verify/test_$t.vfy ; then
+	    echo "#* ERROR in ${TEST_NAME}: input $t returned wrong data "
+	    echo "   $PB input $ARGS"
+	    echo "   (file test_$t.out vs. verify/test_$t.vfy)"
+	    rc=`expr $rc + 1`
+	else
+	    rm -f test_$t.out
+	fi
+    fi
+done
+
+# Occasionally, there seems to be some sort of race condition which hinders the 
+# database to be deleted because the servers thinks it is still busy. Strange.
+sleep 2
+
+# clean up
+if ! $PB delete -e ${TEST_NAME}_TEST --dontask  >>test.log 2>&1; then
+    echo "#* ERROR in ${TEST_NAME}: could not delete experiment. See test.log"
+    exit 1
+fi
+
+if [ $rc = 0 ] ; then
+    rm -f test.log 
+fi
+
+echo "*** done with tests in '${TEST_NAME}' ($rc failed)"
+
+exit $rc

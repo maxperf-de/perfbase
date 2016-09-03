@@ -1,0 +1,24 @@
+Storing single value(s) in run  1
+  N_proc	= 1
+Dataset 0 in run 1
+{'S_msg': '0', 'T_pp': '3.98'}
+Dataset 1 in run 1
+{'S_msg': '1', 'T_pp': '4.01'}
+Dataset 2 in run 1
+{'S_msg': '2', 'T_pp': '4.05'}
+Dataset 3 in run 1
+{'S_msg': '4', 'T_pp': '4.02'}
+Dataset 4 in run 1
+{'S_msg': '8', 'T_pp': '4.05'}
+Dataset 5 in run 1
+{'S_msg': '16', 'T_pp': '4.11'}
+Dataset 6 in run 1
+{'S_msg': '32', 'T_pp': '4.13'}
+Dataset 7 in run 1
+{'S_msg': '64', 'T_pp': '4.29'}
+#* ERROR: No content was found, and no default content provided for at least one value.
+   Input file(s): ['input/bench_ufs_N_proc1.dat']
+   Value names:
+    fs
+   No data written to database.
+#* ERROR: 'no data could be stored'

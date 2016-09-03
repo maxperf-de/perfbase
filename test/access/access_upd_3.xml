@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment_update SYSTEM "../../dtd/pb_experiment_update.dtd">
+
+<!-- Revoke all privileges to this user. He is a bad user. -->
+<experiment_update>
+  <name>access_TEST</name>
+
+  <access_revoke>    
+    <user>pb_input_usr_1_</user>
+  </access_revoke>
+
+</experiment_update>

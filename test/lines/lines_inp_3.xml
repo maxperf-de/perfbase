@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input id="lines_test_3">
+  <experiment>lines_TEST</experiment>
+
+  <named_location lines="0" store_set="yes">
+    <name>string</name>
+    <trigger>
+      <match>result:</match>
+      <skip>0</skip>
+    </trigger>
+  </named_location>
+
+</input>

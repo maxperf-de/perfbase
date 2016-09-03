@@ -1,0 +1,80 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="PMB_latency">
+  <experiment>PMB_DEMO</experiment>
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+  <parameter id="p.operation" show="filter" style="content">
+    <value>operation</value>
+
+    <sweep>
+      <filter>
+	<equal>Bcast</equal>
+      </filter>
+      <filter>
+	<equal>Reduce</equal>
+      </filter>
+      <filter>
+	<equal>Alltoall</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.machine" show="filter" style="content">
+    <value>machine</value>
+  </parameter>
+
+  <parameter id="p.np">
+    <value>N_proc</value>
+  </parameter>
+
+  <parameter id="p.s_chunk">
+    <value alias="chunksize">S_chunk</value>
+  </parameter>    
+
+  <!-- *** -->
+  <!-- *** data sources -->
+  <!-- *** -->
+  <source id="src.latency">
+    <result axislabel="latency [us]">T_min</result>
+    
+    <input axislabel="# processes">p.np</input>
+    <input axislabel="chunksize">p.s_chunk</input>
+    <input>p.operation</input>
+    <input>p.machine</input>
+  </source>
+
+  <!-- *** -->
+  <!-- *** operators -->
+  <!-- *** -->
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort" value="N_proc,S_chunk">
+    <input>op.min</input>
+  </operator>
+
+  <!-- *** -->
+  <!-- *** output -->
+  <!-- *** color="no" not effective for screen output -->
+  <output target="gnuplot" title="Minimal Latency" style="lines" dimensions="3" color="no">
+    <input label="title" sweep_resolve="extern">op.sort</input>
+
+    <option>-persist</option>
+    <option>logscale y 2</option>
+    <option>logscale z 10</option>
+    <option>grid xtics</option>
+    <option>grid ytics</option>
+    <option>grid ztics</option>
+
+    <option>grid ztics</option>
+
+    <filename unify="filter">pmb_results</filename>
+  </output>
+
+</query>
+

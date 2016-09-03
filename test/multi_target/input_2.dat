@@ -1,0 +1,14 @@
+# This is a simple result file to be used with the latency example
+#
+# MPI version: 1.25
+#
+# msg_size	latency [us]
+0		25.0
+1		25.1
+2		25.2
+4		25.4
+8		25.8
+16		25.16
+32		25.32
+64		25.64
+no more data

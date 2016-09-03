@@ -1,0 +1,6 @@
+Dataset 0 in run 1
+{'t_0': '0.21', 't': '0.24', 'func': 'func2'}
+ERROR while parsing input file; probably nesting mismatch (line 4):
+leave func1 (0.47)
+
+PROBLEM: pop from empty list

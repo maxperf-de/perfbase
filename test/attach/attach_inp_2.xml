@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE input SYSTEM "../../dtd/pb_input.dtd">
+
+<input>
+  <experiment>attach_TEST</experiment>
+  <synopsis>Parse the only-once values.</synopsis>
+
+  <named_location>
+    <name>MPI_version</name>
+    <match>version:</match>
+  </named_location>
+
+  <named_location>
+    <name>I</name>
+    <match>connect:</match>
+  </named_location>
+
+</input>

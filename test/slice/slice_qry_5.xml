@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>slice_TEST</experiment>
+  <description>
+    Let the data of the run with the youngest performed-timestamp pass. 
+    This is not necessarily the data from the run with the highest id!
+    This time, use the "alias"-operator 'latest'.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency" chronology="performed">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.latest" type="latest">
+    <input>src.latency</input>
+  </operator>
+
+  <output>
+    <input>op.latest</input>
+  </output>
+  
+</query>
+
+

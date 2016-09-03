@@ -1,0 +1,81 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE query SYSTEM "../../../src/perfbase/dtd/pb_query.dtd">
+
+<query>
+  <experiment>iozone_DEMO</experiment>
+
+  <fixed id="f.metric">
+    <content>B_wr</content>
+  </fixed>
+
+  <fixed id="f.fs">
+    <content>ext3</content>
+  </fixed>
+
+  <parameter id="p.fs" show="filter" style="content">
+    <value>fs</value>
+    <filter>
+      <equal>f.fs</equal>
+    </filter>
+  </parameter>
+
+  <!-- two so called "open parameter filters" -->
+  <parameter id="p.os" show="filter" style="content">
+    <value>OS</value>
+  </parameter>
+
+  <parameter id="p.os_version" show="filter" style="content">
+    <value>OS_version</value>
+  </parameter>
+
+  <!-- the two values for the x- and y-axis -->
+  <parameter id="p.s_file" show="data">
+    <value>S_file</value>
+  </parameter>
+
+  <parameter id="p.s_record" show="data">
+    <value>S_record</value>
+  </parameter>
+
+  <source id="src.metric">
+    <result>f.metric</result>
+
+    <input>p.s_file</input>
+    <input>p.s_record</input>
+
+    <input>p.fs</input>
+    <input>p.os</input>
+    <input>p.os_version</input>
+  </source>
+
+  <operator type="max" id="op.max">
+    <input>src.metric</input>
+  </operator>
+
+  <!-- We want to see MiB/s, not KiB/s => scale the data together with the unit! -->
+  <operator type="scale" id="op.scale" value="1/Ki">
+    <input>op.max</input>
+  </operator>
+
+  <!-- For proper 3D plotting with gnuplott, it is necessary to sort the data! -->
+  <operator id="op.sort" type="sort" value="S_file">
+    <input>op.scale</input>
+  </operator>
+
+  <output target="gnuplot" dimensions="3" style="lines" fontsize="large" title="iozone">
+    <input label="title">op.sort</input>
+    
+    <option>grid ztics</option>
+    <option>key left</option>
+    <option>logscale x 2</option>
+    <option>logscale y 2</option>
+    <option>zrange [0:]</option>
+
+    <option>dgrid3d ,,100</option>
+    <option>hidden3d</option>
+
+    
+    <filename>iozone</filename>
+  </output>
+</query>
+

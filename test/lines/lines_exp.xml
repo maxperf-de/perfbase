@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>lines_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test lines attribute of named location.</synopsis>
+    <description> 
+      Using the lines attribute, it is possible to import one or more lines or 
+      raw text into a value of type "string" or "text".
+    </description>
+  </info>
+
+  <result>
+    <name>string</name>
+    <datatype>string</datatype>
+
+    <synopsis>result string</synopsis>
+    <default></default>
+  </result>
+  
+  <result>
+    <name>int</name>
+    <datatype>integer</datatype>
+
+    <synopsis>result integer</synopsis>
+    <default></default>
+  </result>
+  
+  <result>
+    <name>text</name>
+    <datatype>text</datatype>
+
+    <synopsis>result text</synopsis>
+    <default></default>
+  </result>
+  
+</experiment>
+
+

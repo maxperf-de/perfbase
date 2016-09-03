@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="one-param_intern_append">
+  <experiment>combiner2_TEST</experiment>
+  <description>
+    Sweep over a single parameter, and resolve internally with appended output.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value alias="Bytes">S_msg</value>
+  </parameter>    
+
+  <parameter id="p.speed" show="data">
+    <value>V_net</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <source id="src.latency">
+    <result alias="Time">T_pp</result>
+    
+    <input>p.msgsize</input>
+
+    <input>p.speed</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <combiner id="comb.min" datasets="append">
+    <input sweep_resolve="intern">op.sort</input>
+  </combiner>
+
+  <output>
+    <input>comb.min</input>
+  </output>
+  
+</query>
+
+

@@ -1,0 +1,56 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>derived_TEST</name>
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>perfbase test suite</project>
+    <synopsis>Test derived parameters in an input description.</synopsis>
+    <description> Check definitions of derived parameters inside an input description.
+       </description>
+  </info>
+
+  <parameter>
+    <name>N_nodes</name>
+    <synopsis>number of nodes</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+  
+  <parameter>
+    <name>N_ppn</name>
+    <synopsis>number of processes per node</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <parameter>
+    <name>N_procs</name>
+    <synopsis>number of processes</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>T</name>
+    <synopsis>total time to solution</synopsis>
+
+    <datatype>duration</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+  </result>
+
+</experiment>
+
+

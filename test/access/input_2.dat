@@ -1,0 +1,28 @@
+# This is a simple result file to be used with the latency example
+#
+# machine: SX-6
+# MPI version: 1.23
+#
+# msg_size	latency [us]
+0		4.98
+1		5.01
+2		5.05
+4		5.02
+8		5.05
+16		5.11
+32		5.13
+64		5.29
+
+
+# machine: SX-8
+# MPI version: 1.25
+#
+# msg_size	latency [us]
+0		2.98
+1		3.01
+2		3.05
+4		3.02
+8		3.05
+16		3.11
+32		3.13
+64		3.29

@@ -1,0 +1,320 @@
+
+                   P E R F B A S E
+                   ===============
+
+Database-supported management of performance measurement results
+
+
+SITUATION: Each time that a performance-critical part of a software
+system is changed (significantly), it is necessary to re-evaluate the
+delivered performance. For this purpose, benchmarks are run, and the
+output of the benchmarks is transformed into a presentable form like a
+chart or a table.
+
+The MPI development at CCRL is a good example for this. The MPI
+library consists of many independent parts (subsystems) which are
+constantly changed for different reasons:
+- deliver better performance on the same platform
+- change the behaviour of the software, i.e. to adopt to given resource 
+  usage restrictions
+- adopt the software to a new hardware platform
+- implement new subsystems that perform new tasks
+
+PROBLEMS: The way that the described performance evaluation is done
+now bears a number of problems:
+- Translating the benchmark output into the presentable form is often
+  a tedious, manual task as the data needs to be extracted and transfered
+  between different software tools.
+- Because of this complexity, the performance measurements are often
+  limited in the range of the applicable test parameters, and in the 
+  number of samples taken for a certain set of test parameters. This
+  leads to results of limited usefulness and statistical correctness.
+- It is complex and error-prone to manage all results in a (big) number of
+  files (of a certain type, usally text). It is not easy to discover
+  which parts of the parameter set have not yet been measured, of which
+  one may need a closer look.
+- Comparing a certain measurement with the same measurement performed
+  some time ago is usually difficult. This applies partly because
+  the old data is not longer available, can not be found, or didn't
+  cover all required parameter sets.
+- It is very difficult for others to access, understand and use the 
+  data of one's measurements.
+
+SOLUTION: To solve the mentioned problems, a higher automatization of
+the test procedure will help. This means:
+- Running a script-controlled long/full range of tests, with storing 
+  all results/benchmark output in (a single) text file(s).
+- Processing this text file to store all data in a database (which
+  has to be set up before?)
+- Performing queries to retrieve specified parts of the data from the 
+  database in a certain format (potentially including visualization)
+
+CONCEPT: The work-flow for the application of this solution is as
+follows:
+1. Create an "experiment description" by definining the test parameters 
+   ("parameter") and the resulting performance value(s) ("results"). 
+   This experiment will be refered via a unique name ("experiment label")
+   which is supplied by the user.
+2. Create a new table in the (personal) performance database based on
+   this description. The experiment description will be stored in the
+   database.
+3. Run the experiments and store the results in one or more "result files".
+4. Create a "input description" to extract the performance values from
+   the result files. 
+5. Import the data into the database. The extracted results will be stored
+   in the database and form a "run" which has a unique "run label" (either
+   automatically generated via the date or provided by the user).    
+   
+   A run may contain different sets of paramters! Thus, a run only groups
+   results to a single import, not to a common set of parameters. The 
+   grouping to a common set of parameters is done implicitely by the
+   database (that's what's it for!).
+
+   Additionally, the raw result files will be stored for reference.
+   Potential other uses of having the result files stored in the database:
+   - undo a specific data import (by parsing the result file and deleting
+     all matching records).
+   - performing a check to avoid duplicate import from identical result files
+6. Potentially update an experiment with a new experiment description to add
+   or remove paramters or result fields.
+   - when adding a parameter, a default value needs to be specified which 
+     will apply to all existing runs.
+   - when adding a result, this result wil be undefined for all existing runs.
+7. Access the database to retrieve information from it. These accesses may
+   include:
+   A: give information:
+     - general information on the database by listing the available expeirments 
+       with number of runs, last modification,...
+     - general information on an experiment in the database by listing the 
+       parameters and results, the different runs (with date, run label, 
+       number of results, ...)
+     - specific information on an experiment:
+       - range of a parameter or result
+       - number of result values for a parameter set
+   B: "data mining" ("intelligent" data analysis):
+       - Is there an equal (sufficient) number of result values for all
+         parameter sets?
+       - Are there significant variances on a result value across a single
+         parameter set?
+       - Is there a significant variance or a recognizable trend for a result 
+         value across multiple runs?
+   C: retrieve data which will be plotted via a "plot description":
+     - 2D plot: one result for one parameter varied, all other parameters 
+       fixed. 
+     - 2D multiplot: two results (with a separate scale) for one parameter 
+       varied, all other parameters fixed. 
+     - 2D parameter-plot: one result for one parameter varied; the plot-
+       parameter is another parameter.
+     - 3D plot: one result across two parameters in a 3D-view
+     - general options:
+       - multiple result values for a set of parameters can 
+	 be accessed as maximum, minimum, average, quantile, ...
+       - plots can display error bars etc. (using the information from multiple
+         result values per parameter set)
+       - 1-D plot series: a number of distinct plots with identical parameter sets
+         across the variation of one parameter
+       - 2-D plot series: a number of distinct plots with identical parameter sets
+         across the variation of two parameters
+       - store a plot in the database, using a "plot label" and a "plot comment"
+8. manage the database
+   - general access rights etc. for the database are managed "externally" by
+     the default means for this.
+   - delete an experiment
+   - delete a run from an experiment
+   - export (parts of) an experiment as ASCII-dump
+   - store, retrieve or delete "meta information" (input and plot descriptions)
+	           
+
+IMPLEMENTATION
+
+* Language
+- 'perl' was chose as the implementation language. Reasons:
+  - backend-independent database usage via DBI (well,nearly...)
+  - good string/text processing functions
+  - portable & free
+  - no compilation, but (hopefully) fast enough
+  - I want to learn it
+
+ * Workflow steps (see above):
+Conc. '1':
+   The experiment description is contained in a .exp file which contains 
+   entries according to the following syntax:
+   General:
+   - lines starting with # are comments (ignored)
+   - empty lines are ignored
+   - all other lines between to lines which start with a keyword are comments
+     for the last keyword which will be stored in the database
+   Keywords:
+   - "*database" <host:port> <database name>
+   - "*experiment" <label>   
+     (label needs to be unique within database)
+   - "*read" <list,of,users,with,read,access> 
+     (optional, default specified by database)
+   - "*write" <list,of,users,with,write,access> 
+     (optional, default specified by database)
+   - "*parameter" <name> <data type> <unit> <default> 
+     (at least one parameter is required)
+   - "*result" <name> <data type> <unit>
+     (at least one result value is required)
+
+   Supported data types are "int", "float", "string" and "date".
+   Units only apply to data types int and float. Supported units are Byte, s,
+   Byte/s, FlOP, FLOP/s, OP, OP/s. Only for supported units does the multiplication
+   and division result in the according units. Supported multipliers are "K" (10^3), 
+   "M" (10^6), "G" (10^9), "T" (10^12), "P" (10^15), "m" (10^-3), "u" (10^-6),
+   "n" (10^-9), "p" (10^-12) and "f" (10^-15). Additionally, supported base-2 
+   multipliers are "Ki" (2^10), "Mi" (2^20), "Gi" (2^30), "Ti" (2^40) and
+   "Pi" (2^50). 
+
+   Recommended naming scheme for the paramters and results is A_b with
+   A characterising the type of variable and b specifying what it
+   exactly does represent. Usual types of variables are: 
+   - 'B': bandwidth, amount of data transported per time unit
+   - 'L': latency, a time span used to transport data
+   - 'T': also a time span, but describing any kind of task
+   - 'S': size of a single object, like a file or a message
+   - 'N': number of objects in a group, like number of nodes
+   
+Conc. '2':
+   Once the description is complete, the experiment can be created
+   via "pb_create". To update an existing experiment, the same type
+   of description is used as input for "pb_update". The database
+   itself needs to be created using the usual external tools provided
+   with the database implementation used.
+
+Conc. '3': 
+   Run the desired tests. If possible, the ouput of the test should be
+   defined in a way which eases (or allows!) the parsing of the output
+   for the results and parameter values.
+
+Conc. '4':
+   This is complex. There are different ways how this definition can be 
+   performed, depending on how the result file is formatted.
+   
+   First, the result files. Each result file may contain one or more
+   "input sets". Each input set uses exactly one parameter set. Multiple
+   input set in a results file are separated with an "input separator"
+   which is a string. Alternatively, 
+
+   - Input set separation:
+     Keyword: SEP
+     Descriptors: string	a fixed partial string 
+		  param		a parameter to indicate a new input set.
+		  alias         an alias for this parameter (multiple)
+		  ignore	
+
+     Examples:
+     SEP string="*****"
+     (any row containing ***** marks a new input set)     
+     SEP param=S_cache alias=cachesize
+     (any row which defines a new value for S_cache (see "Named location" below)
+      marks the start of a new input set, using this value for the  parameter)
+
+   Single value per input set:
+   - Named location: The value is marked in the result file with a 
+     preceeding string which matches either the value name itself or
+     a assigned alias of the value name.
+
+     Keyword: NAMED
+     Descriptors: len	  length of value to use 
+			  (for strings only, 0 means "up to EOL")
+		  alias	  an alias for this parameter (multiple)
+		  ws	  a string of space-separated chars which will
+			  be considered as whitespaces, too
+
+     Example:
+     NAMED N_proc alias=NP ignore="= :"
+     (in a row which contains NP=5, or NP: 5, it will set N_proc to 5)
+
+   - Explicit location: A value is the n-th value in a row of the input set 
+     which is specified either by its number in the input
+     file or by a string which is contained in the row.
+     Optionally, only the same type of values are counted when looking for
+     the n-th value (say, integer or float numbers).
+     
+     Keyword: EXPL
+     Descriptors: row	row to use (by number or keyword)
+		  pos	position in this row (by number or keyword)
+		  rep	if pos uses keyword, look for 'rep' occurances of it
+		  typed only count value appearances of the same type
+		  len	length of value to use (for strings only)
+			0 means "up to EOL"
+
+     Like:
+     ROW N_proc row=13 pos=5
+     (will use the 5 entry in row 13)
+     ROW N_proc row="number of processes"  pos=":" rep=5
+     (will use the first row which contains "number of processes"; within this
+      row, the value behind the 5th occurence of ':' will be used)
+
+   - Fixed: a value may be given as a fixed value (or passed as argument 
+     to pb_import and is then fixed for all input sets.
+
+     Keyword: FIXED
+     Descriptors: none
+
+     Example:
+     FIXED N_proc 16
+     (N_proc will have the value 16 for all input sets)
+
+   Multipe values per input set (only applies for result values):
+   - Tabular location: The values are found in the n-th column of a table 
+     which starts either at a fixed line in the result file, or below a 
+     fixed string. 
+
+     Parsing of the table stops once a row with a different number of entries
+     is found, or if the selected entry does not match the type of the value.
+
+     Keyword: TABLE
+     Descriptors: row	row *after* which the table starts (by number or keyword)
+		  pos	position in this row (by number or keyword)
+		  rep	if pos uses keyword, look for 'rep' occurances of it
+		  typed only count value appearances of the same type
+		  len	length of value to use (for strings only)
+			0 means "up to EOL"
+   
+Conc. '5':
+   The import itself is performed by pb_import. It will use the following
+   syntax:
+   import_db -i <input_desc> [-d <exp_desc> -h <db_host> -p <db_port> -n <db_name> 
+	     -u <db_user> -e <experiment>] [-t] [-v] <input files>
+
+   'input_desc' is the input description file which is mandatory. To specify the
+   experiment (and the database), the user can either supply the required information 
+   via the experiment description file (-d) or via separate options (-h, -p, -n, -u, -e).
+   Finally, to test the import, -t can be specified which prints the values to be 
+   imported on stdout. An arbitrary number of input file names can follow the options.
+   The "verbose" option (-v) provides some information on the imported data.
+
+Conc. '6':
+   Use "pb_update" which adds new columns (and sets default values if required), or
+   deletes columns. 
+
+Conc. '7 A':
+   'pb_info'
+
+Conc. '7 B':
+   'pb_mine'
+
+Conc. '7 C':
+    pb_plot -p <plot_desc> -d <exp_desc> [-o <ouput_file>]
+
+    Plot description file:
+    TYPE 2D|2D-multi|2D-param|3D
+
+    Keyword: RESULT 
+    Descriptors:    min
+		    max
+		    
+
+Conc. '8':
+   - To delete data from the database, use "pb_delete". Syntax:
+     pb_delete -e <experiment> [-r <run>] [-f]
+
+   - To export data from the database, use "pb_export". Syntax:
+     pb_export -e <experiment> [-r <run>] [-x <export description>] 
+	       
+     An "export description" is a 
+
+
+

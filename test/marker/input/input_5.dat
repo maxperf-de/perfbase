@@ -1,0 +1,9 @@
+# a text datatype can store variable-length data 
+
+RESULT_BEGIN
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+data data data data data data data data data data data data data data data data data data data data data 
+RESULT_END

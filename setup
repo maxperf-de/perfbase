@@ -1,0 +1,466 @@
+#!/bin/sh
+#
+# perfbase - (c) 2004-2005 NEC Europe C&C Research Laboratories
+#            Joachim Worringen <joachim@ccrl-nece.de>
+#
+# setup - Homegrown installation script.
+#
+#     This file is part of perfbase.
+#
+#     perfbase is free software; you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation; either version 2 of the License, or
+#     (at your option) any later version.
+#
+#     perfbase is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with perfbase; if not, write to the Free Software
+#     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+
+clear
+echo "***"
+echo "*** PERFBASE SETUP - please read carefully"
+echo "***"
+echo ""
+echo "Please answer the questions, or use [default values] by just pressing ENTER."
+echo "Prese CTRL-C at any time to abort the setup. This script can be re-run at any"
+echo "time to re-install perfbase. Output of tests can be found in setup.log."
+echo ""
+echo ""
+echo ">>> REQUIREMENTS"
+echo ""
+echo "perfbase requires a PostgreSQL database server (version 7.4 or later). This"
+echo "server may already be running on some system in reach, or perfbase can start "
+echo "up a new server. In the latter case, a PostgreSQL installation has to be "
+echo "available on the local system."
+echo ""
+echo "As perfbase consists of Python script, a recent Python version (>= 2.3) is "
+echo "required. Next to some standard Python modules, the modules 'ElementTree' and "
+echo "'psycopg' are used."
+echo ""
+echo "This setup script will test if these requirements are fulfilled."
+echo ""
+read -p "> Press ENTER to continue." INPUT
+
+rm -f setup.log
+
+# Acceptance of license.
+echo ""
+echo ">>> ACCEPTANCE OF LICENSE"
+echo ""
+echo "perfbase is copyrighted software by C&C Research Labs, NEC Europe Ltd."
+echo "It is licensed under the terms of the 'GNU General Public License'."
+echo ""
+read -p "> Press ENTER to read the license." INPUT
+if [ ! -r "COPYING" ] ; then
+    echo "#* ERROR: Can not read license file. Please run this setup script from the root directory"
+    echo "          of the perfbase distribution."
+    exit 1
+fi
+more COPYING
+read -p "> Do you accept this license? (yes/[no])" INPUT
+if [ "$INPUT" != "yes" ] ; then
+    echo "#* License not accepted, aborting setup."
+    exit 1
+fi
+
+# In all cases, we need to know
+# - path to python (PYTHON_PATH)
+echo ""
+echo ">>> PYTHON INTERPETER & MODULES"
+echo ""
+if ! PYTHON_PATH=`which python 2>setup.log` ; then
+    # no python in path
+    PYTHON_PATH="no python interpreter found!"
+fi
+while [ -n "$PYTHON_PATH" ]; do
+    read -p "> Which Python interpreter should be used? [$PYTHON_PATH] " INPUT
+    if [ -z "$INPUT" ] ; then 
+	INPUT=$PYTHON_PATH
+    fi
+    if [ ! -x "$INPUT" ] ; then
+	echo "$INPUT is not an executable file."
+	continue
+    fi
+
+    PYTHON_PATH=$INPUT
+    echo "=> using Python interpreter $PYTHON_PATH"
+    break
+done
+
+# - whether the required python modules are available
+cat <<EOF >test.py
+from xml.etree import ElementTree
+EOF
+if ! $PYTHON_PATH test.py 2>>setup.log ; then
+    echo "#* Required python module 'ElementTree' (http://effbot.org/zone/element-index.htm)"
+    echo "#* is not installed. This module is shipped together with perfbase "
+    echo "#* in the 'python' subdirectory, or can be downloaded from the web."
+    echo "#* Please install this module and restart this setup script."
+    exit 1
+fi
+
+cat <<EOF >test.py
+import psycopg2
+EOF
+if ! $PYTHON_PATH test.py 2>>setup.log ; then
+    echo "#* Required python module 'psycopg' (http://initd.org/projects/psycopg1)"
+    echo "#* is not installed. This module is shipped together with perfbase "
+    echo "#* in the 'python' subdirectory, or can be downloaded from the web."
+    echo "#* Please install this module and restart this setup script."
+    exit 1
+fi
+
+cat <<EOF >test.py
+import ooolib
+EOF
+if ! $PYTHON_PATH test.py 2>>setup.log ; then
+    echo "#* Required python module 'ooolib' (http://ooolib.sourceforge.net)"
+    echo "#* Please install this module and restart this setup script."
+    exit 1
+fi
+
+rm -f test.py
+
+# Now, determine if this user wants to set up a database server for perfbase,
+# or use an existing server.
+echo ""
+echo ">>> INSTALLATION VARIANT"
+echo ""
+echo "perfbase stores its data in a PostgreSQL database. perfbase can be "
+echo "installed in four variants that set different default values:"
+echo "1. PERSONAL INSTALL to initialize and run a 'personal' database server"
+echo "   on the local machine."
+echo "2. PERSONAL INSTALL to access an existing database server running"
+echo "   on any machine."
+echo "3. GLOBAL INSTALL for many users accessing their own database server."
+echo "4. GLOBAL INSTALL for many users accessing the same database server."
+echo ""
+INPUT=""
+while [ "$INPUT" != "1" -a "$INPUT" != "2" -a "$INPUT" != "3" -a "$INPUT" != "4" ] ; do
+    read -p "> Please choose your installation variant! ([1]/2/3/4) " INPUT
+    if [ -z "$INPUT" ] ; then
+	INPUT=1
+    fi
+done
+VARIANT=$INPUT
+
+# - path to where the perfbase tools should be installed 
+if [ $VARIANT = "3" -o $VARIANT = "4" ] ; then
+    INSTALL_PATH=/usr/local/bin
+else
+    if [ -d $HOME/bin ] ; then
+	INSTALL_PATH=$HOME/bin
+    else
+	INSTALL_PATH=$HOME/perfbase
+    fi
+fi
+echo ""
+echo ">>> INSTALLATION PATH"
+echo ""
+while [ -n "$INSTALL_PATH" ] ; do
+    read -p "> Into which path should the perfbase scripts be installed? [$INSTALL_PATH] " INPUT
+    if [ -n "$INPUT" ] ; then
+	INSTALL_PATH=`eval echo $INPUT`
+    fi
+    if [ -z "$INSTALL_PATH" ] ; then
+	echo "#* ERROR: Empty path. Please choose another path."
+	INSTALL_PATH="*unspecified*"
+	continue
+    elif [ ! -d $INSTALL_PATH ] ; then
+	read -p "#* $INSTALL_PATH is not a directory. Create it? ([y]/n)" INPUT
+	if [ "$INPUT" = "n" ] ; then
+	    continue
+	elif ! mkdir $INSTALL_PATH 2>>setup.log; then
+	    echo "#* could not create directory $INSTALL_PATH."
+	    continue
+	fi
+    fi
+    if [ ! -w $INSTALL_PATH ] ; then
+	echo "#* no write acccess to $INSTALL_PATH."
+	continue
+    fi
+    echo "=> Installing perfbase into $INSTALL_PATH"
+    break
+done
+
+if [ $VARIANT = "1" -o $VARIANT = "3" ] ; then
+    # User wants to set up a database server. Then we need to know
+    # - path to the PostgreSQL tools 'initdb' and 'postmaster'
+    # - path where the database should be stored
+    echo ""
+    echo ">>> POSTGRESQL DATABASE COMMANDS & PATH"
+    echo ""
+    if ! PG_CMD_PATH=`which initdb 2>>setup.log` ; then
+	# no python in path
+	PG_CMD_PATH="Unknown path to PostgreSQL commands!"
+    fi
+    PG_CMD_PATH=`echo $PG_CMD_PATH | sed s/initdb//`
+    while [ -n "$PG_CMD_PATH" ]; do
+	read -p "> Which path to the PostgreSQL commands (initdb, postmaster) should be used? [$PG_CMD_PATH] " INPUT
+	if [ -z "$INPUT" -a -x "$PG_CMD_PATH/postmaster" ] ; then 
+	    break
+	fi
+	if [ ! -d "$INPUT" ] ; then
+	    echo "$INPUT is not a directory."
+	elif [ ! -x "$INPUT"/postmaster ] ; then
+	    echo "No postmaster command found in $INPUT."
+	else 
+	    PG_CMD_PATH=$INPUT
+	    break
+	fi
+    done
+    
+    while [ 0 ] ; do
+	if [ $VARIANT = "1" ] ; then
+	    PG_DATA_PATH=$HOME/.perfbase_data
+	else
+	    PG_DATA_PATH='$HOME/.perfbase_data'
+	fi
+	while [ -n "$PG_DATA_PATH" ] ; do
+	    read -p "> Which path should be used to store the database files? [$PG_DATA_PATH] " INPUT
+	    if [ -n "$INPUT" ] ; then
+		if [ $VARIANT = "1" ] ; then
+		    PG_DATA_PATH=`eval echo $INPUT`
+		else
+		    # no eval as environment variables should be passed on literally
+		    PG_DATA_PATH=$INPUT
+		fi
+	    fi
+	    if [ $VARIANT = "1" ] ; then
+		# We can only validate the path if we run setup for a personal installation.
+		if [ -z "$PG_DATA_PATH" ] ; then
+		    # eval might have resulted in an empty path, i.e. for invalid environment variable
+		    echo "#* ERROR: Empty path. Please choose another path."
+		    PG_DATA_PATH="*unspecified*"
+		    continue
+		elif [ -d $PG_DATA_PATH ] ; then
+		    # directory for PostgreSQL data has to be empty
+		    if [ -n "`find $PG_DATA_PATH -name \?\* -print | tail +2`" ] ; then
+			echo "#* ERROR: $PG_DATA_PATH is a non-empty directory. Please choose another path."
+			continue
+		    fi
+		elif [ -r $PG_DATA_PATH ] ; then
+		    # must be a directory, not a file
+		    echo "#* ERROR: $PG_DATA_PATH is an existing file. Please choose another path."
+		    continue
+		else
+		    # We try to create the directory here if it does not exist, although PostgreSQL would
+		    # do so, too. But this way we make sure that this operation will succeed.
+		    read -p "#* $PG_DATA_PATH directory does not exist. Create it? ([y]/n)" INPUT
+		    if [ "$INPUT" = "n" ] ; then
+			continue
+		    else
+			if ! mkdir $PG_DATA_PATH 2>>setup.log; then
+			    echo "#* could not create directory $PG_DATA_PATH."
+			    continue
+			fi
+			chmod 700 $PG_DATA_PATH
+		    fi
+		fi
+		if [ ! -w $PG_DATA_PATH ] ; then
+		    echo "#* no write acccess to $PG_DATA_PATH."
+		    continue
+		fi
+	    fi
+	    if [ $PG_DATA_PATH = $INSTALL_PATH ] ; then
+		echo "#* ERROR: $PG_DATA_PATH must not be the perfbase install path. Please choose another path."
+		continue
+	    fi
+	    break
+	done
+    
+	# Set default values - use unix-domain socket by default as this matches the default
+	# configuration of PostgreSQL authentification!
+	DB_PORT=5432
+	DB_HOST=/var/run/postgresql
+	
+	if [ $VARIANT = "1" ] ; then
+	    DB_USER=`id -un`
+	else
+	    DB_USER='$USER'
+	fi
+	read -p "> Which user name do you use with the database server? [$DB_USER] " INPUT
+	if [ -n "$INPUT" ] ; then
+	    DB_USER=$INPUT
+	fi
+	echo ""
+	read -p "=> Will set up database server in '$PG_DATA_PATH' as user '$DB_USER'. Correct? ([y]/n) " INPUT
+	if [ -z "$INPUT" -o "$INPUT" = "y" ] ; then
+	    break
+	fi
+    done    
+
+    echo ""
+    echo "NOTE: After running 'perfbase init', check the access configuration of the PostgreSQL server!"
+    echo "      You might need to edit $PG_DATA_PATH/pg_hba.conf to your needs."
+    echo "      More information on this can be found in README.INSTALL."
+    echo ""
+
+    read -p "> Press ENTER to continue." INPUT
+
+    TEST_CMD="  perfbase init && perfbase start && cd test && make"
+else
+    # Access an existing database server
+
+    # dummy values, these commands are not needed
+    PG_CMD_PATH=/usr/local/bin
+    PG_DATA_PATH=$HOME/.perfbase_data
+
+    echo ""
+    echo ">>> POSTGRESQL DATABASE ACCESS"
+    echo ""
+    # set default values
+    DB_HOST=localhost
+    DB_PORT=5432
+    if [ $VARIANT = "2" ] ; then
+	DB_USER=`id -un`
+    else
+	DB_USER=""
+    fi
+
+    while [ 0 ] ; do
+	read -p "> On which host is the PostgreSQL database server running? [$DB_HOST] " INPUT
+	if [ -n "$INPUT" ] ; then
+	    DB_HOST=$INPUT
+	fi
+	read -p "> Which port number does the PostgreSQL database server use? [$DB_PORT] " INPUT
+	if [ -n "$INPUT" ] ; then
+	    DB_PORT=$INPUT
+	fi
+	if [ $VARIANT = "2" ] ; then
+	    read -p "> Which user name do you use with the database server? [$DB_USER] " INPUT
+	    if [ -n "$INPUT" ] ; then
+		DB_USER=$INPUT
+	    fi
+	    read -p "=> Accessing database server on '$DB_HOST:$DB_PORT' as user '$DB_USER'. Correct? ([y]/n) " INPUT
+	else
+	    read -p "=> Accessing database server on '$DB_HOST:$DB_PORT'. Correct? ([y]/n) " INPUT
+	fi
+	if [ -z "$INPUT" -o "$INPUT" = "y" ] ; then
+	    break
+	fi
+    done    
+    if [ $VARIANT = "2" ] ; then
+	TEST_CMD="  cd test && make"
+    else
+	TEST_CMD="  perfbase init && perfbase start && cd test && make"
+    fi
+fi
+
+# locate 'pidof' command. The problem is that it often is located in /sbin, which is not in
+# the PATH of a normal user.
+PIDOF_PRESENT=0
+for PIDOF in pidof /sbin/pidof /bin/pidof /usr/sbin/pidof ; do
+    if $PIDOF pidof 2>/dev/null 1>/dev/null; then
+	PIDOF_PRESENT=1
+	break
+    fi
+done
+if [ $PIDOF_PRESENT = 0 ] ; then
+    echo "#* ERROR: 'pidof' command not found! Please add it to the PATH."
+    exit 1
+else 
+    PIDOF=`which $PIDOF`
+fi
+
+SED_FILES="bin/perfbase test/runtest"
+
+for f in $SED_FILES; do
+    cat ${f}.in | \
+	sed s^@DB_USER@^$DB_USER^ | \
+	sed s^@DB_HOST@^$DB_HOST^ | \
+	sed s^@DB_PORT@^$DB_PORT^ | \
+	sed s^@PG_CMD_PATH@^$PG_CMD_PATH^ | \
+	sed s^@PG_DATA_PATH@^$PG_DATA_PATH^ | \
+	sed s^@INSTALL_PATH@^$INSTALL_PATH^ | \
+	sed s^@PYTHON_PATH@^$PYTHON_PATH^ | \
+	sed s^@PIDOF@^"$PIDOF"^ \
+	>$f 2>>setup.log
+    if [ -s $f ] ; then
+	chmod 755 $f
+    else
+	echo "#* ERROR: failed to create perfbase scripts."
+	exit 1
+    fi
+done
+
+# Now the "installation"
+(
+cd bin
+if ! cp perfbase *.py $INSTALL_PATH 2>>../setup.log ; then
+    echo "#* ERROR: failed to copy perfbase scripts."
+    exit 1
+fi
+)
+
+if [ ! -x $INSTALL_PATH/perfbase ] ; then
+    echo "#* ERROR: Installation failed (no executable perfbase command at $INSTALL_PATH)!"
+    exit 1
+fi
+
+echo ""
+echo ">>> INSTALLATION COMPLETE"
+echo ""
+$INSTALL_PATH/perfbase version
+echo ""
+if ! which perfbase >/dev/null 2>/dev/null ; then
+    # perfbase not in PATH
+    echo "NOTE: 'perfbase' is not in your PATH - you should add $INSTALL_PATH"
+    echo "to your PATH variable!"
+    echo ""
+fi
+echo "You can run the testsuite using the following command line:"
+echo "  "$TEST_CMD
+echo "(see README.TEST)"
+echo ""
+echo "In case of failing tests, please read the related trouble-shooting sections"
+echo "of the README.INSTALL file."
+echo ""
+echo ">>> MAILING LISTS"
+echo ""
+echo "We have established a 'users' mailing list for user-to-user support of "
+echo "perfbase."
+read -p "> Do you want to subscribe to the 'users' mailing-list? (y/[n])" INPUT
+if [ "$INPUT" = "y" ] ; then
+    if echo "subscribe" | mail -s subscribe users-subscribe@perfbase.tigris.org ; then
+	echo "  Subscribe request was sent. You will receive an acknowledge mail."
+    else
+	echo "#* ERROR: mail command failed. Could not send subscribe request."
+    fi
+else
+    echo "  Did not subscribe to users mailing list."
+fi
+echo ""
+echo "We have established an 'announce' mailing list for announcements "
+echo "regarding perfbase. We recommend that you subscribe to this list to"
+echo "keep in touch with perfbase (very little traffic)"
+read -p "> Do you want to subscribe to the 'announce' mailing-list? ([y]/n)" INPUT
+if [ "$INPUT" != "n" ] ; then
+    if echo "subscribe" | mail -s subscribe announce-subscribe@perfbase.tigris.org ; then
+	echo "  Subscribe request was sent. You will receive an acknowledge mail."
+    else
+	echo "#* ERROR: mail command failed. Could not send subscribe request."
+    fi
+else
+    echo "  Did not subscribe to announce mailing list."
+fi
+echo ""
+echo "To make optimal use of perfbase, you should install a new SQL datatype which"
+echo "comes with perfbase. It can be built and installed easily from"
+echo "the pgsql/version_datatype directory."
+echo ""
+echo "Enjoy working with perfbase! In case you should publish work which "
+echo "includes results that have been processed or generated using perfbase, "
+echo "we would appreciate an acknowledgement. A BibTeX reference on perfbase "
+echo "publications is provided in doc/perfbase.bib ."
+echo ""
+echo "For feedback, mailing-lists and up-to-date information on perfbase, please"
+echo "visit http://perfbase.tigris.org"
+echo ""
+read -p "> Press ENTER to finish." INPUT

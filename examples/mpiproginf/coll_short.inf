@@ -1,0 +1,85 @@
+MPI Program Information:
+========================
+Note: It is measured from MPI_Init till MPI_Finalize.
+      [U,R] specifies the Universe and the Process Rank in the Universe.
+
+Global Data of 2 processes  :          Min [U,R]          Max [U,R]      Average
+==========================
+
+Real   Time (sec)           :        0.168 [0,0]        0.176 [0,1]        0.172
+User   Time (sec)           :        0.075 [0,0]        0.127 [0,1]        0.101
+System Time (sec)           :        0.012 [0,1]        0.030 [0,0]        0.021
+Vector Time (sec)           :        0.025 [0,0]        0.033 [0,1]        0.029
+Instruction Count           :     15356530 [0,0]     21304367 [0,1]     18330449
+Vector Instruction Count    :       740496 [0,0]       867207 [0,1]       803852
+Vector Element Count        :     32565841 [0,0]     33564022 [0,1]     33064932
+FLOP Count                  :       300813 [0,0]       308712 [0,1]       304763
+MOPS                        :      424.972 [0,1]      625.033 [0,0]      525.003
+MFLOPS                      :        2.429 [0,1]        3.985 [0,0]        3.207
+Average Vector Length       :       38.704 [0,1]       43.978 [0,0]       41.341
+Vector Operation Ratio (%)  :       62.154 [0,1]       69.022 [0,0]       65.588
+Memory size used (MB)       :       60.712 [0,0]       60.712 [0,0]       60.712
+Global Memory size used (MB):       32.000 [0,0]       36.000 [0,1]       34.000
+MIPS                        :      167.659 [0,1]      203.433 [0,0]      185.546
+Instruction Cache miss (sec):        0.012 [0,1]        0.017 [0,0]        0.015
+Operand     Cache miss (sec):        0.008 [0,0]        0.008 [0,1]        0.008
+Bank     Conflict Time (sec):        0.001 [0,1]        0.001 [0,0]        0.001
+
+
+Overall Data:
+=============
+
+Real   Time (sec)           :        0.176
+User   Time (sec)           :        0.203
+System Time (sec)           :        0.041
+Vector Time (sec)           :        0.058
+GOPS   (rel. to User Time)  :        0.999
+GFLOPS (rel. to User Time)  :        0.006
+Memory size used (GB)       :        0.119
+Global Memory size used (GB):        0.066
+
+
+Data of Process [0,0]:
+----------------------
+
+  Real   Time (sec)           :             0.167835
+  User   Time (sec)           :             0.075487
+  System Time (sec)           :             0.029644
+  Vector Time (sec)           :             0.024755
+  Instruction Count           :             15356530
+  Vector Instruction Count    :               740496
+  Vector Element Count        :             32565841
+  FLOP Count                  :               300813
+  MOPS                        :           625.033118
+  MFLOPS                      :             3.984964
+  Average Vector Length       :            43.978416
+  Vector Operation Ratio (%)  :            69.021931
+  Memory size used (MB)       :            60.712433
+  Global Memory size used (MB):            32.000000
+  MIPS                        :           203.432777
+  Instruction Cache miss (sec):             0.016952
+  Operand     Cache miss (sec):             0.007775
+  Bank     Conflict Time (sec):             0.001253
+
+Data of Process [0,1]:
+----------------------
+
+  Real   Time (sec)           :             0.175992
+  User   Time (sec)           :             0.127070
+  System Time (sec)           :             0.011600
+  Vector Time (sec)           :             0.032939
+  Instruction Count           :             21304367
+  Vector Instruction Count    :               867207
+  Vector Element Count        :             33564022
+  FLOP Count                  :               308712
+  MOPS                        :           424.971921
+  MFLOPS                      :             2.429464
+  Average Vector Length       :            38.703587
+  Vector Operation Ratio (%)  :            62.154236
+  Memory size used (MB)       :            60.712433
+  Global Memory size used (MB):            36.000000
+  MIPS                        :           167.658511
+  Instruction Cache miss (sec):             0.012240
+  Operand     Cache miss (sec):             0.007922
+  Bank     Conflict Time (sec):             0.001008
+

@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>opendoc_TEST</name>
+
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>IAT GmbH, Germany</organization>
+    </performed_by> 
+    <project>perfbase testsuite</project>
+    <synopsis>Test for creation of OpenDoc spreadsheets</synopsis>
+    <description>
+           Automatically create useful, multicolumn tables, especially 
+           in combination with parameter sweeps.
+    </description>
+  </info>
+
+  <parameter occurrence="once">
+    <name>MPI_version</name>
+    <synopsis>MPI library version</synopsis>
+
+    <!-- datatype 'version' would be better, but requries libvnbr to be installed. -->
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>I</name>
+    <synopsis>Interconnect</synopsis>
+
+    <datatype>string</datatype>
+    <valid>SCI</valid>
+    <valid>Myrinet</valid>
+  </parameter>
+
+  <parameter>
+    <name>S_msg</name>
+    <synopsis>message size</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+  </parameter>
+
+  <result>
+    <name>T_pp</name>
+    <synopsis>halve of roundtrip latency</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+
+  <result>
+    <name>T_gap</name>
+    <synopsis>send gap</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+      <scaling>micro</scaling>
+    </unit>
+  </result>
+</experiment>
+
+

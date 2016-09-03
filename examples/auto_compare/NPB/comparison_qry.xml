@@ -1,0 +1,251 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE query SYSTEM "../../../dtd/pb_query.dtd">
+
+<query>
+  <experiment>NPB_auto_DEMO</experiment>
+
+  <!-- controllable via command line -->
+  <fixed id="f.bench">
+    <content>LU</content>
+  </fixed>
+
+  <fixed id="f.mpi_a">
+    <content>A</content>
+  </fixed>
+
+  <fixed id="f.mpi_b">
+    <content>B</content>
+  </fixed>
+
+  <fixed id="f.threshold">
+    <content>5</content>
+  </fixed>
+
+  <fixed id="f.lb">
+    <content>95</content>
+  </fixed>
+
+  <fixed id="f.ub">
+    <content>105</content>
+  </fixed>
+
+  <!-- filters -->
+  <parameter show="filter" id="p.mpi_A" style="content">
+    <value>MPI_vendor</value>
+    <filter>
+      <equal>f.mpi_a</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.mpi_B" style="content">
+    <value>MPI_vendor</value>
+    <filter>
+      <equal>f.mpi_b</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="data" id="p.np">
+    <value>N_procs</value>
+  </parameter>
+
+  <parameter show="filter" id="p.ppn" style="reverse" unit="no">
+    <value alias="processes per node">N_ppn</value>
+    <sweep>
+    </sweep>
+  </parameter>
+
+  <parameter show="filter" id="p.bench" style="content">
+    <value>B</value>
+    <filter>
+      <equal>f.bench</equal>
+    </filter>
+  </parameter>
+
+  <parameter show="filter" id="p.class" style="plain">
+    <value>class</value>
+    <filter>
+      <equal>C</equal>
+    </filter>
+  </parameter>
+
+
+  <!-- source objects -->
+  <source id="src.A">
+    <result>P_proc</result>
+
+    <input>p.bench</input>
+    <input>p.class</input>
+    <input>p.np</input>
+    <input>p.ppn</input>
+    <input>p.mpi_A</input>
+  </source>
+
+  <source id="src.B">
+    <result>P_proc</result>
+
+    <input>p.bench</input>
+    <input>p.class</input>
+    <input>p.np</input>
+    <input>p.ppn</input>
+    <input>p.mpi_B</input>
+  </source>
+
+  <!--           -->
+  <!-- operators -->
+  <!--           -->
+
+  <!-- get the max. performance for both MPI variants -->
+  <operator type="max" id="op.max_A">
+    <input>src.A</input>
+  </operator>
+
+  <operator type="max" id="op.max_B">
+    <input>src.B</input>
+  </operator>
+
+  <!-- how much is MPI A better (or worse) than MPI B? -->
+  <operator type="percentof" id="op.percent">
+    <input>op.max_A</input>
+    <input>op.max_B</input>
+  </operator>
+
+  <!-- cut of insignificant decimal places, but don't modify the label -->
+  <operator type="round" id="op.round" value="2">
+    <input label="ignore">op.percent</input>
+  </operator>
+
+  <!-- only show the differences that exceed a threshold value -->
+  <operator id="op.limit" type="abslimit" variant="greaterequal" value="(f.threshold)">
+    <input>op.round</input>
+  </operator>
+
+  <!-- These two do basically the same as above, but create a differnt 
+       data stream for "worse" and "better" which are needed below.  -->
+  <operator id="op.lb" type="limit" variant="lessequal" value="(f.lb)">
+    <input>op.round</input>
+  </operator>
+
+  <operator id="op.ub" type="limit" variant="greaterequal" value="(f.ub)">
+    <input>op.round</input>
+  </operator>
+
+  <!-- For another presentation of the data, calculate the absolute 
+       performance percentage (not "10% slower", but "90% of the performance") -->
+  <operator id="op.below100" type="eval">
+    <input>op.lb</input>
+    
+    <term id="below100">
+      <difference>
+	<minuend>
+	  <variable name="P_proc">op.lb</variable>
+	</minuend>
+	<subtrahend>
+	  <constant>100</constant>
+	</subtrahend>
+      </difference>
+    </term>
+  </operator>
+  
+  <operator id="op.above100" type="eval">
+    <input>op.ub</input>
+    
+    <term id="above100">
+      <difference>
+	<minuend>
+	  <variable name="P_proc">op.ub</variable>
+	</minuend>
+	<subtrahend>	  
+	  <constant>100</constant>
+	</subtrahend>
+      </difference>
+    </term>
+  </operator>
+
+  <!-- count the number of data points -->
+  <operator id="op.cnt_lb" type="count">
+    <input>op.lb</input>
+  </operator>
+
+  <operator id="op.cnt_ub" type="count">
+    <input>op.ub</input>
+  </operator>
+
+  <!-- average and stddev of advantage/fallback -->
+  <operator id="op.avg_lb" type="avg">
+    <input>op.lb</input>
+  </operator>
+ 
+  <operator id="op.stddev_lb" type="stddev">
+    <input>op.lb</input>
+  </operator>
+
+  <operator id="op.avg_ub" type="avg">
+    <input>op.ub</input>
+  </operator>
+ 
+  <operator id="op.stddev_ub" type="stddev">
+    <input>op.ub</input>
+  </operator>
+  
+  <combiner id="comb.100" datasets="append">
+    <input sweep_resolve="extern">op.above100</input>
+    <input sweep_resolve="extern">op.below100</input>
+  </combiner>
+
+  <!--        -->
+  <!-- output -->
+  <!--        -->
+
+  <!-- statistics & raw data -->
+  <output id="stats_better">
+    <input label="empty">op.cnt_ub</input>
+    <input label="empty">op.avg_ub</input>
+    <input label="empty">op.stddev_ub</input>
+
+    <filename unify="fixed">NPB_(f.bench)_better</filename>
+  </output>
+
+  <output id="stats_worse">
+    <input label="empty">op.cnt_lb</input>
+    <input label="empty">op.avg_lb</input>
+    <input label="empty">op.stddev_lb</input>
+
+    <filename unify="fixed">NPB_(f.bench)_worse</filename>
+  </output>
+
+  <output id="full_data">
+    <input sweep_resolve="extern">op.max_A</input>
+    <input sweep_resolve="extern">op.max_B</input>
+
+    <filename unify="filter">NPB_full</filename>
+  </output>
+
+  <output id="comparison_data">
+    <input label="fulltitle">op.limit</input>
+
+    <filename unify="fixed">NPB_(f.bench)_comparison</filename>
+  </output>
+
+  <!-- graphical comparison (relative performance) -->
+  <output target="gnuplot" type="bars" format="ps" title="MPI (f.mpi_a) vs (f.mpi_b)">
+    <input label="title">comb.100</input>
+
+    <option>yrange [-100:200]</option>
+    <option>ylabel 'performance difference [%]'</option>
+    <option>grid y</option>
+
+    <filename unify="fixed">NPB_(f.bench)_comparison</filename>
+  </output>
+
+  <!-- absolute data -->
+  <output target="gnuplot" type="bars" format="ps" title="MPI (f.mpi_a) vs (f.mpi_b)">
+    <input label="title">op.max_A</input>
+    <input label="title">op.max_B</input>
+
+    <option>yrange [0:]</option>
+    <option>grid y</option>
+
+    <filename unify="fixed">NPB_(f.bench)_full</filename>
+  </output>
+
+</query>

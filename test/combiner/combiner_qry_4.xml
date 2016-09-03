@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="min_max">
+  <experiment>combiner_TEST</experiment>
+  <description>
+    Put min, avg and max of a data series into one object by use of a 
+    combiner. The output object has only one input, and prints
+    all data for one message size in one line.
+    Here, we check that the order in the combiner is actually the
+    output order: we swapped two input lines compared with query 3.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.min" type="min">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max" type="max">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.avg" type="avg">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.max_sorted" type="sort">
+    <input>op.max</input>
+  </operator>
+
+  <operator id="op.min_sorted" type="sort">
+    <input>op.min</input>
+  </operator>
+
+  <operator id="op.avg_sorted" type="sort">
+    <input>op.avg</input>
+  </operator>
+
+  <combiner id="comb.minmaxavg">
+    <!-- swapped order -->
+    <input>op.min_sorted</input>
+    <input>op.avg_sorted</input>
+    <input>op.max_sorted</input>
+  </combiner>
+
+  <output>
+    <input>comb.minmaxavg</input>
+  </output>
+   
+</query>
+
+

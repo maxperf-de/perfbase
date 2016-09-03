@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="latest_created">
+  <experiment>runindex_TEST</experiment>
+  <description>
+    Determine the protocol version which delivers the minimal latency.
+    This query delivers invalid data (run index of -1) because the 'avg' operator can 
+    not keep up the connection between a result value and a specific run.
+  </description>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+  </source>
+
+  <operator id="op.avg" type="avg">
+    <input>src.latency</input>
+  </operator>
+
+  <operator id="op.ridx" type="runindex">
+    <input>op.avg</input>
+  </operator>
+
+  <operator id="op.sort" type="sort">
+    <input>op.ridx</input>
+  </operator>
+
+  <output>
+    <input>op.sort</input>
+  </output>
+  
+</query>
+
+

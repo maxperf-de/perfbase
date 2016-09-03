@@ -1,0 +1,148 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE experiment SYSTEM "../../../perfbase/dtd/pb_experiment.dtd">
+
+<experiment>
+  <name>slog2_DEMO</name>
+
+    <!-- *** -->
+  <!-- *** general information on the experiment -->
+  <!-- *** -->
+  <info>
+    <performed_by> 
+      <name>Joachim Worringen</name>
+      <organization>Computer and Communications Research Lab, NEC Europe Ltd.</organization>
+    </performed_by> 
+    <project>slog2 tracing</project>
+    <synopsis>Analyse trace data gathered via MPE2</synopsis>
+    <description>
+      We use perfbase to process trace data from arbitrary applications.
+    </description>
+  </info>
+
+  <!-- *** -->
+  <!-- *** parameters -->
+  <!-- *** -->
+  <parameter occurrence="once">
+    <name>app</name>
+    <synopsis>application</synopsis>
+    <description>Name of the application that was traced</description>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_ppn</name>
+    <synopsis>number of processes per node (-1 for asymetric cases)</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+    <default>1</default>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_node</name>
+    <synopsis>number of nodes</synopsis>
+
+    <datatype>integer</datatype>
+  </parameter>
+
+  <parameter occurrence="once">
+    <name>N_proc</name>
+    <synopsis>number of processes involved in the operation</synopsis>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>process</base_unit>
+    </unit>
+  </parameter>
+
+  <!-- *** -->
+  <!-- *** parameters (from the datasets in the trace file)-->
+  <!-- *** -->
+  <parameter>
+    <name>op_MPI</name>
+    <synopsis>MPI operation</synopsis>
+
+    <datatype>string</datatype>
+  </parameter>
+
+  <parameter>
+    <name>topo</name>
+    <synopsis>entry type</synopsis>
+
+    <datatype>string</datatype>
+    <valid>State</valid>
+    <valid>Arrow</valid>
+    <valid>Event</valid>
+  </parameter>
+
+  <parameter>
+    <name>r_src</name>
+    <synopsis>source rank</synopsis>
+
+    <datatype>integer</datatype>
+    
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>r_dest</name>
+    <synopsis>dest. rank</synopsis>
+
+    <datatype>integer</datatype>
+
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>dist</name>
+    <synopsis>distance between processes</synopsis>
+
+    <datatype>integer</datatype>
+
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>T_b</name>
+    <synopsis>begin timestamp</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+
+    <default></default>
+  </parameter>
+
+  <parameter>
+    <name>T_e</name>
+    <synopsis>end timestamp</synopsis>
+
+    <datatype>float</datatype>
+    <unit>
+      <base_unit>s</base_unit>
+    </unit>
+
+    <default></default>
+  </parameter>
+
+  <!-- *** -->
+  <!-- *** results (from the datasets in the trace file)-->
+  <!-- *** -->
+  <result>
+    <name>S</name>
+    <synopsis>data size</synopsis>
+    <description>Amount of data transferred within an operation</description>
+
+    <datatype>integer</datatype>
+    <unit>
+      <base_unit>byte</base_unit>
+    </unit>
+
+    <default></default>
+  </result>
+
+</experiment>

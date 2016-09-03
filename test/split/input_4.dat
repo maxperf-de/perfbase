@@ -1,0 +1,7 @@
+# trace file with time stamps and an additional "call" element
+enter func1 (0.00)
+enter func2 (0.21)
+call write(len=25) (0.23)
+leave func2 (0.45)
+leave func1 (0.47)
+

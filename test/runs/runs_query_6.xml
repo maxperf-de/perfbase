@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<!-- Test two  named <run> selector which specify two date ranges, plus one which explicitely -->
+<!-- names run 4. Runs 1, 2 and 4 should be shown  --> 
+
+<query id="latency">
+  <experiment>runs_TEST</experiment>
+
+  <run id="r.date1">
+    <performed>
+      <from>
+	<date>
+	  <day>1</day>
+	  <month>12</month>
+	  <year>04</year>
+	</date>
+      </from>
+      <to>
+	<date>
+	  <day>1</day>
+	  <month>12</month>
+	  <year>04</year>
+	</date>
+      </to>
+    </performed>
+  </run>
+
+  <run id="r.date2">
+    <performed>
+      <from>
+	<date>
+	  <day>2</day>
+	  <month>12</month>
+	  <year>04</year>
+	</date>
+      </from>
+      <to>
+	<date>
+	  <day>2</day>
+	  <month>12</month>
+	  <year>04</year>
+	</date>
+      </to>
+    </performed>
+  </run>
+
+  <run id="r.idx">
+    <index>4</index>
+  </run>
+
+  <parameter id="p.msgsize">
+    <value>S_msg</value>
+  </parameter>    
+
+  <source id="src.latency">
+    <result>T_pp</result>
+    
+    <input>p.msgsize</input>
+    <input>r.date1</input>
+    <input>r.date2</input>
+    <input>r.idx</input>
+  </source>
+
+  <output target="raw_text">
+    <input>src.latency</input>
+  </output>
+</query>
+
+

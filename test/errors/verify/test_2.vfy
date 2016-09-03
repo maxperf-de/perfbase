@@ -1,0 +1,18 @@
+set terminal postscript eps enhanced color "Helvetica" 12
+set size 0.8
+set output 'errors_lowhigh_graphs.eps'
+set xtics ("1" 1,"2" 2,"4" 4,"8" 8,"16" 16,"32" 32,"64" 64)
+set xlabel "message size [byte]"
+set logscale x 2
+set ylabel "latency (halve roundtrip) [s]"
+set yrange[0:10]
+plot '-' using 1:2:3:4 title 'comb avgminmax' axes x1y1 with yerrorlines lw 2
+0 4.48 2.98 5.98 
+1 4.51 3.01 6.01 
+2 4.55 3.05 6.05 
+4 4.52 3.02 6.02 
+8 4.55 3.05 6.05 
+16 4.61 3.11 6.11 
+32 4.63 3.13 6.13 
+64 4.79 3.29 6.29 
+e

@@ -1,0 +1,10 @@
+
+Test the processing of 'derived parameters'.
+
+NOTE: the file input_1.dat.bug is an alternative input file for the
+test #1 (which uses input_1.dat). Using this input, the value '1.9' in
+the final row will be stored as 1.89 in the database. Additionally,
+for the output of the query, we have obbserved that this value will be
+printed as 1.89 or 1.88. This is probably caused by different Python
+version - the exact cause is unknown to us. To test with this input
+file, just rename it to input_1.dat.

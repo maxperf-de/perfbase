@@ -1,0 +1,15 @@
+This test lets operators work on a single data vector from two sources
+which each provide 5 datasets, matching the other 5 datasets. 
+
+1: diff 
+2: div
+3: above 
+4: below
+5: percentof 
+6: min 
+7: max
+8: null followed by scale 
+9: sum
+10: prod
+11: eval
+

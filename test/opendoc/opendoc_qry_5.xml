@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE query SYSTEM "../../dtd/pb_query.dtd">
+
+<query id="swapped_dimensions">
+  <experiment>opendoc_TEST</experiment>
+  <description>
+     Same as query 3, but order of parameter elements that make up the table
+     dimensions (p.interconnect and p.version) is swapped. The table must stay 
+     correct conc. the arrangement of the content, that is the data elements
+     need to be placed in the proper cells, considering this exchange of dimensions.
+  </description>
+
+  <parameter id="p.version" show="filter" style="plain">
+    <value alias="library version">MPI_version</value>
+    <sweep>
+      <filter>
+	<equal>1.0</equal>
+      </filter>
+      <filter>
+	<equal>1.1</equal>
+      </filter>
+      <filter>
+	<equal>1.2</equal>
+      </filter>
+    </sweep>
+  </parameter>
+
+  <parameter id="p.interconnect" show="filter" style="content">
+    <value>I</value>
+    <sweep>
+      <!-- no <filter> means: create one "equal" <filter> of every distinct content of this value. -->
+    </sweep>
+  </parameter>
+
+  <parameter id="p.size" show="filter">
+    <value>S_msg</value>
+    <filter>
+      <lesser>10</lesser>
+    </filter>
+  </parameter>
+
+  <source id="src.latency"> 
+    <result>T_pp</result>
+    
+    <input>p.interconnect</input>
+    <input>p.version</input>
+    <input>p.size</input>
+  </source>
+
+  <operator id="op.median" type="median">
+    <input>src.latency</input>
+  </operator>
+
+  <!-- Create separate tables by setting 'sweep="extern"' below. -->
+  <output id="OpenDoc Test 5" target="opendoc">
+    <input sweep="intern">op.median</input>
+
+    <filename>opendoc_5</filename>
+  </output>
+
+</query>

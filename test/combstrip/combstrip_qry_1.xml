@@ -1,0 +1,76 @@
+<?xml version="1.0" standalone="no"?> 
+<!DOCTYPE experiment SYSTEM "../../dtd/pb_query.dtd">
+
+<query name="test_1">
+  <experiment>combstrip_TEST</experiment>
+  <synopsis>show difference between two runs over time</synopsis>
+
+  <description> 
+Create a chart which plots the difference between the message arrival 
+times (t_B - t_A) of two runs A and B over the zero-normalized time 
+series of run A (t_A - t_A(0)). This allows to see the arrival differences
+with their potential relation to message frequency. 
+
+This is a bit tricky for a query as this implies plotting a result vector
+over another result vector. This is solved by a combiner.
+  </description>  
+  
+
+  <!-- *** -->
+  <!-- *** parameter selection & filtering -->
+  <!-- *** -->
+
+  
+  <!-- parameters for matching -->
+  <parameter id="p:seq">
+    <value>seq</value>
+  </parameter>
+  
+  
+  <!-- *** -->
+  <!-- *** sources -->
+  <!-- *** -->
+  <source id="src:t_A">
+    <result>t_A</result>
+
+    <input>p:seq</input>
+  </source>
+   
+  <source id="src:t_B">
+    <result>t_B</result>
+
+    <input>p:seq</input>
+  </source>
+   
+  
+  <!-- operators -->
+  <operator type="diff" id="op:diff">
+    <input>src:t_B</input>
+    <input>src:t_A</input>
+  </operator>
+
+  <!-- Here's the trick: strip all incoming parameter vectors,
+       and create a new one. -->
+  <combiner id="comb:t_diff" parameters="none" mkparam="yes">
+    <input>src:t_A</input>
+    <input>op:diff</input>
+  </combiner>
+
+  <!-- chart output -->
+  <output target="gnuplot" type="graphs" style="points" format="ps" id="outps" title="Difference in Arrival Time">
+    <input label="title">comb:t_diff</input>
+    
+    <option>grid ytics</option>
+    <option>key right</option>
+    <option>elements small</option>
+
+    <filename>combstrip_1</filename>
+  </output>
+
+  <output>
+    <input>comb:t_diff</input>
+
+    <filename>combstrip_1</filename>
+  </output>
+
+</query>
