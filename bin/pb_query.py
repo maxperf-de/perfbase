@@ -37,6 +37,7 @@ import tempfile
 from sys import exit, argv
 from os import F_OK, R_OK, getenv, access, getpid
 from string import find, split, rfind, whitespace, lower, upper, strip, rstrip
+from xml.parsers.expat import ExpatError
 from xml.etree import ElementTree
 
 # DBAPI implementation to access PostgreSQL
@@ -539,7 +540,7 @@ def parse_query_spec():
 
         qry_desc_fd = tempfile.NamedTemporaryFile(mode='w', prefix='pb_')
         if not dump_attachment(crs, qry_desc[0], qry_desc_fd):
-            raise DataError, "could not dump attachment '%s' to temporary file '%s'" % (qry_desc[0], tmp_file.name)
+            raise DataError, "could not dump attachment '%s' to temporary file" % (qry_desc[0])
         crs.close()
         qry_desc_file = qry_desc_fd.name
 
@@ -549,8 +550,8 @@ def parse_query_spec():
         raise SpecificationError, "%s is not a perfbase query description." % (qry_desc[0])
         
     # Determine the experiment and database and make sure it can be accessed.
-    if not qry_exp:
-        if qry_desc_root:
+    if qry_exp is None:
+        if qry_desc_root is not None:
             # Try to retrieve experiment name from XML description
             qry_exp = qry_desc_root.findtext('experiment')
         if not qry_exp:
@@ -682,7 +683,7 @@ def main(argvect=None):
         except DataError, error_msg:
             print "#* ERROR:", error_msg
             sys.exit(1)
-        except xml.parsers.expat.ExpatError, error_msg:
+        except ExpatError, error_msg:
             print "#* ERROR:", error_msg
             sys.exit(1)
                 

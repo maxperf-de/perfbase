@@ -2,7 +2,7 @@ set terminal postscript eps enhanced color "Helvetica" 12
 set size 0.8
 set output 'qry_result.eps'
 set title "Probability Distribution for Different Message Sizes"
-set xlabel "sample value distribution [us]"
+set xlabel "sample value distribution [{/Symbol m}s]"
 set ylabel "probability [%]"
 plot '-' using 1:2 title 'S_{msg} = 8byte, N_{samples} = 500' axes x1y1 with histeps lw 2,'-' using 1:2 title 'S_{msg} = 64byte, N_{samples} = 500' axes x1y1 with histeps lw 2,'-' using 1:2 title 'S_{msg} = 256byte, N_{samples} = 500' axes x1y1 with histeps lw 2
 3.8 1.2 

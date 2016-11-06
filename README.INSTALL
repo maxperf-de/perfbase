@@ -15,7 +15,7 @@ the following sections:
 1. Requirements
 
 To use perfbase, the following requirements need to be met:
-- A PostgreSQL database server has to be accessible. Version 8.4 has 
+- A PostgreSQL database server has to be accessible. Version 9.6 has 
   been tested successfully. Older version should work, too, as 
   perfbase is using rather simple SQL and data types.
 
@@ -23,17 +23,20 @@ To use perfbase, the following requirements need to be met:
   or initialize and start its own instance. The latter scenario requires 
   a PostgreSQL installation accessible from the local machine.
 
-- A Python interpreter is required. Python 2.6 has been success-
+- A Python interpreter is required. Python 2.7 has been success-
   fully tested. Most systems have this already installed.
 
   Two separate Python packages need to be installed:
   o 'psycopg2' (http://initd.org/psycopg) to access the PostgreSQL 
     database server. This package is usually installable via the 
-    packet management system  of your Linux distribution.
+    packet management system of your Linux distribution.
   o 'ooolib' (http://ooolib.sourceforge.net/) to create OpenOffice 
     spreadsheets as query output. This package is usually not available 
     via the packet management, but needs to be installed from source 
-   (which is trivial).
+    (which is trivial). This library is no longer under development, but
+    still works fine. For simplification, it is also included in the
+    tools directory of the perfbase distribution, and can be installed from 
+    there via the setup.py script.
 
 - 'Gnuplot' is required for visualization of query results, and for
   some tests of the test suite. For optimal results, version 4 of
@@ -58,6 +61,9 @@ We have assembled some Linux-specific hints:
   'postgresql-server' can be installed from the provided media using Yast.
   Remaining software can either be installed via RPM's (see above) or 
   from source.
+
+- CentOS 7.2: Like with Suse, install postgres, gnuplot and psycopg2 from the
+  yum repositories. 
 
 
 2. Basic Installation

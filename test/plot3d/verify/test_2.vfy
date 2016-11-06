@@ -4,7 +4,7 @@ set xtics ("1" 1,"1" 1,"1" 1,"1" 1,"2" 2,"2" 2,"2" 2,"2" 2,"4" 4,"4" 4,"4" 4,"4"
 set xlabel "message size [byte]"
 set ytics (2,3,4,5,6)
 set ylabel "# processes [process]"
-set zlabel "message latency [us]"
+set zlabel "message latency [{/Symbol m}s]"
 set hidden3d
 set grid ztics
 splot '-' using 1:2:3 title 'l_{msg}'  with linespoints lw 2 ps 2

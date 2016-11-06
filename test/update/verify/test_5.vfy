@@ -2,7 +2,7 @@ set terminal postscript eps enhanced color "Helvetica" 12
 set size 0.8
 set output 'setup_MPI_version=1.23_platform=SX-6.eps'
 set xlabel "message size [byte]"
-set ylabel "message latency (halve roundtrip time) [us]"
+set ylabel "message latency (halve roundtrip time) [{/Symbol m}s]"
 set yrange [0:]
 plot '-' using 1:2 title 'MPI_{version} = 1.23, platform = SX-6' axes x1y1 with linespoints lw 2 ps 2
 0 4.98 

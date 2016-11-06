@@ -4,7 +4,7 @@ set xtics (2,3,4,5,6)
 set xlabel "# processes [process]"
 set ytics (1,2,3,4,5,6,7,8)
 set ylabel "message size [byte]"
-set zlabel "message latency [us]"
+set zlabel "message latency [{/Symbol m}s]"
 splot '-' using 1:2:3 title 'l_{msg}'  with linespoints lw 2 ps 2
 2 1 1.0 
 2 2 2.0 

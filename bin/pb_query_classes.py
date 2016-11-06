@@ -242,7 +242,7 @@ class combiner(data):
         except SpecificationError, error_msg:
             print "#* ERROR in <input> '%s':" % n
             print "  ", error_msg
-            sys.exit(1)
+            exit(1)
 
         return
 
@@ -303,7 +303,7 @@ class combiner(data):
         except SpecificationError, error_msg:
             print "#* ERROR in <input> '%s':" % n
             print "  ", error_msg
-            sys.exit(1)
+            exit(1)
 
         return
 
@@ -502,7 +502,7 @@ class parameter:
         
         # get the parameter value name (in the experiment)
         val_node = node.find("value")
-        if not val_node and not val_node.text:
+        if val_node is None and val_node.text is None:
             raise SpecificationError, "no <value> specified for <parameter>" 
         self.p_name = val_node.text
         if do_debug():
@@ -533,8 +533,8 @@ class parameter:
             p_unit = ""
             
         self.showdata = not self.is_constant        
-        if node.find('filter') and not self.is_constant:
-            # If there's an explicit filter for a non-constant paramter
+        if node.find('filter') is not None and not self.is_constant:
+            # If there's an explicit filter for a non-constant parameter
             # we need to provide the data
             self.showdata = True
         self.showfilter = self.is_constant
@@ -567,7 +567,7 @@ class parameter:
         self.sql_filter = None
         self.filter_str = ""
         if sweep_filter is None:
-            if node.find('filter'):
+            if node.find('filter') is not None:
                 self.sql_filter = self._parse_filter(node, self.p_name, alias, p_unit)
             elif self.is_constant:
                 if self.showdata:
@@ -925,7 +925,7 @@ class parameter:
 class fixed:
     def __init__(self, node, name=None, value=None):
         self.type = "fixed"
-        if node:
+        if node is not None:
             self.name=node.get('id')
             if not self.name:
                 raise SpecificationError, "each <fixed> value needs an 'id' attribute"
@@ -933,7 +933,7 @@ class fixed:
         else:
             self.name = name
 
-        if not value:
+        if value is None:
             raise SpecificationError, "each <fixed> value needs a non-empty <content>"
 
         self.content = value
@@ -1128,7 +1128,7 @@ class run:
                     print "   Date was specified from: %s to: %s" % (from_time, to_time)
                     print "   SQL command was: ", sql_cmd
                     print "   Database error message:", error_msg
-                    sys.exit(2)
+                    exit(2)
                 nim = build_name_idx_map(crs)
                 all_rows = crs.fetchall()
 
@@ -1174,7 +1174,7 @@ class run:
                 except psycopg.Error, error_msg:
                     print "#* ERROR with <run> '%s': database error when querying runs by %s." % (self.name, stamp)
                     print "   Database error message:", error_msg
-                    sys.exit(2)
+                    exit(2)
                 nim = build_name_idx_map(crs)
                 all_rows = crs.fetchall()
 

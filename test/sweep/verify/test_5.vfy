@@ -4,7 +4,7 @@ set output 'sweep_5.eps'
 set title "Latency Difference between SCI and Competitor"
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency-halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency-halve of roundtrip latency [{/Symbol m}s]"
 set yrange [-5:5]
 set boxwidth 0.800000
 set style fill solid 1.0
