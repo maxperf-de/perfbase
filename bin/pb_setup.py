@@ -72,13 +72,13 @@ def build_unit_string(unit):
     global pb_valid_baseunits, pb_valid_scales, pb_scale_values
 
     frac = unit.find('fraction')
-    if frac:
+    if frac is not None:
         dividend = frac.find('dividend')
-        if not dividend:
+        if dividend is None:
             print "#* ERROR: no <dividend> in <fraction>."
             return None
         divisor = frac.find('divisor')
-        if not divisor:
+        if divisor is None:
             print "#* ERROR: no <divisor> in <fraction>."
             return None
         dividend_str = build_unit_string(dividend)
@@ -96,15 +96,15 @@ def build_unit_string(unit):
     prod = unit.find('product')
     if prod:
         factors = prod.findall('factor')
-        if not factors:
+        if factors is None:
             print "#* ERROR: no <factor> in <product>."
             return None
         product_str = None
         for f in factors:
-            if product_str:
+            if product_str is not None:
                 product_str = product_str + "*"
             rval = build_unit_string(f)
-            if not rval:
+            if rval is None:
                 return None
             product_str = product_str + rval
         return product_str
@@ -114,7 +114,7 @@ def build_unit_string(unit):
         print "#* ERROR: no <base_unit> specified in <unit> leaf node."
         return None        
     base_str = base_unit.text
-    if not base_str:
+    if base_str is None:
         base_str = "none"
     if not pb_valid_baseunits.has_key(base_str):
         print "#* ERROR: <base_unit> '%s' is an invalid base unit" % base_str
@@ -128,7 +128,7 @@ def build_unit_string(unit):
 
     scale_str = ""
     scale_node = unit.find('scaling')
-    if not scale_node is None:
+    if scale_node is not None:
         scale_str = scale_node.text
         if not pb_valid_scales.has_key(scale_str):
             print "#* ERROR: <scaling> '%s' is an invalid scaling factor" % scale_str
@@ -316,7 +316,7 @@ def add_value(db, crs, v):
         sql_type = 'varchar'+dt_size
     
     v_term = v.find('unit')
-    if v_term:
+    if v_term is not None:
         v_unit = build_unit_string(v_term)
         if v_unit == None:
             raise SpecificationError, "invalid <term> in experiment <parameter> or <result>!"

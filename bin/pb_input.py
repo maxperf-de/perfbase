@@ -536,7 +536,7 @@ class derived_parameter(input_parse):
             pass
         # Is t a fixed value?
         # XXX Is all_nodes used anywhere else then here?
-        if self.all_nodes.has_key(sym) and isinstance(self.all_nodes[sym], fixed):
+        if self.all_nodes.has_key(sym) and isinstance(self.all_nodes[sym], fixed_value):
             return self.all_nodes[sym].get_content()
         # It's something invalid!
         raise SpecificationError, "<derived_parameter> '%s': invalid symbol '%s' in <constant>" % (self.name, sym)
@@ -579,24 +579,24 @@ class split_location(input_parse):
                 raise SpecificationError, "<split_location> '%s': no <%s> element!" % (self.name, trg)
 
             for l in ('named_location', 'explicit_location', 'tabular_location'):
-                 all_locs = trig_node.findall(l)
-                 if all_locs != None:
-                     for loc in all_locs:
-                         pn = eval(l)(loc, parse_nodes, crs)
+                all_locs = trig_node.findall(l)
+                if all_locs != None:
+                    for loc in all_locs:
+                        pn = eval(l)(loc, parse_nodes, crs)
 
-                         self.trigger_nodes[trg].append(pn)
-                         for n in pn.get_value_names():
-                             self.trigger_names[trg].append(n)
-                             if not n in self.name_to_pn:
-                                 self.name_to_pn[n] = []
-                             self.name_to_pn[n].append(pn)
-                         self.enter_data[pn] = []
+                        self.trigger_nodes[trg].append(pn)
+                        for n in pn.get_value_names():
+                            self.trigger_names[trg].append(n)
+                            if not n in self.name_to_pn:
+                                self.name_to_pn[n] = []
+                            self.name_to_pn[n].append(pn)
+                        self.enter_data[pn] = []
 
             if len(self.trigger_nodes[trg]) == 0:
                 raise SpecificationError, "<split_location> '%s': no sub-elements in <%s> element!" % (self.name, trg)
 
         store_node = r.find('store')
-        if not store_node:
+        if store_node is None:
             raise SpecificationError, "<split_location> '%s': no <store> element!" % (self.name)
         for n in store_node.findall('name'):
             store_what = 'current'
@@ -1024,14 +1024,14 @@ class named_location(input_parse):
         scale_att = r.get("scale")
         if scale_att is not None:
             if not self.is_numeric:
-                raise SpecificationError, "named_location '%s': scale attribute only valid for numeric values." % (v_name)
+                raise SpecificationError, "named_location '%s': scale attribute only valid for numeric values." % (self.name)
             try:
                 if self.datatype[:7] == 'integer':
                     scale_fact = int(scale_att)
                 else:
                     scale_fact = float(scale_att)
             except ValueError:
-                raise SpecificationError, "named_location '%s': invalid scale attribute '%s' (NaN)." % (v_name, scale_att)
+                raise SpecificationError, "named_location '%s': invalid scale attribute '%s' (NaN)." % (self.name, scale_att)
             self.scale = scale_fact
 
         if self.retrigger is None:
@@ -1916,7 +1916,7 @@ class tabular_location(input_parse):
             if not v_name:
                 raise SpecificationError, 'No value <name> provided for <tabular_value>.'
             if self.names.count(v_name) > 0:
-                raise SpecificationError, "value name '%s' was defined more than once for <tabular_value>." % vn
+                raise SpecificationError, "value name '%s' was defined more than once for <tabular_value>." % v_name
             self.names.append(v_name)
 
             att = get_attribute(t, "<tabular_value> %s" % v_name, "update", "no",
@@ -2302,7 +2302,7 @@ class fixed_value(input_parse):
         self.parse_cnt = 0
         self.trigger_cnt = 1
         
-        if element_tree:
+        if element_tree is not None:
             self.name = None
             self.content = None
 
@@ -2389,19 +2389,19 @@ class set_separation(input_parse):
         
         r = element_tree
         n = r.findtext('match')
-        if n:
+        if n is not None:
             self.match = n
             self.regexp = None
         else:
             n = r.findtext('regexp')
-            if n:
+            if n is not None:
                 self.match = None
                 self.regexp = re.compile(n)
             else:
                 raise SpecificationError, 'Invalid <set_separation> entry: contains no <match> or <regexp> entry)'
 
         n = r.findtext('skip')
-        if n:
+        if n is not None:
             self.skip = int(n)
         return
 

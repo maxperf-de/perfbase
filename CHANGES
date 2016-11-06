@@ -10,11 +10,14 @@ x bug fix
 Following the marking is the affected command(s) or file(s), then the actual 
 change description.
 
-RELEASE 1.0.1 (?, ? ? ?)
+RELEASE 1.0.1 (Mon, November 5th 2016)
 x query: avoid '/' characters from filenames being created with 'unify="filter"' attribute
 + query: microsecond units are properly printed with gnuplot (greek symbol)
 x check: fix invalid use of 'autocommit' for database vacuum
 x update: fix exception when appending <valid> values to a parameter
+- installation: include ooolib in distribution to make setup more simple
+- all: ensure proper operation (including all tests passing) under CentOS 7.2 
+
 
 RELEASE 1.0.0 (Fri, April 9th 2010)
 + input: implemented <match> element for <tabular_values> 

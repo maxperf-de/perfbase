@@ -21,9 +21,9 @@ Such a table could then be included directly into LaTeX documents.
 Plotting results vs. two parameters should be supported. High priority!
 [ This is now available. ]
 
-* PL OUTPUT
-pl (ploticus) makes very nice charts and is more "modern" than gnuplot. 
-It has many features, like "real" barcharts, that gnuplot is missing.
+* MATPLOTLIB OUTPUT
+matplotlib makes very nice charts and is more "modern" than gnuplot and is
+native python instead of an external tool.
 
 * JOB GENERATOR
 perfbase could not only be used to process and analyse the results of
@@ -52,12 +52,6 @@ a later point in time and get the exact same results, even if the data
 of the experiment has changed (runs added). 
 [ Queries alone can already be stored; this feature would require that the 
   list of runs used by this queries would be stored alongside. ]
-
-* PARALLEL QUERIES
-To improve query performance, queries should be executed in a parallelized
-manner. This would not speed up simple queries, but more complex queries
-with many operators on the same data etc. have a significant potential 
-for parallelization - very useful on today's multi-core machines!
 
 * PARALLEL IMPORT
 Importing large data files (like tables with hundreds of thousands of lines)

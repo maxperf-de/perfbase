@@ -450,7 +450,7 @@ def get_dbserver(xml_root, db_info):
     """Determine the database server to be used. Preference of the parameters:
     cmdline > xml_file > environment > default """
     exp_db = None
-    if xml_root:
+    if xml_root is not None:
         exp_db = xml_root.find('database')
     if db_info['host'] is None:
         if exp_db:
@@ -852,12 +852,15 @@ def get_sql_contents(pv_info, value):
 def clean_string(input_string):
     """Remove non-printable characters from strings. Such characters do cause confusion when
     inserted into SQL tables (the insertion will fail).
-    Is there something faster than this?"""
+    CHECK: There should be something faster than this."""
     rval = ""
     for c in input_string:
         if c in printable:
             if c == "'":
-                rval += "\\'"
+                # PostgreSQL documentation (4.1.2.1. String Constants):  
+                # To include a single-quote character within a string constant, write two 
+                # adjacent single quotes, e.g. 'Dianne''s horse'.
+                rval += "''"
             else:
                 rval += c
     return rval

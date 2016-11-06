@@ -3,7 +3,7 @@ set size 0.8
 set output 'sweep_2.eps'
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency [{/Symbol m}s]"
 set yrange [0:]
 set boxwidth 0.200000
 set style fill solid 1.0
@@ -37,7 +37,7 @@ set size 0.8
 set output 'sweep_2_MPI_version=1.0_Myrinet.eps'
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency [{/Symbol m}s]"
 set yrange [0:]
 plot '-' using 1:2 title 'MPI_{version} = 1.0, Myrinet' axes x1y1 with linespoints lw 2 ps 2
 0 8.0 
@@ -50,7 +50,7 @@ set size 0.8
 set output 'sweep_2_MPI_version=1.0_SCI.eps'
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency [{/Symbol m}s]"
 set yrange [0:]
 plot '-' using 1:2 title 'MPI_{version} = 1.0, SCI' axes x1y1 with linespoints lw 2 ps 2
 0 4.0 
@@ -63,7 +63,7 @@ set size 0.8
 set output 'sweep_2_MPI_version=1.1_Myrinet.eps'
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency [{/Symbol m}s]"
 set yrange [0:]
 plot '-' using 1:2 title 'MPI_{version} = 1.1, Myrinet' axes x1y1 with linespoints lw 2 ps 2
 0 7.0 
@@ -76,7 +76,7 @@ set size 0.8
 set output 'sweep_2_MPI_version=1.1_SCI.eps'
 set xtics (0,1,2,3,4)
 set xlabel "message size [byte]"
-set ylabel "halve of roundtrip latency [us]"
+set ylabel "halve of roundtrip latency [{/Symbol m}s]"
 set yrange [0:]
 plot '-' using 1:2 title 'MPI_{version} = 1.1, SCI' axes x1y1 with linespoints lw 2 ps 2
 0 3.0 

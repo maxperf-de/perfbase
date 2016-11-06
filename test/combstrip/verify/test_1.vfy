@@ -13,8 +13,8 @@
 set terminal postscript enhanced color "Helvetica" 12
 set output 'combstrip_1.ps'
 set title "Difference in Arrival Time"
-set xlabel "arrival time A [us]"
-set ylabel "arrival time B-arrival time A [us]"
+set xlabel "arrival time A [{/Symbol m}s]"
+set ylabel "arrival time B-arrival time A [{/Symbol m}s]"
 set grid ytics
 set key right
 plot '-' using 1:2 title '' axes x1y1 with linespoints lw 1 ps 1
@@ -41,8 +41,8 @@ e
 /gnudict 256 dict def
 gnudict begin
 %
-% The following 6 true/false flags may be edited by hand if required
-% The unit line width may also be changed
+% The following true/false flags may be edited by hand if desired.
+% The unit line width and grayscale image gamma correction may also be changed.
 %
 /Color true def
 /Blacktext false def
@@ -51,9 +51,13 @@ gnudict begin
 /Landscape true def
 /Level1 false def
 /Rounded false def
+/ClipToBoundingBox false def
+/SuppressPDFMark false def
 /TransparentPatterns false def
 /gnulinewidth 5.000 def
 /userlinewidth gnulinewidth def
+/Gamma 1.0 def
+/BackgroundColor {-1.000 -1.000 -1.000} def
 %
 /vshift -40 def
 /dl1 {
@@ -68,21 +72,16 @@ gnudict begin
 /vpt_ 31.5 def
 /hpt hpt_ def
 /vpt vpt_ def
-Level1 {} {
-/SDict 10 dict def
-systemdict /pdfmark known not {
-  userdict /pdfmark systemdict /cleartomark get put
-} if
-SDict begin [
-  /Title (combstrip_1.ps)
-  /Subject (gnuplot plot)
-%  /Producer (gnuplot)
-%  /Keywords ()
-  /DOCINFO pdfmark
-end
-} ifelse
+/doclip {
+  ClipToBoundingBox {
+    newpath 50 50 moveto 554 50 lineto 554 770 lineto 50 770 lineto closepath
+    clip
+  } if
+} def
 %
-% Gnuplot Prolog Version 4.2 (August 2006)
+% Gnuplot Prolog Version 4.6 (September 2012)
+%
+%/SuppressPDFMark true def
 %
 /M {moveto} bind def
 /L {lineto} bind def
@@ -92,6 +91,8 @@ end
 /Z {closepath} bind def
 /C {setrgbcolor} bind def
 /f {rlineto fill} bind def
+/g {setgray} bind def
+/Gshow {show} def   % May be redefined later in the file to support UTF-8
 /vpt2 vpt 2 mul def
 /hpt2 hpt 2 mul def
 /Lshow {currentpoint stroke M 0 vshift R 
@@ -112,6 +113,7 @@ end
 	dup 1 lt {pop 1} if 10 mul /udl exch def} def
 /PL {stroke userlinewidth setlinewidth
 	Rounded {1 setlinejoin 1 setlinecap} if} def
+3.8 setmiterlimit
 % Default Line colors
 /LCw {1 1 1} def
 /LCb {0 0 0} def
@@ -344,7 +346,8 @@ end
 /PatternFill {gsave /PFa [ 9 2 roll ] def
   PFa 0 get PFa 2 get 2 div add PFa 1 get PFa 3 get 2 div add translate
   PFa 2 get -2 div PFa 3 get -2 div PFa 2 get PFa 3 get Rec
-  gsave 1 setgray fill grestore clip
+  TransparentPatterns {} {gsave 1 setgray fill grestore} ifelse
+  clip
   currentlinewidth 0.5 mul setlinewidth
   /PFs PFa 2 get dup mul PFa 3 get dup mul add sqrt def
   0 0 M PFa 5 get rotate PFs -2 div dup translate
@@ -454,17 +457,18 @@ currentdict end definefont pop
      { 5 get 3 eq {gsave} {grestore} ifelse }
      {dup dup 0 get findfont exch 1 get scalefont setfont
      [ currentpoint ] exch dup 2 get 0 exch R dup 5 get 2 ne {dup dup 6
-     get exch 4 get {show} {stringwidth pop 0 R} ifelse }if dup 5 get 0 eq
+     get exch 4 get {Gshow} {stringwidth pop 0 R} ifelse }if dup 5 get 0 eq
      {dup 3 get {2 get neg 0 exch R pop} {pop aload pop M} ifelse} {dup 5
      get 1 eq {dup 2 get exch dup 3 get exch 6 get stringwidth pop -2 div
      dup 0 R} {dup 6 get stringwidth pop -2 div 0 R 6 get
      show 2 index {aload pop M neg 3 -1 roll neg R pop pop} {pop pop pop
      pop aload pop M} ifelse }ifelse }ifelse }
      ifelse }
-   forall} bind def
+   forall} def
+/Gswidth {dup type /stringtype eq {stringwidth} {pop (n) stringwidth} ifelse} def
 /MFwidth {0 exch { dup 5 get 3 ge { 5 get 3 eq { 0 } { pop } ifelse }
  {dup 3 get{dup dup 0 get findfont exch 1 get scalefont setfont
-     6 get stringwidth pop add} {pop} ifelse} ifelse} forall} bind def
+     6 get Gswidth pop add} {pop} ifelse} ifelse} forall} def
 /MLshow { currentpoint stroke M
   0 exch R
   Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
@@ -476,11 +480,26 @@ currentdict end definefont pop
   Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
 /XYsave    { [( ) 1 2 true false 3 ()] } bind def
 /XYrestore { [( ) 1 2 true false 4 ()] } bind def
+Level1 SuppressPDFMark or 
+{} {
+/SDict 10 dict def
+systemdict /pdfmark known not {
+  userdict /pdfmark systemdict /cleartomark get put
+} if
+SDict begin [
+  /Title (combstrip_1.ps)
+  /Subject (gnuplot plot)
+%  /Producer (gnuplot)
+%  /Keywords ()
+  /DOCINFO pdfmark
+end
+} ifelse
 end
 %%EndProlog
 %%Page: 1 1
 gnudict begin
 gsave
+doclip
 50 50 translate
 0.100 0.100 scale
 90 rotate
@@ -488,266 +507,308 @@ gsave
 0 setgray
 newpath
 (Helvetica) findfont 120 scalefont setfont
+BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {gsave BackgroundColor C clippath fill grestore} if
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 384 M
-6288 0 V
+LCa setrgbcolor
+588 384 M
+6395 0 V
 stroke
 LTb
-732 384 M
+LCb setrgbcolor
+588 384 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 384 M
+516 384 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 1100 M
-6288 0 V
+LCa setrgbcolor
+588 1100 M
+6395 0 V
 stroke
 LTb
-732 1100 M
+LCb setrgbcolor
+588 1100 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 1100 M
+516 1100 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.1)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 1816 M
-6288 0 V
+LCa setrgbcolor
+588 1816 M
+6395 0 V
 stroke
 LTb
-732 1816 M
+LCb setrgbcolor
+588 1816 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 1816 M
+516 1816 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.2)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 2532 M
-6288 0 V
+LCa setrgbcolor
+588 2532 M
+6395 0 V
 stroke
 LTb
-732 2532 M
+LCb setrgbcolor
+588 2532 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 2532 M
+516 2532 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.3)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 3248 M
-6288 0 V
+LCa setrgbcolor
+588 3247 M
+6395 0 V
 stroke
 LTb
-732 3248 M
+LCb setrgbcolor
+588 3247 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 3248 M
+516 3247 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.4)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 3964 M
-6288 0 V
+LCa setrgbcolor
+588 3963 M
+6395 0 V
 stroke
 LTb
-732 3964 M
+LCb setrgbcolor
+588 3963 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 3964 M
+516 3963 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.5)]
 ] -40.0 MRshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTa
-732 4680 M
-6288 0 V
+LCa setrgbcolor
+588 4679 M
+6395 0 V
 stroke
 LTb
-732 4680 M
+LCb setrgbcolor
+588 4679 M
 63 0 V
-6225 0 R
+6332 0 R
 -63 0 V
 stroke
-660 4680 M
+516 4679 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 0.6)]
 ] -40.0 MRshow
 1.000 UL
 LTb
-732 384 M
+LCb setrgbcolor
+588 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-732 264 M
+588 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 1)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-1630 384 M
+LCb setrgbcolor
+1502 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-1630 264 M
+1502 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 1.5)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-2529 384 M
+LCb setrgbcolor
+2415 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-2529 264 M
+2415 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 2)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-3427 384 M
+LCb setrgbcolor
+3329 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-3427 264 M
+3329 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 2.5)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-4325 384 M
+LCb setrgbcolor
+4242 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-4325 264 M
+4242 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 3)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-5223 384 M
+LCb setrgbcolor
+5156 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-5223 264 M
+5156 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 3.5)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-6122 384 M
+LCb setrgbcolor
+6069 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-6122 264 M
+6069 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 4)]
 ] -40.0 MCshow
 1.000 UL
 LTb
-7020 384 M
+LCb setrgbcolor
+6983 384 M
 0 63 V
-0 4233 R
+0 4232 R
 0 -63 V
 stroke
-7020 264 M
+6983 264 M
 [ [(Helvetica) 120.0 0.0 true true 0 ( 4.5)]
 ] -40.0 MCshow
 1.000 UL
 LTb
+LCb setrgbcolor
 1.000 UL
 LTb
-732 4680 N
-732 384 L
-6288 0 V
-0 4296 V
--6288 0 V
+LCb setrgbcolor
+588 4679 N
+588 384 L
+6395 0 V
+0 4295 V
+-6395 0 V
 Z stroke
 LCb setrgbcolor
-240 2532 M
-currentpoint gsave translate 90 rotate 0 0 moveto
-[ [(Helvetica) 120.0 0.0 true true 0 (arrival time B-arrival time A [us])]
+96 2531 M
+currentpoint gsave translate -270 rotate 0 0 moveto
+[ [(Helvetica) 120.0 0.0 true true 0 (arrival time B-arrival time A [)]
+[(Symbol) 120.0 0.0 true true 0 (m)]
+[(Helvetica) 120.0 0.0 true true 0 (s])]
 ] -40.0 MCshow
 grestore
 LTb
 LCb setrgbcolor
-3876 84 M
-[ [(Helvetica) 120.0 0.0 true true 0 (arrival time A [us])]
+3785 84 M
+[ [(Helvetica) 120.0 0.0 true true 0 (arrival time A [)]
+[(Symbol) 120.0 0.0 true true 0 (m)]
+[(Helvetica) 120.0 0.0 true true 0 (s])]
 ] -40.0 MCshow
 LTb
-3876 4860 M
+3785 4859 M
 [ [(Helvetica) 120.0 0.0 true true 0 (Difference in Arrival Time)]
 ] -40.0 MCshow
 1.000 UP
 1.000 UL
 LTb
+LCb setrgbcolor
+% Begin plot #1
 1.000 UP
 1.000 UL
 LT0
-732 384 M
-180 716 V
-179 716 V
-1977 716 V
-179 716 V
-4505 1100 L
-179 716 V
-719 2864 V
-6661 2532 L
-179 716 V
-180 716 V
-732 384 Pls
-912 1100 Pls
-1091 1816 Pls
-3068 2532 Pls
-3247 3248 Pls
-4505 1100 Pls
-4684 1816 Pls
-5403 4680 Pls
-6661 2532 Pls
-6840 3248 Pls
-7020 3964 Pls
+LC0 setrgbcolor
+588 384 M
+183 716 V
+182 716 V
+2010 715 V
+183 716 V
+4425 1100 L
+183 716 V
+731 2863 V
+6618 2531 L
+182 716 V
+183 716 V
+588 384 Pls
+771 1100 Pls
+953 1816 Pls
+2963 2531 Pls
+3146 3247 Pls
+4425 1100 Pls
+4608 1816 Pls
+5339 4679 Pls
+6618 2531 Pls
+6800 3247 Pls
+6983 3963 Pls
+% End plot #1
 1.000 UL
 LTb
-732 4680 N
-732 384 L
-6288 0 V
-0 4296 V
--6288 0 V
+LCb setrgbcolor
+588 4679 N
+588 384 L
+6395 0 V
+0 4295 V
+-6395 0 V
 Z stroke
 1.000 UP
 1.000 UL
 LTb
+LCb setrgbcolor
 stroke
 grestore
 end
 showpage
 %%Trailer
-%%DocumentFonts: Helvetica
+%%DocumentFonts: Symbol Helvetica
 %%Pages: 1
